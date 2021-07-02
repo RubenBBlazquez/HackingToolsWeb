@@ -1,0 +1,72 @@
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link type="text/css" href="{% static 'vendor/bootstrap/css/bootstrap.css'%}" rel="stylesheet">
+  <link type="text/css" href="{% static 'vendor/bootstrap/css/style.css'%}" rel="stylesheet">
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+  <title>Hacking Tools</title>
+
+</head>
+
+<body id="body-pd">
+
+    <div class="wrapper d-flex align-items-stretch">
+			<nav id="sidebar">
+	  		<div class="img bg-wrap text-center py-4" style="background-image: url({% static 'images/bg_1.jpg' %});">
+	  			<div class="user-logo">
+	  				<div class="img" style="background-image: url({% static 'images/logo.jpg' %});"></div>
+	  				<h3>Catriona Henderson</h3>
+	  			</div>
+	  		</div>
+        <ul class="list-unstyled components mb-5">
+          <li class="active">
+            <a href="#"><span class="fa fa-home mr-3"></span> Home</a>
+          </li>
+          <li>
+              <a href="#"><span class="fa fa-download mr-3 notif"><small class="d-flex align-items-center justify-content-center">5</small></span> Download</a>
+          </li>
+          <li>
+            <a href="#"><span class="fa fa-gift mr-3"></span> Gift Code</a>
+          </li>
+          <li>
+            <a href="#"><span class="fa fa-trophy mr-3"></span> Top Review</a>
+          </li>
+          <li>
+            <a href="#"><span class="fa fa-cog mr-3"></span> Settings</a>
+          </li>
+          <li>
+            <a href="#"><span class="fa fa-support mr-3"></span> Support</a>
+          </li>
+          <li>
+            <a href="#"><span class="fa fa-sign-out mr-3"></span> Sign Out</a>
+          </li>
+        </ul>
+
+    	</nav>
+        <div class="">
+            <button id="sidebarCollapse" class="btn btn-outline-dark rounded-bottom"><i class="fas fa-bars"></i></button>
+        </div>
+
+
+        <!-- Page Content  -->
+      <div id="content" class="p-4 p-md-5 pt-5">
+          {% block content %}
+
+        {% endblock %}
+      </div>
+		</div>
+
+    <script src="{% static 'vendor/bootstrap/js/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/popper.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
+</body>
+
+</html>
