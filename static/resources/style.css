@@ -1,0 +1,30 @@
+@font-face {
+    font-family: chelsea;
+    src: url(../fonts/chelsea.ttf);
+}
+
+.chelsea_font{
+    font-family: chelsea;
+}
+
+@font-face {
+    font-family: black_ops;
+    src: url(../fonts/black_ops.ttf);
+}
+
+.black_ops_font{
+    font-family: black_ops;
+}
+
+.bg-gray{
+    background-color:#1D1C1C !important;
+}
+.bg-black-dark{
+    background-color:#161515 !important;
+}
+.bg-blue-dark{
+    background-color:#2649B3 !important;
+}
+.text-blue-dark{
+    color: #2649B3;
+}

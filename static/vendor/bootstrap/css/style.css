@@ -2431,6 +2431,29 @@ fieldset:disabled a.btn {
       -webkit-box-shadow: 0 0 0 0.2rem rgba(248, 249, 250, 0.5);
       box-shadow: 0 0 0 0.2rem rgba(248, 249, 250, 0.5); }
 
+.btn-outline-blue-dark {
+  color: #2649B3;
+  border-color: #2649B3; }
+  .btn-outline-blue-dark:hover {
+    color: #ffffff;
+    background-color: #2649B3;
+    border-color: #2649B3; }
+  .btn-outline-blue-dark:focus, .btn-outline-blue-dark.focus {
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5); }
+  .btn-outline-blue-dark.disabled, .bbtn-outline-blue-dark:disabled {
+    color: #2649B3;
+    background-color: transparent; }
+  .btn-outline-blue-dark:not(:disabled):not(.disabled):active, .btn-outline-blue-dark:not(:disabled):not(.disabled).active,
+  .show > .btn-outline-blue-dark.dropdown-toggle {
+    color: #ffffff;
+    background-color: #2649B3;
+    border-color: #2649B3; }
+    .btn-outline-blue-dark:not(:disabled):not(.disabled):active:focus, .btn-outline-blue-dark:not(:disabled):not(.disabled).active:focus,
+    .show > .btn-outline-blue-dark.dropdown-toggle:focus {
+      -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5);
+      box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5); }
+
 .btn-outline-dark {
   color: #343a40;
   border-color: #343a40; }
@@ -8003,7 +8026,7 @@ a.text-secondary:hover, a.text-secondary:focus {
   color: #494f54 !important; }
 
 .text-success {
-  color: #28a745 !important; }
+  color: #2EB74E !important; }
 
 a.text-success:hover, a.text-success:focus {
   color: #19692c !important; }
@@ -8235,13 +8258,13 @@ h1, h2, h3, h4, h5,
           font-size: 8px; }
       #sidebar ul li a:hover {
         color: #fff;
-        background: #2f89fc;
+        background: #2649B3;
         border-bottom: 1px solid #2f89fc; }
     #sidebar ul li.active > a {
       background: transparent;
       color: #fff; }
       #sidebar ul li.active > a:hover {
-        background: #2f89fc;
+        background: #2649B3;
         border-bottom: 1px solid #2f89fc; }
   @media (max-width: 991.98px) {
     #sidebar {

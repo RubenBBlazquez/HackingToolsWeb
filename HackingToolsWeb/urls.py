@@ -14,9 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url
 from HomePage import views as hp
+from WebScraping import views as ws
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', hp.home,name="homePage"),
+    url(r'^admin/$', admin.site.urls),
+    url(r'^$', hp.home, name="homePage"),
+    url(r'^webScraping/$', ws.WebScrapingPage, name="WebScraping"),
+    url(r'^scrapWeb/$', ws.WebScrapingAction, name="WebScraping"),
 ]
