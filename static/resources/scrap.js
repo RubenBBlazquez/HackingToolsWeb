@@ -45,27 +45,26 @@ scrapButton.addEventListener("click",()=>{
     }
     let data = {"url":urlToScrap.value,"tags":tags}
 
-    fetchDataFromWebScrapApi("POST",data).then(()=>{
-        console.log("response --> "+response.h1)
-        for (const t of datalist) {
-            console.log("--> "+response[t.value])
-            if (response[t.value] !== undefined){
-                console.log("--> "+response[t.value])
-                let th = document.createElement("th");
-                th.scope = "col"
-                document.getElementById("nameTagsFiltered").appendChild(th)
+    fetchDataFromWebScrapApi("POST",data).then((data)=>{
+        console.log("response 2--> "+data["h1"])
 
+        let i = 0;
+
+        for (const t of datalist) {
+            console.log("--> "+data[t.value])
+            if (data[t.value] !== undefined){
+                i++;
                 let tr = document.createElement("tr");
                 let thRow = document.createElement("th");
                 thRow.scope="row";
-                thRow.textContent = data[t.value];
+                thRow.textContent = i;
 
                 let td = document.createElement("td");
-                td.textContent = data[t.value][0].join(",");
+                td.textContent = t.value;
                 tr.appendChild(thRow);
                 tr.appendChild(td);
                 td.scope = "col"
-                document.getElementById("dataTagsFiltered").appendChild(th)
+                document.getElementById("dataTagsFiltered").appendChild(tr)
 
             }
         }
@@ -106,13 +105,14 @@ function fetchDataFromWebScrapApi(methodToUse, data) {
                         option.setAttribute("class","col-12")
                         document.getElementById("datalistOptions").appendChild(option)
                     }
+                    resolve()
                     console.log(data)
                 } else if (methodToUse === 'POST') {
-                    console.log("POST --> "+data)
+                    console.log("POST --> "+data['h1'])
                     response = data;
+                    resolve(data)
                 }
 
-                resolve()
             })
         })
         .catch(error =>{
