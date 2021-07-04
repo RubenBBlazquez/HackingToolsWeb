@@ -2439,20 +2439,20 @@ fieldset:disabled a.btn {
     background-color: #2649B3;
     border-color: #2649B3; }
   .btn-outline-blue-dark:focus, .btn-outline-blue-dark.focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5);
-    box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5); }
-  .btn-outline-blue-dark.disabled, .bbtn-outline-blue-dark:disabled {
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 250, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(28, 61, 250, 0.5); }
+  .btn-outline-blue-dark.disabled, .btn-outline-blue-dark:disabled {
     color: #2649B3;
     background-color: transparent; }
   .btn-outline-blue-dark:not(:disabled):not(.disabled):active, .btn-outline-blue-dark:not(:disabled):not(.disabled).active,
-  .show > .btn-outline-blue-dark.dropdown-toggle {
+  .show > .btn-outline-light.dropdown-toggle {
     color: #ffffff;
     background-color: #2649B3;
     border-color: #2649B3; }
     .btn-outline-blue-dark:not(:disabled):not(.disabled):active:focus, .btn-outline-blue-dark:not(:disabled):not(.disabled).active:focus,
     .show > .btn-outline-blue-dark.dropdown-toggle:focus {
-      -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5);
-      box-shadow: 0 0 0 0.2rem rgba(28, 61, 161, 0.5); }
+      -webkit-box-shadow: 0 0 0 0.2rem rgba(28, 61, 250, 0.5);
+      box-shadow: 0 0 0 0.2rem rgba(28, 61, 250, 0.5); }
 
 .btn-outline-dark {
   color: #343a40;
@@ -8026,7 +8026,7 @@ a.text-secondary:hover, a.text-secondary:focus {
   color: #494f54 !important; }
 
 .text-success {
-  color: #2EB74E !important; }
+  color: #28a745 !important; }
 
 a.text-success:hover, a.text-success:focus {
   color: #19692c !important; }
@@ -8343,10 +8343,6 @@ a[data-toggle="collapse"] {
   -ms-transform: translateY(-50%);
   transform: translateY(-50%); }
 
-@media (max-width: 991.98px) {
-  #sidebarCollapse {
-    display: none; }}
-
 #content {
   width: 100%;
   padding: 0;
@@ -8378,16 +8374,16 @@ a[data-toggle="collapse"] {
     border-color: #000; }
   .form-control::-webkit-input-placeholder {
     /* Chrome/Opera/Safari */
-    color: rgba(255, 255, 255, 0.5); }
+    color: #6c757d; }
   .form-control::-moz-placeholder {
     /* Firefox 19+ */
-    color: rgba(255, 255, 255, 0.5); }
+    color: #6c757d; }
   .form-control:-ms-input-placeholder {
     /* IE 10+ */
-    color: rgba(255, 255, 255, 0.5); }
+    color: #6c757d; }
   .form-control:-moz-placeholder {
     /* Firefox 18- */
-    color: rgba(255, 255, 255, 0.5); }
+    color: #6c757d; }
 
 .subscribe-form .form-control {
   background: #4897fc; }
