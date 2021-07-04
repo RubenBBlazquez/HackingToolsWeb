@@ -19,8 +19,7 @@ from HomePage import views as hp
 from WebScraping import views as ws
 
 urlpatterns = [
-    url(r'^admin/$', admin.site.urls),
     url(r'^$', hp.home, name="homePage"),
     url(r'^webScraping/$', ws.WebScrapingPage, name="WebScraping"),
-    url(r'^scrapWeb/$', ws.WebScrapingAction, name="WebScraping"),
+    url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
 ]
