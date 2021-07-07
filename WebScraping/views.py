@@ -35,14 +35,14 @@ class WebScrapingAction(APIView):
         html = BeautifulSoup(response.text, 'html.parser')
 
         print(body)
+
         html_tag_wordlist = {}
         if body['tags']:
             html_tag_wordlist['tags'] = body['tags']
         else:
             html_tag_wordlist = json.load(open(file_path, "r"))
 
-        serie = pd.Series(index=html_tag_wordlist['tags'])
-        print(serie)
+        data = dict()
 
         for i in html_tag_wordlist['tags']:
             quotes_html = html.find_all(i)
@@ -50,10 +50,8 @@ class WebScrapingAction(APIView):
             for tag in quotes_html:
                 tagsList.append(str(tag))
 
-            serie[i] = tagsList
+            data[i] = tagsList
 
-        dataframe = pd.DataFrame(serie, dtype=np.object_)
-        dataframe.to_csv("data.csv", sep=",")
-        array = dataframe.to_dict()
-        print(array[0])
-        return JsonResponse(array[0], safe=False)
+        print(data)
+
+        return JsonResponse(data, safe=False)

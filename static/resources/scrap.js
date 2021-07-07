@@ -2,24 +2,28 @@ let scrapButton = document.getElementById("scrapButton")
 let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
 let response = {};
-dropdown.addEventListener('change', function(event) {
+
+dropdown.addEventListener('keyup', async (event) =>{
+    let target = event.target.value;
+    let datalist = document.getElementsByTagName('option');
+    for (let i = 0; i < datalist.length; i++) {
+        if(target === datalist[i].value){
+            addTagElementToTagsList(datalist[i].value);
+            break;
+        }
+    }
+});
+dropdown.addEventListener('change', (event) => {
           let target = event.target.value;
           let datalist = document.getElementsByTagName('option');
           timer = setTimeout(() =>{
               for (let i = 0; i < datalist.length; i++) {
-                  if (datalist[i].value === target) {
-                      if(!isTagAlreadyAdded(datalist[i].value)){
-                          let actualValue = document.getElementById('tagsToScrap').value;
-                          actualValue = actualValue + datalist[i].value + ","
-                          console.log(actualValue)
-                          document.getElementById('tagsToScrap').value = actualValue;
-                      }else{
-                          toastr.error('Tag Already Added','the tag cant be added the same 2 times')
-                      }
-                       break;
-                  }
+                  if(target === datalist[i].value){
+                    addTagElementToTagsList(datalist[i].value);
+                    break;
+                 }
               }
-          }, 1);
+          }, 0);
       });
 
 dropdown.addEventListener('blur', function(e) {
@@ -34,19 +38,21 @@ document.addEventListener("DOMContentLoaded",()=>{
 scrapButton.addEventListener("click",()=>{
 
     let urlToScrap = document.getElementById("urlToScrap");
-    let tags = document.getElementById("tagsToScrap").value;
+    let tags = document.getElementById("tagsToScrap");
     let datalist = document.getElementsByTagName('option');
+    let classNames = document.getElementById("classNames") || "";
+    let idNames = document.getElementById("idNames") || "";
+    let checkbox = document.getElementById("combine_search");
 
-    if (tags.indexOf(",") !== -1){
-        tags = tags.substr(0,tags.length-1);
-        tags = tags.split(",");
-    }else{
-        tags = [];
-    }
-    let data = {"url":urlToScrap.value,"tags":tags}
+    tags = getArrayFromStringSeparatedByComas(tags.value);
+    classNames = getArrayFromStringSeparatedByComas(classNames.value);
+    idNames = getArrayFromStringSeparatedByComas(idNames.value);
+
+    let data = {"url":urlToScrap.value,"tags":tags,"combineData":checkbox.checked,"classNames":classNames,"idNames":idNames}
 
     fetchDataFromWebScrapApi("POST",data).then((data)=>{
         console.log("response 2--> "+data["h1"])
+        document.getElementById("dataTagsFiltered").innerHTML="";
 
         let i = 0;
 
@@ -57,14 +63,26 @@ scrapButton.addEventListener("click",()=>{
                 let tr = document.createElement("tr");
                 let thRow = document.createElement("th");
                 thRow.scope="row";
+                thRow.setAttribute("class","text-center");
                 thRow.textContent = i;
 
                 let td = document.createElement("td");
+                td.setAttribute("class","text-center");
                 td.textContent = t.value;
                 tr.appendChild(thRow);
                 tr.appendChild(td);
-                td.scope = "col"
-                document.getElementById("dataTagsFiltered").appendChild(tr)
+                td.scope = "col";
+
+                let tdData = document.createElement("td");
+                tdData.setAttribute("class","text-center");
+                tdData.textContent= data[t.value].join(",");
+                tdData.scope = "col"
+                tr.appendChild(tdData);
+
+
+                console.log(tr)
+
+                document.getElementById("dataTagsFiltered").appendChild(tr);
 
             }
         }
@@ -136,5 +154,39 @@ function isTagAlreadyAdded(tag){
         }
     }else{
         return false;
+    }
+}
+
+
+function getArrayFromStringSeparatedByComas(data = ""){
+
+    if (data.indexOf(",") !== -1){
+        data = data.substr(0,data.length-1);
+        data = data.split(",");
+    }else{
+        data = [];
+    }
+
+    return data;
+}
+
+function addTagElementToTagsList(value){
+    if(!isTagAlreadyAdded(value)){
+        let actualValue = document.getElementById('tagsToScrap').value;
+        actualValue = actualValue + value + ","
+        console.log(actualValue)
+        document.getElementById('tagsToScrap').value = actualValue;
+        if (value === "class" || value === "id"){
+            let input = document.createElement("input");
+            input.setAttribute("class","form-control chelsea_font text-center col-11 mt-3")
+            input.setAttribute("type","text");
+            input.setAttribute("id",value+"Names");
+            input.setAttribute("placeholder","Write the "+value+" Names , separated by comas")
+            input.setAttribute("required","true");
+            document.getElementById("auxContainer").appendChild(input);
+            document.getElementById("checkCombineTags").setAttribute("class","input-group mb-3 mt-3 col-11")
+        }
+    }else{
+        toastr.error('Tag Already Added','the tag cant be added the same 2 times')
     }
 }

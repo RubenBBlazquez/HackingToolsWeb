@@ -28,6 +28,21 @@
                       <input type="text" class="form-control chelsea_font ml-1 col-6 text-dark text-center" id="tagsToScrap" value placeholder="Tags to filter and scrap to the url defined">
 
                   </div>
+
+                  <div id="auxContainer" class="row col-12 d-flex justify-content-center">
+
+                  </div>
+                  <div class="d-flex justify-content-center row col-12" >
+                      <div class="input-group mb-3 mt-3 col-11 d-none" id="checkCombineTags">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input type="checkbox" class="" id="combine_search" name="combine_search" aria-label="Checkbox for following text input">
+                            </div>
+                          </div>
+                          <input type="text" class="form-control chelsea_font" value="Combine tags with classes and id's. Ex(tags <a> with class=hi)" disabled>
+                      </div>
+                  </div>
+
             <div class="row col-11 mt-2">
                 <button id="scrapButton" class="col-12 btn btn-outline-success text-light mt-3">Scrap Web</button>
                 <button id="scrapButton" class="col-12 btn btn-outline-success text-light mt-3">Reset Data</button>
@@ -41,9 +56,9 @@
             <table class="table table-dark table-striped">
                 <thead>
                     <tr id="nameTagsFiltered">
-                        <th scope="col">X</th>
-                        <th scope="col">Tags</th>
-                        <th scope="col">Data</th>
+                        <th scope="col" class="text-center">X</th>
+                        <th scope="col" class="text-center">Tags</th>
+                        <th scope="col" class="text-center">Data</th>
                     </tr>
                   </thead>
                   <tbody id="dataTagsFiltered">
