@@ -33,7 +33,6 @@ class WebScrapingAction(APIView):
         body = json.loads(body_unicode)
         response = requests.get(body['url'])
         html = BeautifulSoup(response.text, 'html.parser')
-
         print(body)
 
         html_tag_wordlist = {}
@@ -45,12 +44,29 @@ class WebScrapingAction(APIView):
         data = dict()
 
         for i in html_tag_wordlist['tags']:
-            quotes_html = html.find_all(i)
-            tagsList = []
-            for tag in quotes_html:
-                tagsList.append(str(tag))
+            tags_list = []
+            find_all = True
+            if body['class']:
+                for cl in body['class']:
+                    quotes_html = html.find_all(i, attrs={"class": cl})
+                    for tag in quotes_html:
+                        tags_list.append(str(tag))
+                    data[cl] = tags_list
 
-            data[i] = tagsList
+            if body['id']:
+                for id in body['id']:
+                    quotes_html = html.find_all(i, attrs={"id": id})
+                    for tag in quotes_html:
+                        tags_list.append(str(tag))
+                    data[id] = tags_list
+
+            if find_all:
+                quotes_html = html.find_all(i)
+
+                for tag in quotes_html:
+                    tags_list.append(str(tag))
+
+                data[i] = tags_list
 
         print(data)
 

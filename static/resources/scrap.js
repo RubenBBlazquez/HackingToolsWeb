@@ -42,16 +42,15 @@ scrapButton.addEventListener("click",()=>{
     let datalist = document.getElementsByTagName('option');
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
-    let checkbox = document.getElementById("combine_search");
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
     idNames = getArrayFromStringSeparatedByComas(idNames.value);
 
-    let data = {"url":urlToScrap.value,"tags":tags,"combineData":checkbox.checked,"classNames":classNames,"idNames":idNames}
+    let data = {"url":urlToScrap.value,"tags":tags,"class":classNames,"id":idNames}
 
     fetchDataFromWebScrapApi("POST",data).then((data)=>{
-        console.log("response 2--> "+data["h1"])
+
         document.getElementById("dataTagsFiltered").innerHTML="";
 
         let i = 0;
@@ -60,32 +59,23 @@ scrapButton.addEventListener("click",()=>{
             console.log("--> "+data[t.value])
             if (data[t.value] !== undefined){
                 i++;
-                let tr = document.createElement("tr");
-                let thRow = document.createElement("th");
-                thRow.scope="row";
-                thRow.setAttribute("class","text-center");
-                thRow.textContent = i;
-
-                let td = document.createElement("td");
-                td.setAttribute("class","text-center");
-                td.textContent = t.value;
-                tr.appendChild(thRow);
-                tr.appendChild(td);
-                td.scope = "col";
-
-                let tdData = document.createElement("td");
-                tdData.setAttribute("class","text-center");
-                tdData.textContent= data[t.value].join(",");
-                tdData.scope = "col"
-                tr.appendChild(tdData);
-
-
-                console.log(tr)
-
-                document.getElementById("dataTagsFiltered").appendChild(tr);
-
+                addElementScrapped(i,t.value,data[t.value]);
             }
         }
+
+        if (data['class'].length > 0){
+            for (const c of data['class']) {
+                console.log(c);
+            }
+        }
+
+        if (data['id'].length > 0){
+            for (const i of data['id']) {
+                console.log(i);
+            }
+        }
+
+
         //document.getElementById("nameTagsFiltered").appendChild()
     });
 
@@ -184,9 +174,35 @@ function addTagElementToTagsList(value){
             input.setAttribute("placeholder","Write the "+value+" Names , separated by comas")
             input.setAttribute("required","true");
             document.getElementById("auxContainer").appendChild(input);
-            document.getElementById("checkCombineTags").setAttribute("class","input-group mb-3 mt-3 col-11")
         }
     }else{
         toastr.error('Tag Already Added','the tag cant be added the same 2 times')
     }
+}
+
+
+function addElementScrapped(index,tag,data){
+    let tr = document.createElement("tr");
+                let thRow = document.createElement("th");
+                thRow.scope="row";
+                thRow.setAttribute("class","text-center");
+                thRow.textContent = index;
+
+                let td = document.createElement("td");
+                td.setAttribute("class","text-center");
+                td.textContent = tag;
+                tr.appendChild(thRow);
+                tr.appendChild(td);
+                td.scope = "col";
+
+                let tdData = document.createElement("td");
+                tdData.setAttribute("class","text-center");
+                tdData.textContent= data.join(",");
+                tdData.scope = "col"
+                tr.appendChild(tdData);
+
+
+                console.log(tr)
+
+                document.getElementById("dataTagsFiltered").appendChild(tr);
 }
