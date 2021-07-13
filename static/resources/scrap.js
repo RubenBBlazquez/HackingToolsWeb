@@ -50,7 +50,7 @@ scrapButton.addEventListener("click",()=>{
     let data = {"url":urlToScrap.value,"tags":tags,"class":classNames,"id":idNames}
 
     fetchDataFromWebScrapApi("POST",data).then((data)=>{
-
+        console.log("DATA - "+data);
         document.getElementById("dataTagsFiltered").innerHTML="";
 
         let i = 0;
@@ -63,16 +63,13 @@ scrapButton.addEventListener("click",()=>{
             }
         }
 
-        if (data['class'].length > 0){
-            for (const c of data['class']) {
+
+            for (const c of data['class'] || []) {
                 console.log(c);
             }
-        }
 
-        if (data['id'].length > 0){
-            for (const i of data['id']) {
+            for (const i of data['id'] || []) {
                 console.log(i);
-            }
         }
 
 
@@ -116,9 +113,9 @@ function fetchDataFromWebScrapApi(methodToUse, data) {
                     resolve()
                     console.log(data)
                 } else if (methodToUse === 'POST') {
-                    console.log("POST --> "+data['h1'])
+                    console.log("POST --> "+data)
                     response = data;
-                    resolve(data)
+                    resolve(data);
                 }
 
             })
