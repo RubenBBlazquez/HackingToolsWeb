@@ -1,7 +1,7 @@
 let scrapButton = document.getElementById("scrapButton")
 let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
-let response = {};
+let response_tags_data = {};
 
 dropdown.addEventListener('keyup', async (event) =>{
     let target = event.target.value;
@@ -13,6 +13,7 @@ dropdown.addEventListener('keyup', async (event) =>{
         }
     }
 });
+
 dropdown.addEventListener('change', (event) => {
           let target = event.target.value;
           let datalist = document.getElementsByTagName('option');
@@ -29,19 +30,30 @@ dropdown.addEventListener('change', (event) => {
 dropdown.addEventListener('blur', function(e) {
       clearTimeout(timer);
   });
-document.addEventListener("DOMContentLoaded",()=>{
-    fetchDataFromWebScrapApi("GET", {}).then(()=>{
-        console.log("tags data , fetched succesfully")
-    })
-})
+
+document.addEventListener("DOMContentLoaded",()=> {
+    fetchDataFromWebScrapApi("GET", {})
+        .then(response => {
+            response.json()
+                .then((data) => {
+                    for (const i of data['tags']) {
+                        let option = document.createElement("option");
+                        option.setAttribute("value", i);
+                        option.text = i;
+                        option.setAttribute("class", "col-12")
+                        document.getElementById("datalistOptions").appendChild(option)
+                    }
+                })
+        });
+});
 
 scrapButton.addEventListener("click",()=>{
 
     let urlToScrap = document.getElementById("urlToScrap");
     let tags = document.getElementById("tagsToScrap");
-    let datalist = document.getElementsByTagName('option');
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
+    let tagsFiltered = document.getElementById("dataTagsFiltered");
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
@@ -49,38 +61,23 @@ scrapButton.addEventListener("click",()=>{
 
     let data = {"url":urlToScrap.value,"tags":tags,"class":classNames,"id":idNames}
 
-    fetchDataFromWebScrapApi("POST",data).then((data)=>{
-        console.log("DATA - "+data);
-        document.getElementById("dataTagsFiltered").innerHTML="";
-
-        let i = 0;
-
-        for (const t of datalist) {
-            console.log("--> "+data[t.value])
-            if (data[t.value] !== undefined){
-                i++;
-                addElementScrapped(i,t.value,data[t.value]);
-            }
-        }
-
-
-            for (const c of data['class'] || []) {
-                console.log(c);
-            }
-
-            for (const i of data['id'] || []) {
-                console.log(i);
-        }
-
-
-        //document.getElementById("nameTagsFiltered").appendChild()
-    });
-
+    fetchDataFromWebScrapApi("POST", data)
+        .then((response)=>{
+            response.json()
+                .then((data)=>{
+                    let i = 0;
+                    tagsFiltered.innerHTML="";
+                    for (const tag of Object.keys(data.tags[0])) {
+                        i++;
+                        addElementScrapped(i,tag,data.tags[0])
+                    }
+                })
+        });
 })
 
 function fetchDataFromWebScrapApi(methodToUse, data) {
-    return new Promise((resolve,reject)=>{
-        let init = {}
+
+    let init = {}
     if(methodToUse === "GET"){
         init = {
             method: methodToUse, // or 'PUT'
@@ -98,33 +95,10 @@ function fetchDataFromWebScrapApi(methodToUse, data) {
             },
         }
     }
-    fetch(url + "/scrapWebApi/", init)
-        .then(response => {
-            console.log('Success:', response)
-            response.json().then((data) => {
-                if (methodToUse === 'GET') {
-                    for (const i of data['tags']) {
-                        let option = document.createElement("option");
-                        option.setAttribute("value",i);
-                        option.text = i;
-                        option.setAttribute("class","col-12")
-                        document.getElementById("datalistOptions").appendChild(option)
-                    }
-                    resolve()
-                    console.log(data)
-                } else if (methodToUse === 'POST') {
-                    console.log("POST --> "+data)
-                    response = data;
-                    resolve(data);
-                }
-
+    return fetch(url + "/scrapWebApi/", init)
+            .catch(error =>{
+                console.error('Error:', error)
             })
-        })
-        .catch(error =>{
-             console.error('Error:', error)
-            reject()
-        })
-    })
 }
 
 function isTagAlreadyAdded(tag){
@@ -135,7 +109,7 @@ function isTagAlreadyAdded(tag){
         tags = tags.split(",");
 
         for (const t of tags) {
-            if(t == tag){
+            if(t === tag){
                 return true;
             }
         }
@@ -179,27 +153,27 @@ function addTagElementToTagsList(value){
 
 
 function addElementScrapped(index,tag,data){
-    let tr = document.createElement("tr");
-                let thRow = document.createElement("th");
-                thRow.scope="row";
-                thRow.setAttribute("class","text-center");
-                thRow.textContent = index;
+    const tr = document.createElement('tr');
+    const thRow = document.createElement('th');
+    thRow.scope='row';
+    thRow.setAttribute('class','text-center');
+    thRow.textContent = index;
 
-                let td = document.createElement("td");
-                td.setAttribute("class","text-center");
-                td.textContent = tag;
-                tr.appendChild(thRow);
-                tr.appendChild(td);
-                td.scope = "col";
+    const td = document.createElement('td');
+    td.setAttribute('class','text-center');
+    td.textContent = tag;
+    tr.appendChild(thRow);
+    tr.appendChild(td);
+    td.scope = 'col';
 
-                let tdData = document.createElement("td");
-                tdData.setAttribute("class","text-center");
-                tdData.textContent= data.join(",");
-                tdData.scope = "col"
-                tr.appendChild(tdData);
+    const tdData = document.createElement('td');
+    tdData.setAttribute('class','text-center');
+    tdData.scope = 'col';
 
+    const i = document.createElement("i");
+    i.setAttribute("class","fas fa-book-open");
+    tdData.appendChild(i);
+    tr.appendChild(tdData);
 
-                console.log(tr)
-
-                document.getElementById("dataTagsFiltered").appendChild(tr);
+    document.getElementById('dataTagsFiltered').appendChild(tr);
 }

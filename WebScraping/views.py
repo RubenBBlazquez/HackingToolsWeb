@@ -33,7 +33,7 @@ class WebScrapingAction(APIView):
         body = json.loads(body_unicode)
         response = requests.get(body['url'])
         html = BeautifulSoup(response.text, 'html.parser')
-
+        compound_filter = False
         print(body)
 
         html_tag_wordlist = {}
@@ -45,40 +45,57 @@ class WebScrapingAction(APIView):
         data = dict()
 
         for i in html_tag_wordlist['tags']:
-            data[i] = []
-            find_all = True
-            if body['class']:
 
-                for cl in body['class']:
-                    print(i, '[class*="', cl, '"]')
-                    tags_list = []
-                    quotes_html = html.select(i + '[class*="' + cl + '"]')
-                    for tag in quotes_html:
-                        tags_list.append(str(tag))
+            if compound_filter:
 
-                    data[i] += tags_list
-                    print("-------------------", data[i])
-                    find_all = False
+                if i != 'class':
+                    self.getWebData(data, body['class'], html, i + '[class*="{item}"]', False)
 
-            if body['id']:
+                if i != 'id':
+                    self.getWebData(data, body['id'], html, i + '[id*="{item}"]', False)
 
-                for id in body['id']:
-                    quotes_html = html.find_all(i, attrs={"id": id})
-                    for tag in quotes_html:
-                        tags_list.append(str(tag))
-                    data[id] = tags_list
-                    find_all = False
+            else:
 
-            if find_all:
-                quotes_html = html.find_all(i)
+                self.getWebData(data, [i], html, i)
 
-                for tag in quotes_html:
-                    tags_list.append(str(tag))
+        if not compound_filter:
+            self.getWebData(data, body['class'], html, '[class*="{item}"]', False)
+            self.getWebData(data, body['id'], html, '[id*="{item}"]', False)
 
-                data[i] = tags_list
+        self.cleanEmptyDataDict(data)
+        tags_data = dict()
+        tags_data['tags'] = [data]
+        print(tags_data)
+        return JsonResponse(tags_data, safe=False)
 
-        print(data)
+    def getWebData(self, data_to_append=None, data_to_find=None, soup=None, select="", isTag=True):
+
+        if data_to_find and soup and data_to_append is not None:
+            for tag in data_to_find:
+                tags_list = []
+                find_select = select.replace("{item}", tag)
+                print(find_select)
+                quotes_html = soup.select(find_select)
+
+                for quote in quotes_html:
+                    tags_list.append(str(quote))
+
+                bracket_position = select.find("[") if select.find("[") != -1 else 0
+                tag_father = select[0:bracket_position]
+                type_tag = select[select.find('[') + 1:select.find('*')]
+
+                if isTag:
+                    data_to_append[tag] = tags_list
+                else:
+                    data_to_append[tag_father + '[' + type_tag + '=' + tag + ']'] = tags_list
 
 
+    def cleanEmptyDataDict(self, dictionary):
+        positions_to_delete = []
 
-        return JsonResponse(data, safe=False)
+        for key in dictionary.keys():
+            if not dictionary[key]:
+                positions_to_delete.append(key)
+
+        for position in positions_to_delete:
+            del dictionary[position]
