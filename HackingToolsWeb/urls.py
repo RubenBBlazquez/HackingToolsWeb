@@ -20,6 +20,6 @@ from WebScraping import views as ws
 
 urlpatterns = [
     url(r'^$', hp.home, name="homePage"),
-    url(r'^webScraping/$', ws.WebScrapingPage, name="WebScraping"),
+    url(r'^webScraping/$', ws.web_scraping_page, name="WebScraping"),
     url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
 ]

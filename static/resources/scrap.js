@@ -8,7 +8,7 @@ dropdown.addEventListener('keyup', async (event) =>{
     let datalist = document.getElementsByTagName('option');
     for (let i = 0; i < datalist.length; i++) {
         if(target === datalist[i].value){
-            addTagElementToTagsList(datalist[i].value);
+            addTagElementToTagsList(datalist[i].dataset.value);
             break;
         }
     }
@@ -17,19 +17,14 @@ dropdown.addEventListener('keyup', async (event) =>{
 dropdown.addEventListener('change', (event) => {
           let target = event.target.value;
           let datalist = document.getElementsByTagName('option');
-          timer = setTimeout(() =>{
               for (let i = 0; i < datalist.length; i++) {
                   if(target === datalist[i].value){
-                    addTagElementToTagsList(datalist[i].value);
+                    addTagElementToTagsList(datalist[i].dataset.value);
                     break;
                  }
               }
-          }, 0);
       });
 
-dropdown.addEventListener('blur', function(e) {
-      clearTimeout(timer);
-  });
 
 document.addEventListener("DOMContentLoaded",()=> {
     fetchDataFromWebScrapApi("GET", {})
@@ -38,8 +33,9 @@ document.addEventListener("DOMContentLoaded",()=> {
                 .then((data) => {
                     for (const i of data['tags']) {
                         let option = document.createElement("option");
-                        option.setAttribute("value", i);
-                        option.text = i;
+                        option.setAttribute("data-value", i.trim());
+                        option.setAttribute("value", i.trim().split("-")[0].trim());
+                        option.text = i.trim().split("-")[1].trim();
                         option.setAttribute("class", "col-12")
                         document.getElementById("datalistOptions").appendChild(option)
                     }
@@ -53,13 +49,17 @@ scrapButton.addEventListener("click",()=>{
     let tags = document.getElementById("tagsToScrap");
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
+    let words = document.getElementById("textNames") || "";
+    console.log(words);
     let tagsFiltered = document.getElementById("dataTagsFiltered");
+    const compoundFilter = document.getElementById("compoundFilter");
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
     idNames = getArrayFromStringSeparatedByComas(idNames.value);
+    words = getArrayFromStringSeparatedByComas(words.value);
 
-    let data = {"url":urlToScrap.value,"tags":tags,"class":classNames,"id":idNames}
+    let data = {"url":urlToScrap.value,"tags":tags,"attributes":{"class":classNames,"id":idNames},"word":words,"compoundFilter":compoundFilter.checked}
 
     fetchDataFromWebScrapApi("POST", data)
         .then((response)=>{
@@ -69,11 +69,11 @@ scrapButton.addEventListener("click",()=>{
                     tagsFiltered.innerHTML="";
                     for (const tag of Object.keys(data.tags[0])) {
                         i++;
-                        addElementScrapped(i,tag,data.tags[0])
+                        addElementScrapped(i,tag,data.tags[0][tag].length,data.tags[0])
                     }
-                })
+                });
         });
-})
+});
 
 function fetchDataFromWebScrapApi(methodToUse, data) {
 
@@ -137,14 +137,23 @@ function addTagElementToTagsList(value){
         actualValue = actualValue + value + ","
         console.log(actualValue)
         document.getElementById('tagsToScrap').value = actualValue;
-        if (value === "class" || value === "id"){
+        if (value.split("-")[0].trim() === "class" || value.split("-")[0].trim() === "id" || value.split("-")[0].trim() === "text"){
             let input = document.createElement("input");
             input.setAttribute("class","form-control chelsea_font text-center col-11 mt-3")
             input.setAttribute("type","text");
-            input.setAttribute("id",value+"Names");
-            input.setAttribute("placeholder","Write the "+value+" Names , separated by comas")
+            input.setAttribute("id",value.split("-")[0].trim()+"Names");
+            input.setAttribute("placeholder","Write the "+value.split("-")[0].trim()+" Names , separated by comas")
             input.setAttribute("required","true");
+
+            if(value.split("-")[0].trim() !== "text"){
+                input.setAttribute("placeholder","Write the "+value.split("-")[0].trim()+" Names , separated by comas")
+                document.getElementById("compoundFilterDiv").setAttribute("class","form-check form-switch row col-10 mt-3")
+            }else{
+                input.setAttribute("placeholder","Write the words you can find in the web , separated by comas")
+            }
+
             document.getElementById("auxContainer").appendChild(input);
+
         }
     }else{
         toastr.error('Tag Already Added','the tag cant be added the same 2 times')
@@ -152,7 +161,8 @@ function addTagElementToTagsList(value){
 }
 
 
-function addElementScrapped(index,tag,data){
+function addElementScrapped(index,tag,count,data){
+
     const tr = document.createElement('tr');
     const thRow = document.createElement('th');
     thRow.scope='row';
@@ -166,13 +176,27 @@ function addElementScrapped(index,tag,data){
     tr.appendChild(td);
     td.scope = 'col';
 
+    const tdCount = document.createElement('td');
+    tdCount.textContent = count;
+    tdCount.setAttribute('class','text-center');
+    tdCount.scope = 'col';
+    tr.appendChild(tdCount);
+
     const tdData = document.createElement('td');
     tdData.setAttribute('class','text-center');
     tdData.scope = 'col';
 
+    const button = document.createElement("button");
+    button.setAttribute("class","btn btn-green");
+    button.setAttribute("type","button");
+    button.setAttribute("data-bs-toggle","modal");
+    button.setAttribute("data-bs-target","#dataTagModal");
+
     const i = document.createElement("i");
     i.setAttribute("class","fas fa-book-open");
-    tdData.appendChild(i);
+    button.appendChild(i);
+
+    tdData.appendChild(button);
     tr.appendChild(tdData);
 
     document.getElementById('dataTagsFiltered').appendChild(tr);
