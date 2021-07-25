@@ -1,29 +1,59 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<html>
-    <head>
-        <link href="{% static 'scrap.css' %}">
-    </head>
 
-<body>
 <div class="container-fluid ">
       <header class="container-fluid d-flex justify-content-center">
-          <div class="row col-md-12">
         <div class="col-12 row h-100 p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
             <h1 class=" black_ops_font text-success mb-3">Web Scraping</h1>
 
-              <div class="mb-3 col-11">
-                  <label for="exampleFormControlInput1" class="form-label chelsea_font">Web To Scrap</label>
-                  <input type="text" class="form-control chelsea_font text-center" id="exampleFormControlInput1" value="https://google.es" placeholder="https://google.com">
-            </div>
-            <button id="scrapButton" class="col-6 btn btn-outline-dark text-light mt-3">Scrap Web</button>
-        </div>
-      </div>
-    </header>
-    <section class="container-fluid">
-        <div id="scrapContent">
+              <div class="mb-3 row col-12 d-flex align-items-center justify-content-center flex-column">
+                  <div class="row col-12 d-flex justify-content-center">
+                      <label for="exampleFormControlInput1" class="form-label chelsea_font col-11">Web To Scrap</label>
+                     <input type="text" class="form-control chelsea_font text-center col-11 " id="urlToScrap" value="" placeholder="https://google.com">
+                  </div>
+                  <div class="row col-12 d-flex justify-content-center">
+                      <label for="exampleDataList" class="col-11 form-label mt-3 chelsea_font mr-2">Tags or Words to find</label>
 
+                      <input class="form-control text-center col-md-5 col-sm-12 mt-sm-2 mt-md-0 chelsea_font " list="datalistOptions" id="inputDataList" placeholder="Type to search a tag...">
+                      <datalist id="datalistOptions" class="col-md-5">
+
+                      </datalist>
+
+                      <input type="text" class="form-control chelsea_font ml-1 col-md-6 col-sm-12 mt-sm-2 mt-md-0 text-dark text-center" id="tagsToScrap" value placeholder="Tags to filter and scrap to the url defined">
+
+                  </div>
+
+                  <div id="auxContainer" class="row col-12 d-flex justify-content-center">
+
+                  </div>
+                  <div class="form-check form-switch row col-11 ml-2 mt-3 d-none" id="compoundFilterDiv">
+                      <input class="form-check-input col-2 " type="checkbox" id="compoundFilter">
+                      <label class="form-check-label col-10 chelsea_font ml-1 col-6 " for="compoundFilter">Compound Filter</label>
+                  </div>
+                <div class="row col-11 mt-2 float-right">
+                    <button id="scrapButton" class="col-12 btn btn-outline-success text-light mt-3">Scrap Web</button>
+                    <button id="scrapResetButton" class="col-12 btn btn-outline-success text-light mt-3">Reset Data</button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+    <section class="container-fluid d-flex justify-content-center mt-1">
+        <div class="col-12 row p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr id="nameTagsFiltered">
+                        <th scope="col" class="text-center">X</th>
+                        <th scope="col" class="text-center">Tags</th>
+                        <th scope="col" class="text-center">Count</th>
+                        <th scope="col" class="text-center">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dataTagsFiltered">
+
+                  </tbody>
+            </table>
         </div>
     </section>
 
@@ -31,7 +61,5 @@
 
     </footer>
 </div>
-<script src="{% static 'scrap.js' %}"></script>
-</body>
-</html>
+
 {% endblock %}

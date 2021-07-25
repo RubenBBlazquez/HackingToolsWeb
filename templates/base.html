@@ -8,17 +8,20 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
   <link type="text/css" href="{% static 'vendor/bootstrap/css/style.css'%}" rel="stylesheet">
+  <link type="text/css" href="{% static 'vendor/toastr/toastr.css'%}" rel="stylesheet">
   <link type="text/css" href="{% static 'resources/style.css'%}" rel="stylesheet">
   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
-
+  <link type="text/css" href="{% static 'resources/scrap.css'%}" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
   <title>Hacking Tools</title>
 
 </head>
 
-<body id="body-pd">
+<body id="body-pd" class="bg-gray">
 
     <div class="wrapper d-flex align-items-stretch bg-gray">
-			<nav id="sidebar" class="bg-black-dark">
+        <nav id="sidebar" class="bg-black-dark position-sticky position-fixed">
 	  		<div class="img bg-wrap text-center py-4" style="background-image: url({% static 'images/ciber_background.jpg' %});">
 	  			<div class="user-logo">
 	  				<div class="img" style="background-image: url({% static 'images/cerberus.jpg' %});"></div>
@@ -33,9 +36,8 @@
             <a href="/webScraping/" class="chelsea_font text-light"><span class="far fa-claw-marks mr-3"></span>Web Scraping</a>
           </li>
           <li>
-            <a href="#" class="chelsea_font text-light"><span class="fas fa-scroll-old mr-3"></span>ReverShells</a>
+            <a href="/revershellGenerator/" class="chelsea_font text-light"><span class="fas fa-scroll-old mr-3"></span>ReverShells</a>
           </li>
-
         </ul>
 
     	</nav>
@@ -51,11 +53,29 @@
         {% endblock %}
       </div>
 		</div>
+    </div>
 
-    <script src="{% static 'vendor/bootstrap/js/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/popper.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <div class="modal fade" id="dataTagModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
+    <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>
+    <script src="{% static 'resources/scrap.js' %}"></script>
 </body>
 
 </html>
