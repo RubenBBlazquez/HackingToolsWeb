@@ -1,13 +1,15 @@
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from pip._vendor import requests
 from rest_framework.views import APIView
 import requests
 from bs4 import BeautifulSoup
 import os
 import pandas as pd
 import numpy as np
+from django.conf import settings
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
 
 # Create your views here.
@@ -18,12 +20,13 @@ def web_scraping_page(request):
 
 
 class WebScrapingAction(APIView):
+    thread_pool = ThreadPoolExecutor(20)
+    module_dir = os.path.dirname(__file__)  # get current directory
+    tags_data_file = module_dir + '/files/html_wordlists.json'
+    webs_to_not_crawl_json = json.load(open(module_dir + '/files/webs_not_scrap.json', 'r'))
 
     def get(self, request):
-        module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = module_dir + '/files/html_wordlists.json';
-        print("get method")
-        return JsonResponse(json.load(open(file_path, "r")), safe=False)
+        return JsonResponse(json.load(open(self.tags_data_file, "r")), safe=False)
 
     def post(self, request):
 
@@ -31,13 +34,19 @@ class WebScrapingAction(APIView):
         body = json.loads(body_unicode)
         response = requests.get(body['url'])
         compound_filter = bool(body['compoundFilter'])
-        html = BeautifulSoup(response.text, 'html.parser')
+        crawl_web = bool(body['crawlLinks'])
 
+        html = BeautifulSoup(response.text, 'html.parser')
+        print(body)
         data = dict()
 
         try:
 
-            self.scrap_web(data, body, compound_filter, html)
+            if not crawl_web:
+                self.scrap_web(data, body, compound_filter, html)
+            else:
+                self.crawlWeb(data, html, body, compound_filter, [])
+
             self.cleanEmptyDataDict(data)
 
         except Exception as err:
@@ -51,9 +60,8 @@ class WebScrapingAction(APIView):
 
     def scrap_web(self, data, request_data, is_compound_filter=False, html=None):
 
-        module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = module_dir + '/files/html_wordlists.json'
-        html_tag_wordlist = {'tags': request_data['tags']} if request_data['tags'] else json.load(open(file_path, "r"))
+        open_file = open(self.tags_data_file, "r")
+        html_tag_wordlist = {'tags': request_data['tags']} if request_data['tags'] else json.load(open_file)
 
         self.get_web_data(data, html_tag_wordlist, request_data, is_compound_filter, html)
 
@@ -82,8 +90,9 @@ class WebScrapingAction(APIView):
         if request_data['word']: self.get_words_web_data(request_data['word'], data, html)
 
     def get_words_web_data(self, request_data, data, html):
+
         for word in request_data:
-            self.get_tags_web_data(data, [word], html, '*:contains("{item}")', False)
+            self.get_tags_web_data(data, [word], html, '*:-soup-contains("{item}")', False)
 
     def get_attr_web_data(self, request_data, data, element, html):
 
@@ -98,9 +107,7 @@ class WebScrapingAction(APIView):
             for tag in data_to_find:
                 tags_list = []
                 find_select = select.replace("{item}", tag)
-                print(find_select)
                 quotes_html = soup.select(find_select)
-
                 for quote in quotes_html:
 
                     if get_only_attribute and attr_to_get in str(quote):
@@ -111,10 +118,73 @@ class WebScrapingAction(APIView):
                 bracket_position = select.find("[") if select.find("[") != -1 else 0
                 tag_father = select[0:bracket_position]
                 type_tag = select[select.find('[') + 1:select.find('*')]
+
                 if not large_identifier:
-                    data_to_append[tag] = tags_list
+                    self.appendNewTagData(data_to_append, tag, tags_list)
+
                 else:
-                    data_to_append[tag_father + '[' + type_tag + '=' + tag + ']'] = tags_list
+                    identifier = tag_father + '[' + type_tag + '=' + tag + ']'
+                    self.appendNewTagData(data_to_append, identifier, tags_list)
+
+    @staticmethod
+    def appendNewTagData(data_dict, identifier, tags_to_append):
+
+        if not identifier in dict(data_dict).keys():
+            data_dict[identifier] = tags_to_append
+        else:
+            list(data_dict[identifier]).append(tags_to_append)
+
+    def crawlWeb(self, data, soup: BeautifulSoup, request_data, compound_filter, listPagesCrawled):
+        data_tags = soup.find_all('a')
+
+        tags = {'tags': request_data['tags']}
+        print(tags)
+        if len(data_tags) == 0:
+            self.get_web_data(data, tags, request_data,
+                              compound_filter, soup)
+            return True
+
+        for tag in data_tags:
+
+            if tag['href'] not in listPagesCrawled \
+                    and (settings.BASE_URL + tag['href']) not in listPagesCrawled \
+                    and self.isUrlCrawlable(tag['href']) \
+                    and self.isUrlCrawlable((settings.BASE_URL + tag['href'])):
+
+                if 'http' in tag['href']:
+                    response = requests.get(tag['href'])
+                    listPagesCrawled.append(tag['href'])
+                else:
+                    response = requests.get(settings.BASE_URL + tag['href'])
+                    listPagesCrawled.append(settings.BASE_URL + tag['href'])
+
+                del tag
+
+                new_soup = BeautifulSoup(response.text, 'html.parser')
+
+                try:
+
+                    self.thread_pool.submit(
+                        self.get_web_data(data, tags, request_data,
+                                          compound_filter, new_soup)
+                    )
+                    self.thread_pool.submit(
+                        self.crawlWeb(data, new_soup, request_data, compound_filter, listPagesCrawled)
+                    )
+
+                    print(len(listPagesCrawled))
+
+                except:
+                    print
+                    "Error: unable to start thread"
+
+    def isUrlCrawlable(self, url_to_crawl):
+
+        for url in self.webs_to_not_crawl_json['urls']:
+            if url in url_to_crawl:
+                return False
+
+        return True
 
     def cleanEmptyDataDict(self, dictionary):
         positions_to_delete = []

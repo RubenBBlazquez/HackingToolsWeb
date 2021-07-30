@@ -50,16 +50,16 @@ scrapButton.addEventListener("click",()=>{
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
     let words = document.getElementById("textNames") || "";
-    console.log(words);
     let tagsFiltered = document.getElementById("dataTagsFiltered");
     const compoundFilter = document.getElementById("compoundFilter");
+    const crawlLinks = document.getElementById("crawlLinksCheck");
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
     idNames = getArrayFromStringSeparatedByComas(idNames.value);
     words = getArrayFromStringSeparatedByComas(words.value);
 
-    let data = {"url":urlToScrap.value,"tags":tags,"attributes":{"class":classNames,"id":idNames},"word":words,"compoundFilter":compoundFilter.checked}
+    let data = {'url':urlToScrap.value,'tags':tags,'attributes':{'class':classNames,'id':idNames},'word':words,'compoundFilter':compoundFilter.checked,'crawlLinks':crawlLinks.checked}
 
     fetchDataFromWebScrapApi("POST", data)
         .then((response)=>{
@@ -113,6 +113,7 @@ function isTagAlreadyAdded(tag){
                 return true;
             }
         }
+
     }else{
         return false;
     }
@@ -137,6 +138,11 @@ function addTagElementToTagsList(value){
         actualValue = actualValue + value + ","
         console.log(actualValue)
         document.getElementById('tagsToScrap').value = actualValue;
+
+        if(value.split("-")[0].trim() === 'a'){
+            document.getElementById("crawlLinksCheckDiv").setAttribute("class","form-check form-switch row col-10 mt-3")
+        }
+
         if (value.split("-")[0].trim() === "class" || value.split("-")[0].trim() === "id" || value.split("-")[0].trim() === "text"){
             let input = document.createElement("input");
             input.setAttribute("class","form-control chelsea_font text-center col-11 mt-3")
@@ -145,7 +151,7 @@ function addTagElementToTagsList(value){
             input.setAttribute("placeholder","Write the "+value.split("-")[0].trim()+" Names , separated by comas")
             input.setAttribute("required","true");
 
-            if(value.split("-")[0].trim() !== "text"){
+            if(value.split("-")[0].trim() !== 'text'){
                 input.setAttribute("placeholder","Write the "+value.split("-")[0].trim()+" Names , separated by comas")
                 document.getElementById("compoundFilterDiv").setAttribute("class","form-check form-switch row col-10 mt-3")
             }else{
