@@ -198,6 +198,45 @@ function addElementScrapped(index,tag,count,data){
     button.setAttribute("data-bs-toggle","modal");
     button.setAttribute("data-bs-target","#dataTagModal");
 
+    button.addEventListener("click",()=>{
+        const modalBody = document.getElementById("modalBodyTags");
+        modalBody.innerHTML = "";
+
+        let i = 0;
+
+        for (const tagData of data[tag]) {
+            i++;
+
+            const tr_tag_pressed = document.createElement('tr');
+
+            const thRow = document.createElement('th');
+            thRow.scope='row';
+            thRow.setAttribute('class','text-center');
+            thRow.textContent = String(i);
+
+            const td = document.createElement('td');
+            td.setAttribute('class','text-center');
+            td.textContent = tag;
+            td.scope = 'col';
+
+            const tdData = document.createElement('td');
+            tdData.setAttribute('class','text-center');
+            tdData.scope = 'col';
+
+            const tagPreview = document.createElement(tag)
+            tagPreview.textContent = tagData
+
+            tdData.appendChild(tagPreview);
+
+            tr_tag_pressed.appendChild(thRow);
+            tr_tag_pressed.appendChild(td);
+            tr_tag_pressed.appendChild(tdData)
+
+            modalBody.appendChild(tr_tag_pressed)
+        }
+
+    })
+
     const i = document.createElement("i");
     i.setAttribute("class","fas fa-book-open");
     button.appendChild(i);
@@ -207,3 +246,4 @@ function addElementScrapped(index,tag,count,data){
 
     document.getElementById('dataTagsFiltered').appendChild(tr);
 }
+

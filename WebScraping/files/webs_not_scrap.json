@@ -1,12 +1,15 @@
-{"urls":[
-	"google",
-	"twitter",
-	"facebook",
-	"android",
-	"apple",
-	"sony",
-	"instagram",
-	"github",
-	"zype"
-]
+{
+	"urls":[
+		"google",
+		"twitter",
+		"facebook",
+		"android",
+		"apple",
+		"sony",
+		"instagram",
+		"github",
+		"zype",
+		"envato",
+		"tutsplus"
+	]
 }

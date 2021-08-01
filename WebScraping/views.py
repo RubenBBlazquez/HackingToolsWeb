@@ -24,6 +24,7 @@ class WebScrapingAction(APIView):
     module_dir = os.path.dirname(__file__)  # get current directory
     tags_data_file = module_dir + '/files/html_wordlists.json'
     webs_to_not_crawl_json = json.load(open(module_dir + '/files/webs_not_scrap.json', 'r'))
+    data_crawled = []
 
     def get(self, request):
         return JsonResponse(json.load(open(self.tags_data_file, "r")), safe=False)
@@ -40,18 +41,12 @@ class WebScrapingAction(APIView):
         print(body)
         data = dict()
 
-        try:
+        if not crawl_web:
+            self.scrap_web(data, body, compound_filter, html)
+        else:
+            self.crawlWeb(data, html, body, compound_filter, [])
 
-            if not crawl_web:
-                self.scrap_web(data, body, compound_filter, html)
-            else:
-                self.crawlWeb(data, html, body, compound_filter, [])
-
-            self.cleanEmptyDataDict(data)
-
-        except Exception as err:
-
-            print(err)
+        self.cleanEmptyDataDict(data)
 
         tags_data = dict()
         tags_data['tags'] = [data]
@@ -103,7 +98,6 @@ class WebScrapingAction(APIView):
                           get_only_attribute=False, attr_to_get='None'):
 
         if data_to_find and soup and data_to_append is not None:
-
             for tag in data_to_find:
                 tags_list = []
                 find_select = select.replace("{item}", tag)
@@ -126,53 +120,58 @@ class WebScrapingAction(APIView):
                     identifier = tag_father + '[' + type_tag + '=' + tag + ']'
                     self.appendNewTagData(data_to_append, identifier, tags_list)
 
-    @staticmethod
-    def appendNewTagData(data_dict, identifier, tags_to_append):
+    def appendNewTagData(self, data_dict, identifier, tags_to_append):
 
         if not identifier in dict(data_dict).keys():
             data_dict[identifier] = tags_to_append
         else:
-            list(data_dict[identifier]).append(tags_to_append)
+            data_dict[identifier].extend(self.tagsNotAppendedYet(data_dict[identifier], tags_to_append))
+            print(len(data_dict))
 
-    def crawlWeb(self, data, soup: BeautifulSoup, request_data, compound_filter, listPagesCrawled):
+    def tagsNotAppendedYet(self, tags_list, tags_to_find):
+        data_to_append = []
+
+        for tag_f in tags_to_find:
+            if str(tag_f).strip() not in tags_list:
+                data_to_append.append(tag_f)
+
+        return data_to_append
+
+    def crawlWeb(self, data, soup: BeautifulSoup, request_data, compound_filter, list_pages_crawled):
+
         data_tags = soup.find_all('a')
 
         tags = {'tags': request_data['tags']}
-        print(tags)
+
         if len(data_tags) == 0:
-            self.get_web_data(data, tags, request_data,
-                              compound_filter, soup)
+            print("------------sale-----------")
             return True
 
         for tag in data_tags:
 
-            if tag['href'] not in listPagesCrawled \
-                    and (settings.BASE_URL + tag['href']) not in listPagesCrawled \
+            if 'href' in str(tag) and tag['href'] not in list_pages_crawled \
+                    and (settings.BASE_URL + tag['href']) not in list_pages_crawled \
                     and self.isUrlCrawlable(tag['href']) \
                     and self.isUrlCrawlable((settings.BASE_URL + tag['href'])):
-
+                print(tag['href'])
                 if 'http' in tag['href']:
                     response = requests.get(tag['href'])
-                    listPagesCrawled.append(tag['href'])
+                    list_pages_crawled.append(tag['href'])
                 else:
                     response = requests.get(settings.BASE_URL + tag['href'])
-                    listPagesCrawled.append(settings.BASE_URL + tag['href'])
-
-                del tag
+                    list_pages_crawled.append(settings.BASE_URL + tag['href'])
 
                 new_soup = BeautifulSoup(response.text, 'html.parser')
 
+                del tag
+
                 try:
 
-                    self.thread_pool.submit(
-                        self.get_web_data(data, tags, request_data,
-                                          compound_filter, new_soup)
-                    )
-                    self.thread_pool.submit(
-                        self.crawlWeb(data, new_soup, request_data, compound_filter, listPagesCrawled)
-                    )
+                    if '404' not in new_soup.text:
+                        self.get_web_data(data, tags, request_data, compound_filter, new_soup)
+                        self.crawlWeb(data, new_soup, request_data, compound_filter, list_pages_crawled)
 
-                    print(len(listPagesCrawled))
+                    print(len(list_pages_crawled))
 
                 except:
                     print
