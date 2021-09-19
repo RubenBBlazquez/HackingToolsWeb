@@ -20,8 +20,9 @@
 
 <body id="body-pd" class="bg-gray">
 
-    <div class="wrapper d-flex align-items-stretch bg-gray">
-        <nav id="sidebar" class="bg-black-dark position-sticky position-fixed">
+    <div class="d-flex bg-gray">
+        <nav id="sidebar" class="bg-black-dark wrapper">
+            <div class="position-fixed wrapper">
 	  		<div class="img bg-wrap text-center py-4" style="background-image: url({% static 'images/ciber_background.jpg' %});">
 	  			<div class="user-logo">
 	  				<div class="img" style="background-image: url({% static 'images/cerberus.jpg' %});"></div>
@@ -39,9 +40,9 @@
             <a href="/revershellGenerator/" class="chelsea_font text-light"><span class="fas fa-scroll-old mr-3"></span>ReverShells</a>
           </li>
         </ul>
-
+            </div>
     	</nav>
-        <div class="">
+        <div class="position-fixed">
             <button id="sidebarCollapse" class="btn btn-outline-blue-dark rounded-bottom"><i class="fas fa-bars"></i></button>
         </div>
 
