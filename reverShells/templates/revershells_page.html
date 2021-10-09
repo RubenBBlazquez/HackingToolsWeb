@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <html>
+    <head>
+        <link href="{% static 'resources/webScrapingFiles/scrap.css' %}">
+    </head>
+
+    <body>
+    <div class="container-fluid ">
+        <header class="container-fluid d-flex justify-content-center">
+            <div class="col-12 row h-100 p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
+                <h1 class=" black_ops_font text-success mb-3">ReverShells</h1>
+
+                <div class="mb-3 row col-12 d-flex align-items-center justify-content-center flex-column">
+                    <div class="row col-12 d-flex justify-content-center">
+                        <input class="form-control text-center col-12 chelsea_font " list="datalistOptions"
+                               id="inputDataList" placeholder="Type a programation language type">
+                        <datalist id="datalistOptions" class="col-12">
+
+                        </datalist>
+
+                    </div>
+                </div>
+            </div>
+        </header>
+        <section class="container-fluid d-flex justify-content-center mt-1">
+            <div class="col-12 row p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
+                <table class="table table-dark table-striped">
+                    <thead>
+                    <tr id="nameTagsFiltered">
+
+                    </tr>
+                    </thead>
+                    <tbody id="dataTagsFiltered">
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="container-fluid">
+
+        </footer>
+    </div>
+    <script src="{% static 'resources/webScrapingFiles/scrap.js' %}"></script>
+    </body>
+    </html>
+{% endblock %}

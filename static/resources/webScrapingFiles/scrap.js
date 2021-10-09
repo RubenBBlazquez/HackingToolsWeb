@@ -2,6 +2,7 @@ let scrapButton = document.getElementById("scrapButton")
 let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
 let response = {};
+
 dropdown.addEventListener('change', function(event) {
           let target = event.target.value;
           let datalist = document.getElementsByTagName('option');
@@ -130,7 +131,7 @@ function isTagAlreadyAdded(tag){
         tags = tags.split(",");
 
         for (const t of tags) {
-            if(t == tag){
+            if(t === tag){
                 return true;
             }
         }

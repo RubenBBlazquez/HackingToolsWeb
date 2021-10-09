@@ -17,9 +17,10 @@ from django.contrib import admin
 from django.conf.urls import url
 from HomePage import views as hp
 from WebScraping import views as ws
-
+from reverShells import views as rs
 urlpatterns = [
     url(r'^$', hp.home, name="homePage"),
     url(r'^webScraping/$', ws.WebScrapingPage, name="WebScraping"),
     url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
+    url(r'^reverShells/$', rs.goToRevershellsPage, name="revershells"),
 ]
