@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.conf.urls import url
 from HomePage import views as hp
 from WebScraping import views as ws
+from apiSniffer import views as api_sniffer
 
 urlpatterns = [
     url(r'^$', hp.home, name="homePage"),
     url(r'^webScraping/$', ws.web_scraping_page, name="WebScraping"),
     url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
+    url(r'^apiSniffer/$', api_sniffer.goToApiSnifferPage, name="apiSniffer"),
 ]

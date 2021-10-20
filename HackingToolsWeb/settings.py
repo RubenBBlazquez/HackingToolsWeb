@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'HomePage',
     'WebScraping',
+    'apiSniffer'
 ]
 
 MIDDLEWARE = [

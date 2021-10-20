@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <header class="container">
+        <h1 class=" black_ops_font text-success mb-3 text-center ">Api Sniffer</h1>
+    </header>
+    <section class="container">
+        <form action="POST">
+            <div class="form-group">
+                <label class="lead col-12 text-center text-light mb-4 mt-2 black_ops_font" for="exampleFormControlFile1">File With Endpoints And Posible Authorizations
+                    to Endpoints</label>
+                <div class="row">
+                    <input type="file" class="form-control-file col" id="exampleFormControlFile1">
+                    <button id="getExample" class="ml-2 btn btn-outline-success col black_ops_font">Get Example File</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+{% endblock %}
