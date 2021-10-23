@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^$', hp.home, name="homePage"),
     url(r'^webScraping/$', ws.WebScrapingPage, name="WebScraping"),
     url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
-    url(r'^reverShells/$', rs.goToRevershellsPage, name="revershells"),
+    url(r'^reverShells/$', rs.go_to_revershell_page, name="revershells"),
 ]
