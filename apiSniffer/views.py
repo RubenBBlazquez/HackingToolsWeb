@@ -1,8 +1,14 @@
 from django.shortcuts import render
-import models as md
+from rest_framework.views import APIView
+from apiSniffer.models import FileCreator
 
 
 def goToApiSnifferPage(request):
     return render(request, 'apiSnifferPage.html')
 
-def getFileGenerated
+
+class DefaultFileAPI(APIView):
+    _fileCreator = FileCreator(default_file=True)
+
+    def get(self, request):
+        self._fileCreator.getXlsFile()
