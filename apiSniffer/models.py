@@ -6,55 +6,52 @@ import numpy as np
 
 class FileCreator:
     _dictionary = {}
+    _absolutePath = os.path.abspath(os.getcwd())
 
     def __init__(self, dictionary={}, default_file=None):
         if not default_file:
             self._dictionary = dictionary
         else:
-            self._dictionary = self.getDefaultDictionary()
+            self._dictionary = self.get_default_endpoints_dictionary()
 
-    def getXlsFile(self):
-        file_dir = os.path.abspath(os.getcwd()) + '/apiSniffer/files/dictionary.xlsx'
-        pd.DataFrame.from_dict(self._dictionary, orient='index').to_excel(file_dir)
+    def getXlsFile(self, main_dict_key='Endpoints'):
+        file_dir = self._absolutePath + '\\dictionary.xlsx'
+
+        # con json_normalize transformamos un json (dict) en un dataframe,
+        # y con recordPath sacamos las keys de dentro de ese array
+        dataframe = pd.json_normalize(self._dictionary, record_path=main_dict_key)
+
+        # creamos el excel
+        dataframe.to_excel(file_dir)
+        print('b')
         return file_dir
 
-    def getJsonFile(self):
-        print(pd.DataFrame.from_dict(self._dictionary))
+    def getJsonFile(self, main_dict_key='Endpoints'):
+        file_dir = self._absolutePath + '\\dictionary.json'
 
-    def getDefaultDictionary(self) -> dict:
+        # con json_normalize transformamos un json (dict) en un dataframe,
+        # y con recordPath sacamos las keys de dentro de ese array
+        dataframe = pd.json_normalize(self._dictionary, record_path=main_dict_key)
+
+        # creamos el excel
+        dataframe.to_json(file_dir)
+
+        return file_dir
+
+    def get_default_endpoints_dictionary(self) -> dict:
         return {
-            "Authorizations": [
-                {
-                    "Basic": {
-                        "Credentials": [
-                            {
-                                "userName": "prueba"
-                            },
-                            {
-                                "password": "prueba"
-                            }
-                        ]
-                    }
-                },
-                {
-                    'Bearer': {
-                        "Credentials": [
-                            {
-                                "token": "prueba123"
-                            }
-                        ]
-                    }
-                }
-            ],
             'Endpoints': [
                 {
-                    "name": 'v1/example'
+                    'url': 'http://127.0.0.1/',
+                    "Endpoint": 'v1/example'
                 },
                 {
-                    "name": 'v1/example2'
+                    'url': 'http://127.0.0.1/',
+                    "Endpoint": 'v1/example2'
                 },
                 {
-                    "name": 'v1/example3'
+                    'url': 'http://127.0.0.1/',
+                    "Endpoint": 'v1/example3'
                 }
             ]
         }

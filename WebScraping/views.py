@@ -23,7 +23,6 @@ class WebScrapingAction(APIView):
     thread_pool = ThreadPoolExecutor(20)
     module_dir = os.path.dirname(__file__)  # get current directory
     tags_data_file = module_dir + '/files/html_wordlists.json'
-    webs_to_not_crawl_json = json.load(open(module_dir + '/files/webs_not_scrap.json', 'r'))
     data_crawled = []
 
     def get(self, request):
@@ -38,6 +37,7 @@ class WebScrapingAction(APIView):
         crawl_web = bool(body['crawlLinks'])
 
         html = BeautifulSoup(response.text, 'html.parser')
+        print(body)
         print(body)
         data = dict()
 
@@ -150,9 +150,14 @@ class WebScrapingAction(APIView):
 
     # crawleamos la web, y vamos sacando todos los datos de todas las pestañas, cuando se recorre una pestaña esta se
     # elimina para no recogerla de nuevo
-    def crawlWeb(self, data, soup: BeautifulSoup, request_data, compound_filter, list_pages_crawled):
+    def crawlWeb(self, data, soup: BeautifulSoup, request_data: {}, compound_filter, list_pages_crawled):
+
+        urlToCrawl = request_data['url']
+        baseUrl = urlToCrawl[0:urlToCrawl.find('/', 9)]
 
         data_tags = soup.find_all('a')
+
+        print(len(data_tags))
 
         tags = {'tags': request_data['tags']}
 
@@ -161,32 +166,35 @@ class WebScrapingAction(APIView):
             return True
 
         for tag in data_tags:
-
-            if 'href' in str(tag) and tag['href'] not in list_pages_crawled \
-                    and (settings.BASE_URL + tag['href']) not in list_pages_crawled \
-                    and self.isUrlCrawlable(tag['href']) \
-                    and self.isUrlCrawlable((settings.BASE_URL + tag['href'])):
+            print(tag['href'], self.isUrlCrawlable(baseUrl, tag, list_pages_crawled))
+            if self.isUrlCrawlable(baseUrl, tag, list_pages_crawled):
 
                 print(tag['href'])
+                new_soup = None
 
-                # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
-                # la url a la lista de urls investigadas
-                if 'http' in tag['href']:
-                    response = requests.get(tag['href'])
-                    list_pages_crawled.append(tag['href'])
-                else:
-                    response = requests.get(settings.BASE_URL + tag['href'])
-                    list_pages_crawled.append(settings.BASE_URL + tag['href'])
+                try:
+                    # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
+                    # la url a la lista de urls investigadas
+                    if 'http' in tag['href']:
+                        response = requests.get(tag['href'])
+                        list_pages_crawled.append(tag['href'])
+                    else:
+                        response = requests.get(baseUrl + tag['href'])
+                        list_pages_crawled.append(baseUrl + tag['href'])
 
-                # sacamos los nuevos datos del nuevo enlace
-                new_soup = BeautifulSoup(response.text, 'html.parser')
+                    # sacamos los nuevos datos del nuevo enlace
+                    new_soup = BeautifulSoup(response.text, 'html.parser')
+
+                except:
+                    print('Error : to request url')
 
                 del tag
 
                 try:
 
-                    if '404' not in new_soup.text:
+                    if new_soup and '404' not in new_soup.text:
                         # obtenemos los datos de la web y lo añadimos a nuestro diccionario data
+                        # with ThreadPoolExecutor(max_workers=10):
                         self.get_web_data(data, tags, request_data, compound_filter, new_soup)
                         self.crawlWeb(data, new_soup, request_data, compound_filter, list_pages_crawled)
 
@@ -195,14 +203,18 @@ class WebScrapingAction(APIView):
                 except:
                     print("Error: unable to start thread")
 
-    # comprueba si la url no ha sido aún vista
-    def isUrlCrawlable(self, url_to_crawl):
+    '''
+        Crawl Web Thread
+    '''
 
-        for url in self.webs_to_not_crawl_json['urls']:
-            if url in url_to_crawl:
-                return False
-
-        return True
+    def crawlWebThread(self):
+        pass
+    # comprueba si la url puede ser visitada o no
+    def isUrlCrawlable(self, base_url: str, tag: {}, list_pages_crawled: []):
+        return 'href' in str(tag) and \
+               tag['href'] not in list_pages_crawled and \
+               (base_url + tag['href']) not in list_pages_crawled and \
+               (base_url in tag['href'] or 'http' not in tag['href'])
 
     # limpia posiciones sin datos en el diccionario
     def cleanEmptyDataDict(self, dictionary):

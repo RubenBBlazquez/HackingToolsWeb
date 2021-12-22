@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="description" content=""/>
     <meta name="author" content=""/>
+    <link type="text/css" href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
     <link type="text/css" href="{% static 'vendor/bootstrap/css/style.css' %}" rel="stylesheet">
     <link type="text/css" href="{% static 'vendor/toastr/toastr.css' %}" rel="stylesheet">
     <link type="text/css" href="{% static 'resources/style.css' %}" rel="stylesheet">
@@ -59,7 +60,7 @@
 
 
     <!-- Page Content  -->
-    <div id="content" class="p-4 p-md-5 pt-5">
+    <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
         {% block content %}
 
         {% endblock %}
