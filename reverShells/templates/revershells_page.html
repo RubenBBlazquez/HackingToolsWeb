@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <html>
     <head>
         <link href="{% static 'resources/webScrapingFiles/scrap.css' %}">
+        <title>Revershells Page</title>
     </head>
 
     <body>
@@ -14,10 +14,17 @@
 
                 <div class="mb-3 row col-12 d-flex align-items-center justify-content-center flex-column">
                     <div class="row col-12 d-flex justify-content-center">
-                        <input class="form-control text-center col-12 chelsea_font " list="datalistOptions"
-                               id="inputDataList" placeholder="Type a programation language type">
-                        <datalist id="datalistOptions" class="col-12">
-
+                        <input class="form-control text-center col-12 chelsea_font " list="datalistLanguageTypes"
+                               id="inputDataList" placeholder="Type a programation language type" type="text">
+                        <datalist id="datalistLanguageTypes" class="col-12">
+                            <option class="col-12" value="python">Python</option>
+                            <option class="col-12" value="java">Java</option>
+                            <option class="col-12" value="perl">Perl</option>
+                            <option class="col-12" value="bash">Bash</option>
+                            <option class="col-12" value="php">Php</option>
+                            <option class="col-12" value="ruby">Ruby</option>
+                            <option class="col-12" value="go">Go</option>
+                            <option class="col-12" value="netcat">Netcat</option>
                         </datalist>
 
                     </div>
