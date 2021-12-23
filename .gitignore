@@ -1,3 +1,5 @@
 venv
 db.sqlite3
 HackingToolsWeb.iml
+.idea
+.pyc
