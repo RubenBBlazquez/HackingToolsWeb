@@ -5,11 +5,8 @@ from rest_framework.views import APIView
 import requests
 from bs4 import BeautifulSoup
 import os
-import pandas as pd
-import numpy as np
-from django.conf import settings
 from concurrent.futures import ThreadPoolExecutor
-from time import sleep
+from WebScraping import models
 
 
 # Create your views here.
@@ -41,15 +38,19 @@ class WebScrapingAction(APIView):
         print(body)
         data = dict()
 
-        if not crawl_web:
-            self.scrap_web(data, body, compound_filter, html)
-        else:
-            self.crawlWeb(data, html, body, compound_filter, [])
+        web_scraping_object = None
 
-        self.cleanEmptyDataDict(data)
+        if not crawl_web:
+            web_scraping_object = models.WebScraping(req_post_body=body)
+            web_scraping_object.scrap_web()
+        else:
+            web_scraping_object = models.CrawlWeb(req_post_body=body)
+            web_scraping_object.crawlWeb(html, [])
+
+        self.cleanEmptyDataDict(web_scraping_object.tags_scrapped)
 
         tags_data = dict()
-        tags_data['tags'] = [data]
+        tags_data['tags'] = [web_scraping_object.tags_scrapped]
         print(tags_data)
         return JsonResponse(tags_data, safe=False)
 
@@ -209,6 +210,7 @@ class WebScrapingAction(APIView):
 
     def crawlWebThread(self):
         pass
+
     # comprueba si la url puede ser visitada o no
     def isUrlCrawlable(self, base_url: str, tag: {}, list_pages_crawled: []):
         return 'href' in str(tag) and \

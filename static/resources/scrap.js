@@ -3,6 +3,9 @@ let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
 let response_tags_data = {};
 
+/**
+ * We Check with an event, the text that you are writing in the datalist if it is equal to some tag, we will add to the tags list
+ */
 dropdown.addEventListener('keyup', async (event) => {
     let target = event.target.value;
     let datalist = document.getElementsByTagName('option');
@@ -14,6 +17,9 @@ dropdown.addEventListener('keyup', async (event) => {
     }
 });
 
+/**
+ * We Check with an event, if you have selected any tag we will add to the tags list
+ */
 dropdown.addEventListener('change', (event) => {
     let target = event.target.value;
     let datalist = document.getElementsByTagName('option');
