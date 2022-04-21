@@ -1,5 +1,7 @@
 venv
 db.sqlite3
 HackingToolsWeb.iml
+/.idea
 .idea
 .pyc
+../__pycache__/
