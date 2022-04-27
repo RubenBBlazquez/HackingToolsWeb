@@ -1,25 +1,28 @@
 from concurrent.futures.thread import ThreadPoolExecutor
-
-from django.db import models
 import os
 from bs4 import BeautifulSoup
 import requests
 import json
+from HackingToolsWeb.settings import mySqlBuilder
+import time
 
 
 class WebScraping:
     module_dir = os.path.dirname(__file__)  # get current directory
 
     def __init__(self, req_post_body):
-
         self.req_post_body = req_post_body
-        self.tags_scrapped = dict()
         self.url = req_post_body['url']
+        self.tags_scrapped = {}
         self.is_compound_filter = bool(req_post_body['compoundFilter'])
         self.html = BeautifulSoup(requests.get(req_post_body['url']).text, 'html.parser')
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
         self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] else \
             json.load(open(self.tags_data_file, "r"))
+
+        mySqlBuilder.insert('WEBS_SCRAPPED',
+                            {'SCRAP_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'WEB_SCRAPPED': self.url,
+                             'SCRAP_FINISHED': False})
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -27,7 +30,6 @@ class WebScraping:
     def get_web_data_router(self):
 
         if self.html_tag_wordlist['tags']:
-            print(self.html_tag_wordlist['tags'])
             self.get_web_data()
 
         if not self.is_compound_filter:
@@ -121,9 +123,9 @@ class WebScraping:
                 # comprobamos que necesite un identificador largo de diferenciación(esto pasa cuando queremos sacar
                 # elementos que contengan la clase x)
                 if not large_identifier:
-                    self.appendNewTagData(element, tags_list)
+                    self.addNewTagDataToDB(element, tags_list)
                 else:
-                    self.appendNewTagData(self.getLargeIdentifier(soup_query=selectQuery, value=element), tags_list)
+                    self.addNewTagDataToDB(self.getLargeIdentifier(soup_query=selectQuery, value=element), tags_list)
 
     def getLargeIdentifier(self, soup_query: str, value: str) -> str:
 
@@ -145,21 +147,27 @@ class WebScraping:
 
         return tag_father + '[' + type_tag + '=' + value + ']'
 
-    def appendNewTagData(self, identifier, tags_list):
+    def addNewTagDataToDB(self, identifier, tags_list):
 
         """
             Method to append the new data to tags scrapped
 
             :param identifier -> its a key to set in the tags_scrapped dictionary
 
-            :param tags_list -> its the data to set to tags_scrapped with the identifier passed por parametter
+            :param tags_list -> its the data to set to tags_scrapped with the identifier passed by parameter
 
         """
 
-        if not identifier in dict(self.tags_scrapped).keys():
+        if identifier not in dict(self.tags_scrapped).keys():
             self.tags_scrapped[identifier] = tags_list
+
         else:
-            self.tags_scrapped[identifier].extend(self.tagsNotAppendedYet(self.tags_scrapped[identifier], tags_list))
+            tags_not_repeated = self.tagsNotAppendedYet(self.tags_scrapped[identifier], tags_list)
+            self.tags_scrapped[identifier].extend(tags_not_repeated)
+
+        for element in tags_list:
+            mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
+                                {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.url})
 
     def tagsNotAppendedYet(self, original_tag_list, new_tags) -> list:
 
@@ -202,8 +210,6 @@ class CrawlWeb(WebScraping):
             :return:
 
         """
-
-        print(len(list_pages_crawled))
 
         base_url = self.url[0: self.url.find('/', 9)]
 
