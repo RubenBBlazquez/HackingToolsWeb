@@ -19,6 +19,7 @@ class WebScraping:
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
         self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] else \
             json.load(open(self.tags_data_file, "r"))
+        self.executor = ThreadPoolExecutor(max_workers=10)
 
         mySqlBuilder.insert('WEBS_SCRAPPED',
                             {'SCRAP_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'WEB_SCRAPPED': self.url,
@@ -112,6 +113,7 @@ class WebScraping:
 
                 find_select = selectQuery.replace('{item}', element)
                 quotes_html = self.html.select(find_select)
+
                 for quote in quotes_html:
 
                     if get_only_attribute:
@@ -158,14 +160,15 @@ class WebScraping:
 
         """
 
-        if identifier not in dict(self.tags_scrapped).keys():
-            self.tags_scrapped[identifier] = tags_list
+        tags_not_repeated = tags_list
 
-        else:
+        if identifier in dict(self.tags_scrapped).keys():
             tags_not_repeated = self.tagsNotAppendedYet(self.tags_scrapped[identifier], tags_list)
             self.tags_scrapped[identifier].extend(tags_not_repeated)
+        else:
+            self.tags_scrapped[identifier] = tags_list
 
-        for element in tags_list:
+        for element in tags_not_repeated:
             mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
                                 {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.url})
 
@@ -230,10 +233,10 @@ class CrawlWeb(WebScraping):
                     # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
                     # la url a la lista de urls investigadas
                     if 'http' in tag['href']:
-                        response = requests.get(tag['href'])
+                        response = requests.get(tag['href'], cookies={'MoodleSession': 'h9uetqqaa6dk05nf0ferlbionf'})
                         list_pages_crawled.append(tag['href'])
                     else:
-                        response = requests.get(base_url + tag['href'])
+                        response = requests.get(base_url + tag['href'],cookies={'MoodleSession': 'h9uetqqaa6dk05nf0ferlbionf'})
                         list_pages_crawled.append(base_url + tag['href'])
 
                     # sacamos los nuevos datos del nuevo enlace
@@ -251,7 +254,7 @@ class CrawlWeb(WebScraping):
                         self.get_web_data_router()
 
                         # seguimos crawleando la web
-                        self.crawlWeb(new_soup, list_pages_crawled)
+                        self.executor.submit(self.crawl_web, new_soup, list_pages_crawled)
 
                     print(len(list_pages_crawled))
 

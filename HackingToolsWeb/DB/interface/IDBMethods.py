@@ -27,3 +27,7 @@ class IDBMethods(ABC):
     @abstractmethod
     def update(self) -> Any:
         pass
+
+    @abstractmethod
+    def insert(self, table: str, values: dict) -> None:
+        pass

@@ -49,7 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 });
 
-scrapButton.addEventListener("click", () => {
+scrapButton.addEventListener("click", ()=>{
+
+    scrapWeb()
+
+});
+
+const scrapWeb = async () => {
 
     let urlToScrap = document.getElementById("urlToScrap");
     let tags = document.getElementById("tagsToScrap");
@@ -86,7 +92,7 @@ scrapButton.addEventListener("click", () => {
                     }
                 });
         });
-});
+}
 
 function fetchDataFromWebScrapApi(methodToUse, data) {
 
