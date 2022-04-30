@@ -134,7 +134,11 @@ authCollapse.addEventListener('hidden.bs.collapse', () => {
         collapse.hide()
 })
 
+let numberOfAuthorizations = 0
 document.getElementById('saveAuthorizationConfig').addEventListener('click', () => {
+
+    numberOfAuthorizations += 1
+
     document.getElementById('authorizationsSelector').options.selectedIndex = 0
 
     const saveAuthorizationLabel = document.getElementById('savedAuthorizationsLabel')
@@ -146,6 +150,11 @@ document.getElementById('saveAuthorizationConfig').addEventListener('click', () 
     const savedAuthorizationTBody = document.getElementById('tbodySavedAuthorizations')
 
     const tr = document.createElement('tr')
+    tr.setAttribute('class','p-2')
+
+    const td_index = document.createElement('td')
+    td_index.setAttribute('class','col-1 text-left black_ops_font')
+    td_index.textContent = numberOfAuthorizations
 
     const tdLabel = document.createElement('td')
     const savedAuthorizationDataLabel  = document.createElement('h6')
@@ -154,7 +163,7 @@ document.getElementById('saveAuthorizationConfig').addEventListener('click', () 
 
     const tdAction = document.createElement('td')
     const savedAuthorizationAction = document.createElement('i')
-    savedAuthorizationAction.setAttribute('class','col-12 fas fa-window-close')
+    savedAuthorizationAction.setAttribute('class','col-1 fas fa-window-close')
     tdAction.appendChild(savedAuthorizationAction)
 
     const inputData = getInputsFromAuthorizationSaved()
@@ -163,6 +172,7 @@ document.getElementById('saveAuthorizationConfig').addEventListener('click', () 
         savedAuthorizationDataLabel.textContent = 'Bearer Token : '+inputData.data[0].substring(0,20)
     }
 
+    tr.appendChild(td_index)
     tr.appendChild(tdLabel)
     tr.appendChild(tdAction)
     savedAuthorizationTBody.appendChild(tr)

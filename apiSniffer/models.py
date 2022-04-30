@@ -12,7 +12,7 @@ class FileCreator:
         if not default_file:
             self._dictionary = dictionary
         else:
-            self._dictionary = self.get_default_endpoints_dictionary()
+            self._dictionary = FileCreator.get_default_endpoints_dictionary()
 
     def getXlsFile(self, main_dict_key='Endpoints'):
         file_dir = self._absolutePath + '\\dictionary.xlsx'
@@ -23,7 +23,7 @@ class FileCreator:
 
         # creamos el excel
         dataframe.to_excel(file_dir)
-        print('b')
+
         return file_dir
 
     def getJsonFile(self, main_dict_key='Endpoints'):
@@ -38,7 +38,8 @@ class FileCreator:
 
         return file_dir
 
-    def get_default_endpoints_dictionary(self) -> dict:
+    @staticmethod
+    def get_default_endpoints_dictionary() -> dict:
         return {
             'Endpoints': [
                 {
