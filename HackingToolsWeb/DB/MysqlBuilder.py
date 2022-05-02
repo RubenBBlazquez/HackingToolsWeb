@@ -49,6 +49,7 @@ class MySqlBuilder(IDBMethods):
 
     @staticmethod
     def compound_prepared_sql_query(table, query_information: dict) -> dict:
+
         number_of_flags = ''
         fields_flags = ''
         values_flags = ()

@@ -1,4 +1,6 @@
 import json
+from concurrent.futures._base import wait
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -7,6 +9,7 @@ from bs4 import BeautifulSoup
 import os
 from concurrent.futures import ThreadPoolExecutor
 from WebScraping import models
+from HackingToolsWeb.settings import serverCache
 
 
 # Create your views here.
@@ -39,14 +42,17 @@ class WebScrapingAction(APIView):
             web_scraping_object = models.WebScraping(req_post_body=body)
             web_scraping_object.scrap_web()
         else:
+            threads = list()
             web_scraping_object = models.CrawlWeb(req_post_body=body)
-            web_scraping_object.crawlWeb(html, [])
+            web_scraping_object.crawlWeb(html, threads)
+            if len(threads) > 0:
+                wait(threads)
 
         self.cleanEmptyDataDict(web_scraping_object.tags_scrapped)
-
+        print(serverCache.clear_cache(), '--------------------------------------')
         tags_data = dict()
         tags_data['tags'] = [web_scraping_object.tags_scrapped]
-        print(tags_data)
+
         return JsonResponse(tags_data, safe=False)
 
     # limpia posiciones sin datos en el diccionario

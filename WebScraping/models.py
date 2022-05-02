@@ -1,9 +1,10 @@
+from concurrent.futures._base import wait
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
 from bs4 import BeautifulSoup
 import requests
 import json
-from HackingToolsWeb.settings import mySqlBuilder
+from HackingToolsWeb.settings import mySqlBuilder, serverCache
 import time
 
 
@@ -19,11 +20,13 @@ class WebScraping:
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
         self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] else \
             json.load(open(self.tags_data_file, "r"))
-        self.executor = ThreadPoolExecutor(max_workers=10)
-
+        self.executor_crawler = ThreadPoolExecutor(max_workers=5)
+        self.executor_get_web_data = ThreadPoolExecutor(max_workers=5)
+        self.base_url = self.url[0: self.url.find('/', 9)]
+        self.endpoints = self.url[self.url.find('/', 9):]
         mySqlBuilder.insert('WEBS_SCRAPPED',
-                            {'SCRAP_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'WEB_SCRAPPED': self.url,
-                             'SCRAP_FINISHED': False})
+                            {'SCRAP_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'BASE_URL': self.base_url,
+                             'ENDPOINT': self.endpoints, 'SCRAP_FINISHED': False, })
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -169,8 +172,13 @@ class WebScraping:
             self.tags_scrapped[identifier] = tags_list
 
         for element in tags_not_repeated:
+            print('---------------------------------------------')
+            print(identifier, element, self.url, self.endpoints)
+            print('---------------------------------------------')
+
             mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
-                                {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.url})
+                                {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.base_url,
+                                 'ENDPOINT_WEB_SCRAPPED': self.endpoints})
 
     def tagsNotAppendedYet(self, original_tag_list, new_tags) -> list:
 
@@ -200,21 +208,18 @@ class CrawlWeb(WebScraping):
         super(CrawlWeb, self).__init__(req_post_body)
         self.crawl_web = bool(self.req_post_body['crawlLinks'])
 
-    def crawlWeb(self, soup: BeautifulSoup, list_pages_crawled: []):
+    def crawlWeb(self, soup: BeautifulSoup, threads: []):
 
         """
             crawleamos la web, y vamos sacando todos los datos de todas las pestañas, cuando se recorre una pestaña esta
             se elimina para no recogerla de nuevo
 
             :param soup:
-
-            :param list_pages_crawled:
+            :param threads:
 
             :return:
 
         """
-
-        base_url = self.url[0: self.url.find('/', 9)]
 
         data_tags = soup.find_all('a')
 
@@ -224,20 +229,24 @@ class CrawlWeb(WebScraping):
 
         for tag in data_tags:
 
-            if self.isUrlCrawlable(base_url, tag, list_pages_crawled):
+            print(serverCache.get(tag['href']), serverCache.get(self.base_url + tag['href']),
+                  serverCache.get(tag['href']) is None, serverCache.get(self.base_url + tag['href']) is None)
 
-                print(tag['href'])
+            if self.isUrlCrawlable2(self.base_url, tag):
+
                 new_soup = None
 
                 try:
                     # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
                     # la url a la lista de urls investigadas
                     if 'http' in tag['href']:
-                        response = requests.get(tag['href'], cookies={'MoodleSession': 'h9uetqqaa6dk05nf0ferlbionf'})
-                        list_pages_crawled.append(tag['href'])
+                        response = requests.get(tag['href'])
+                        serverCache.put(tag['href'], True)
+                        print(tag['href'])
                     else:
-                        response = requests.get(base_url + tag['href'],cookies={'MoodleSession': 'h9uetqqaa6dk05nf0ferlbionf'})
-                        list_pages_crawled.append(base_url + tag['href'])
+                        response = requests.get(self.base_url + tag['href'])
+                        serverCache.put(self.base_url + tag['href'], True)
+                        print(self.base_url + tag['href'])
 
                     # sacamos los nuevos datos del nuevo enlace
                     new_soup = BeautifulSoup(response.text, 'html.parser')
@@ -250,16 +259,18 @@ class CrawlWeb(WebScraping):
                 try:
 
                     if new_soup and '404' not in new_soup.text:
-                        # obtenemos los datos de la web
-                        self.get_web_data_router()
+                        # we set the new html beautifulSoup
+                        self.html = new_soup
 
-                        # seguimos crawleando la web
-                        self.executor.submit(self.crawl_web, new_soup, list_pages_crawled)
+                        # we start to get information from the html set recently
+                        threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
-                    print(len(list_pages_crawled))
+                        # we continue crawling web
+                        threads.append(self.executor_crawler.submit(self.crawlWeb, new_soup, threads))
 
-                except:
-                    print("Error: unable to start thread")
+                except Exception as ex:
+                    wait(threads)
+                    print("Error: unable to start thread -> ",ex.args)
 
     # comprueba si la url puede ser visitada o no
     def isUrlCrawlable(self, base_url: str, tag: {}, list_pages_crawled: []):
@@ -267,3 +278,9 @@ class CrawlWeb(WebScraping):
                tag['href'] not in list_pages_crawled and \
                (base_url + tag['href']) not in list_pages_crawled and \
                (base_url in tag['href'] or 'http' not in tag['href'])
+
+    # comprueba si la url puede ser visitada o no
+    def isUrlCrawlable2(self, base_url: str, tag: {}):
+        return 'href' in str(tag) and \
+               serverCache.get(tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
+               and (base_url in tag['href'] or 'http' not in tag['href'])
