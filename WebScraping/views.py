@@ -1,6 +1,5 @@
 import json
-from concurrent.futures._base import wait
-
+from concurrent.futures import wait
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -44,9 +43,7 @@ class WebScrapingAction(APIView):
         else:
             threads = list()
             web_scraping_object = models.CrawlWeb(req_post_body=body)
-            web_scraping_object.crawlWeb(html, threads)
-            if len(threads) > 0:
-                wait(threads)
+            web_scraping_object.crawl_web(html, threads)
 
         self.cleanEmptyDataDict(web_scraping_object.tags_scrapped)
         print(serverCache.clear_cache(), '--------------------------------------')

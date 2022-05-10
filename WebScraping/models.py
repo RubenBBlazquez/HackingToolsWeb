@@ -206,9 +206,8 @@ class CrawlWeb(WebScraping):
 
     def __init__(self, req_post_body):
         super(CrawlWeb, self).__init__(req_post_body)
-        self.crawl_web = bool(self.req_post_body['crawlLinks'])
 
-    def crawlWeb(self, soup: BeautifulSoup, threads: []):
+    def crawl_web(self, soup: BeautifulSoup, threads: []):
 
         """
             crawleamos la web, y vamos sacando todos los datos de todas las pestañas, cuando se recorre una pestaña esta
@@ -220,67 +219,59 @@ class CrawlWeb(WebScraping):
             :return:
 
         """
+        self.get_links_to_crawl(soup, threads)
+        wait(threads)
+
+    def get_links_to_crawl(self, soup: BeautifulSoup, threads: []):
 
         data_tags = soup.find_all('a')
 
-        if len(data_tags) == 0:
-            print("------------sale-----------")
-            return True
+        if len(data_tags) != 0:
 
-        for tag in data_tags:
+            for tag in data_tags:
 
-            print(serverCache.get(tag['href']), serverCache.get(self.base_url + tag['href']),
-                  serverCache.get(tag['href']) is None, serverCache.get(self.base_url + tag['href']) is None)
+                if self.isUrlCrawlable(self.base_url, tag):
 
-            if self.isUrlCrawlable2(self.base_url, tag):
+                    new_soup = None
 
-                new_soup = None
+                    try:
+                        # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
+                        # la url a la lista de urls investigadas
+                        if 'http' in tag['href']:
+                            response = requests.get(tag['href'])
+                            serverCache.put(tag['href'], True)
+                            print(tag['href'])
+                        else:
+                            response = requests.get(self.base_url + tag['href'])
+                            serverCache.put(self.base_url + tag['href'], True)
+                            print(self.base_url + tag['href'])
 
-                try:
-                    # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
-                    # la url a la lista de urls investigadas
-                    if 'http' in tag['href']:
-                        response = requests.get(tag['href'])
-                        serverCache.put(tag['href'], True)
-                        print(tag['href'])
-                    else:
-                        response = requests.get(self.base_url + tag['href'])
-                        serverCache.put(self.base_url + tag['href'], True)
-                        print(self.base_url + tag['href'])
+                        # sacamos los nuevos datos del nuevo enlace
+                        new_soup = BeautifulSoup(response.text, 'html.parser')
 
-                    # sacamos los nuevos datos del nuevo enlace
-                    new_soup = BeautifulSoup(response.text, 'html.parser')
+                    except Exception as ex:
+                        print('Error : to request url', ex)
 
-                except Exception as ex:
-                    print('Error : to request url', ex)
+                    del tag
 
-                del tag
+                    try:
 
-                try:
+                        if new_soup and '404' not in new_soup.text:
+                            # we set the new html beautifulSoup
+                            self.html = new_soup
 
-                    if new_soup and '404' not in new_soup.text:
-                        # we set the new html beautifulSoup
-                        self.html = new_soup
+                            # we start to get information from the html set recently
+                            threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
-                        # we start to get information from the html set recently
-                        threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
+                            # we continue crawling web
+                            threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
 
-                        # we continue crawling web
-                        threads.append(self.executor_crawler.submit(self.crawlWeb, new_soup, threads))
-
-                except Exception as ex:
-                    wait(threads)
-                    print("Error: unable to start thread -> ",ex.args)
+                    except Exception as ex:
+                        wait(threads)
+                        print("Error: unable to start thread -> ", ex.args)
 
     # comprueba si la url puede ser visitada o no
-    def isUrlCrawlable(self, base_url: str, tag: {}, list_pages_crawled: []):
-        return 'href' in str(tag) and \
-               tag['href'] not in list_pages_crawled and \
-               (base_url + tag['href']) not in list_pages_crawled and \
-               (base_url in tag['href'] or 'http' not in tag['href'])
-
-    # comprueba si la url puede ser visitada o no
-    def isUrlCrawlable2(self, base_url: str, tag: {}):
+    def isUrlCrawlable(self, base_url: str, tag: {}):
         return 'href' in str(tag) and \
                serverCache.get(tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
                and (base_url in tag['href'] or 'http' not in tag['href'])
