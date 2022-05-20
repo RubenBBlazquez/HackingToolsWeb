@@ -1,4 +1,5 @@
 import os
+from multiprocessing import Lock
 from typing import Any
 import mysql
 from .interface.IDBMethods import IDBMethods
@@ -11,6 +12,7 @@ class MySqlBuilder(IDBMethods):
         self.conn = mysql_connection.connect(user=os.getenv('MYSQL_USER'), password=os.getenv('MYSQL_PASSWORD'),
                                              host=os.getenv('MYSQL_HOST'),
                                              database=os.getenv('MYSQL_DATABASE'))
+        self.lock = Lock()
 
     @staticmethod
     def get_instance():
@@ -38,14 +40,19 @@ class MySqlBuilder(IDBMethods):
     def insert(self, table: str, values: dict) -> None:
         try:
 
+            self.lock.acquire()
+
             prepared_data = MySqlBuilder.compound_prepared_sql_query(table, values)
+            self.conn.reconnect()
             cursor = self.conn.cursor(prepared=True)
             cursor.execute(prepared_data['sql'], prepared_data['tuple'])
             self.conn.commit()
-            cursor.close()
+
+            self.lock.release()
 
         except mysql.connector.errors.InterfaceError as err:
-            print(err)
+            self.lock.release()
+            print('interface error in mysql -- ',err)
 
     @staticmethod
     def compound_prepared_sql_query(table, query_information: dict) -> dict:

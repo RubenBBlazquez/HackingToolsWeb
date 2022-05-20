@@ -1,7 +1,12 @@
 let scrapButton = document.getElementById("scrapButton")
 let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
-let response_tags_data = {};
+
+document.addEventListener('DOMContentLoaded', () => initDataTables())
+
+const initDataTables = () => {
+    $('#dataTable-custom').DataTable();
+}
 
 /**
  * We Check with an event, the text that you are writing in the datalist if it is equal to some tag, we will add to the tags list
@@ -59,6 +64,7 @@ scrapButton.addEventListener("click", () => {
     let tagsFiltered = document.getElementById("dataTagsFiltered");
     const compoundFilter = document.getElementById("compoundFilter");
     const crawlLinks = document.getElementById("crawlLinksCheck");
+    const threads = document.getElementById("threads").value;
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
@@ -71,7 +77,8 @@ scrapButton.addEventListener("click", () => {
         'attributes': {'class': classNames, 'id': idNames},
         'word': words,
         'compoundFilter': compoundFilter.checked,
-        'crawlLinks': crawlLinks.checked
+        'crawlLinks': crawlLinks.checked,
+        'threads': parseInt(threads) ? threads !== '' : 3,
     }
 
     fetchDataFromWebScrapApi("POST", data)
@@ -175,7 +182,7 @@ function addTagElementToTagsList(value) {
 
         }
     } else {
-        toastr.error('Tag Already Added', 'the tag cant be added the same 2 times')
+        getToast(ToastTypes.ERROR,'Tag Already Added', 'the tag cant be added the same 2 times')
     }
 }
 

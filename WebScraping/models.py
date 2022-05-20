@@ -20,8 +20,8 @@ class WebScraping:
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
         self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] else \
             json.load(open(self.tags_data_file, "r"))
-        self.executor_crawler = ThreadPoolExecutor(max_workers=5)
-        self.executor_get_web_data = ThreadPoolExecutor(max_workers=5)
+        self.executor_crawler = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
+        self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
         mySqlBuilder.insert('WEBS_SCRAPPED',
@@ -175,10 +175,12 @@ class WebScraping:
             print('---------------------------------------------')
             print(identifier, element, self.url, self.endpoints)
             print('---------------------------------------------')
-
-            mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
-                                {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.base_url,
-                                 'ENDPOINT_WEB_SCRAPPED': self.endpoints})
+            try:
+                mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
+                                    {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.base_url,
+                                     'ENDPOINT_WEB_SCRAPPED': self.endpoints})
+            except Exception as ex:
+                self.insert_log(ex.args)
 
     def tagsNotAppendedYet(self, original_tag_list, new_tags) -> list:
 
@@ -200,6 +202,22 @@ class WebScraping:
                 data_to_append.append(tag)
 
         return data_to_append
+
+    def insert_log(self, message):
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print(message)
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------')
+        mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
+                            {'LOG_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'BASE_URL': self.base_url,
+                             'ENDPOINT': self.endpoints, 'LOG_ERROR': message})
 
 
 class CrawlWeb(WebScraping):
@@ -224,51 +242,55 @@ class CrawlWeb(WebScraping):
 
     def get_links_to_crawl(self, soup: BeautifulSoup, threads: []):
 
-        data_tags = soup.find_all('a')
+        try:
 
-        if len(data_tags) != 0:
+            data_tags = soup.find_all('a')
 
-            for tag in data_tags:
+            if len(data_tags) != 0:
 
-                if self.isUrlCrawlable(self.base_url, tag):
+                for tag in data_tags:
 
-                    new_soup = None
+                    if self.isUrlCrawlable(self.base_url, tag):
 
-                    try:
-                        # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
-                        # la url a la lista de urls investigadas
-                        if 'http' in tag['href']:
-                            response = requests.get(tag['href'])
-                            serverCache.put(tag['href'], True)
-                            print(tag['href'])
-                        else:
-                            response = requests.get(self.base_url + tag['href'])
-                            serverCache.put(self.base_url + tag['href'], True)
-                            print(self.base_url + tag['href'])
+                        new_soup = None
 
-                        # sacamos los nuevos datos del nuevo enlace
-                        new_soup = BeautifulSoup(response.text, 'html.parser')
+                        try:
+                            # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
+                            # la url a la lista de urls investigadas
+                            if 'http' in tag['href']:
+                                response = requests.get(tag['href'])
+                                serverCache.put(tag['href'], True)
+                            else:
+                                response = requests.get(self.base_url + tag['href'])
+                                serverCache.put(self.base_url + tag['href'], True)
 
-                    except Exception as ex:
-                        print('Error : to request url', ex)
+                            # sacamos los nuevos datos del nuevo enlace
+                            new_soup = BeautifulSoup(response.text, 'html.parser')
 
-                    del tag
+                        except Exception as ex:
+                            print('Error : to request url', ex)
 
-                    try:
+                        del tag
 
-                        if new_soup and '404' not in new_soup.text:
-                            # we set the new html beautifulSoup
-                            self.html = new_soup
+                        try:
 
-                            # we start to get information from the html set recently
-                            threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
+                            if new_soup and '404' not in new_soup.text:
+                                # we set the new html beautifulSoup
+                                self.html = new_soup
 
-                            # we continue crawling web
-                            threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
+                                # we start to get information from the html set recently
+                                threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
-                    except Exception as ex:
-                        wait(threads)
-                        print("Error: unable to start thread -> ", ex.args)
+                                # we continue crawling web
+                                threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
+
+                        except Exception as ex:
+                            self.insert_log(ex.args)
+                            print("Error: unable to start thread -> ", ex.args)
+
+        except Exception as ex:
+            self.insert_log(ex.args)
+            print('Error -- ', ex.args)
 
     # comprueba si la url puede ser visitada o no
     def isUrlCrawlable(self, base_url: str, tag: {}):

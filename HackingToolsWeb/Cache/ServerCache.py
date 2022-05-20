@@ -38,9 +38,6 @@ class ServerCache(metaclass=SingletonMeta):
 
     def __init__(self):
         self.cache = Cache()
-        print('----------------.-----------------------')
-        print(self.cache)
-        print('----------------.-----------------------')
 
     def get_builder(self):
         return CacheMethodsImplement(self.cache)
