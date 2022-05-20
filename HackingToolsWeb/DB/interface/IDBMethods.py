@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
+from HackingToolsWeb.DB.Entities.interface.BaseMethodsEntities import IEntity
 
 
 class IDBMethods(ABC):
@@ -13,7 +14,7 @@ class IDBMethods(ABC):
         pass
 
     @abstractmethod
-    def select_one(self, sql) -> Any:
+    def select_one(self, sql: str, entity: IEntity) -> Any:
         pass
 
     @abstractmethod
@@ -29,5 +30,5 @@ class IDBMethods(ABC):
         pass
 
     @abstractmethod
-    def insert(self, table: str, values: dict) -> None:
+    def insert(self, entity: IEntity) -> None:
         pass

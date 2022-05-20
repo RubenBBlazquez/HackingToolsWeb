@@ -1,20 +1,30 @@
 from concurrent.futures._base import wait
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
+from enum import Enum
+
 from bs4 import BeautifulSoup
 import requests
 import json
-from HackingToolsWeb.settings import mySqlBuilder, serverCache
+from HackingToolsWeb.settings import MySqlDB, serverCache, Utils
 import time
+from HackingToolsWeb.DB.Entities.TagScrapped.TagScrappedMysql import TagScrapped
+from HackingToolsWeb.DB.Entities.WebScrapped.WebScrappedMysql import WebScrapped
+from HackingToolsWeb.DB.Entities.LogsWebScraping.LogsWebScrapingMysql import LogsWebScraping
+
+
+class WEB_SCRAPING_CACHE_KEYS(Enum):
+    TAGS_SCRAPPED = 'TAGS_SCRAPPED'
 
 
 class WebScraping:
+    __name__ = 'Web Scraping'
+
     module_dir = os.path.dirname(__file__)  # get current directory
 
     def __init__(self, req_post_body):
         self.req_post_body = req_post_body
         self.url = req_post_body['url']
-        self.tags_scrapped = {}
         self.is_compound_filter = bool(req_post_body['compoundFilter'])
         self.html = BeautifulSoup(requests.get(req_post_body['url']).text, 'html.parser')
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
@@ -24,9 +34,8 @@ class WebScraping:
         self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
-        mySqlBuilder.insert('WEBS_SCRAPPED',
-                            {'SCRAP_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'BASE_URL': self.base_url,
-                             'ENDPOINT': self.endpoints, 'SCRAP_FINISHED': False, })
+
+        MySqlDB.insert(WebScrapped().setBaseUrl(self.base_url).setEndpoint(self.endpoints))
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -163,61 +172,31 @@ class WebScraping:
 
         """
 
+        tags_already_scrapped = serverCache.get(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
+
         tags_not_repeated = tags_list
 
-        if identifier in dict(self.tags_scrapped).keys():
-            tags_not_repeated = self.tagsNotAppendedYet(self.tags_scrapped[identifier], tags_list)
-            self.tags_scrapped[identifier].extend(tags_not_repeated)
+        if tags_already_scrapped and identifier in dict(tags_already_scrapped).keys():
+            tags_not_repeated = Utils.getElementsNotRepeated(tags_already_scrapped[identifier], tags_list)
+            tags_already_scrapped[identifier].extend(tags_not_repeated)
         else:
-            self.tags_scrapped[identifier] = tags_list
+            tags_already_scrapped = tags_list
+
+        serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
 
         for element in tags_not_repeated:
             print('---------------------------------------------')
             print(identifier, element, self.url, self.endpoints)
             print('---------------------------------------------')
             try:
-                mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
-                                    {'TAG': identifier, 'TAG_INFO': element, 'WEB_SCRAPPED': self.base_url,
-                                     'ENDPOINT_WEB_SCRAPPED': self.endpoints})
+                entity = TagScrapped().setTag(identifier).setTagInfo(element).setWebScrapped(self.base_url) \
+                    .setEndpointWebScrapped(self.endpoints)
+                MySqlDB.insert(entity)
             except Exception as ex:
                 self.insert_log(ex.args)
 
-    def tagsNotAppendedYet(self, original_tag_list, new_tags) -> list:
-
-        """
-            we check if the tags of new_tags list are not already in the original list and return which are not
-
-            :param original_tag_list -> its a list with the original elements
-
-            :param new_tags -> its a list with new elements to add
-
-            :return list
-
-        """
-
-        data_to_append = []
-
-        for tag in new_tags:
-            if str(tag).strip() not in original_tag_list:
-                data_to_append.append(tag)
-
-        return data_to_append
-
     def insert_log(self, message):
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print(message)
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------------')
-        mySqlBuilder.insert('TAGS_FROM_WEB_SCRAPPED',
-                            {'LOG_DATE': time.strftime('%Y-%m-%d %H:%M:%S'), 'BASE_URL': self.base_url,
-                             'ENDPOINT': self.endpoints, 'LOG_ERROR': message})
+        MySqlDB.insert(LogsWebScraping().setLogError(message).setBaseUrl(self.base_url).setEndpoint(self.endpoints))
 
 
 class CrawlWeb(WebScraping):
@@ -292,8 +271,15 @@ class CrawlWeb(WebScraping):
             self.insert_log(ex.args)
             print('Error -- ', ex.args)
 
-    # comprueba si la url puede ser visitada o no
-    def isUrlCrawlable(self, base_url: str, tag: {}):
+    def isUrlCrawlable(self, base_url: str, tag: {}) -> bool:
+        """
+            check if an url can be visited or not
+
+            :param base_url: str
+            :param tag: {}
+            :return: bool
+
+        """
         return 'href' in str(tag) and \
                serverCache.get(tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
                and (base_url in tag['href'] or 'http' not in tag['href'])

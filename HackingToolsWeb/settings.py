@@ -12,8 +12,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from .DB.MysqlBuilder import MySqlBuilder
+from .DB.MySqlDB import MySqlDB
 from .Cache.ServerCache import ServerCache
+from .Utils.Utils import Utils
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -132,10 +133,5 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-mySqlBuilder = MySqlBuilder()
-serverCache = ServerCache().get_builder()
-
-print(ServerCache(), ServerCache())
-print('-----------------------------------------------------')
-print('-----------------------------------------------------')
-print('-----------------------------------------------------')
+MySqlDB = MySqlDB().get_methods()
+serverCache = ServerCache().get_methods()

@@ -1,8 +1,7 @@
 from typing import Any
 from diskcache import Cache
-from django.utils.translation import override
 from .interface.ICacheMethods import ICacheMethods
-from ..SingletonMetaFile.SingletonMeta import SingletonMeta
+from HackingToolsWeb.MetaFiles.SingletonMetaFile.SingletonMeta import SingletonMeta
 import time
 
 
@@ -39,5 +38,5 @@ class ServerCache(metaclass=SingletonMeta):
     def __init__(self):
         self.cache = Cache()
 
-    def get_builder(self):
+    def get_methods(self) -> ICacheMethods:
         return CacheMethodsImplement(self.cache)

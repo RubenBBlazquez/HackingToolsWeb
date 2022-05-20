@@ -45,12 +45,7 @@ class WebScrapingAction(APIView):
             web_scraping_object = models.CrawlWeb(req_post_body=body)
             web_scraping_object.crawl_web(html, threads)
 
-        self.cleanEmptyDataDict(web_scraping_object.tags_scrapped)
-        print(serverCache.clear_cache(), '--------------------------------------')
-        tags_data = dict()
-        tags_data['tags'] = [web_scraping_object.tags_scrapped]
-
-        return JsonResponse(tags_data, safe=False)
+        return JsonResponse({'message': 'success', 'code': 200}, safe=False, status=200)
 
     # limpia posiciones sin datos en el diccionario
     def cleanEmptyDataDict(self, dictionary):
