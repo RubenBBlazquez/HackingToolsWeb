@@ -5,10 +5,18 @@ from HackingToolsWeb.MetaFiles.SingletonMetaFile.SingletonMeta import SingletonM
 import time
 
 
-class CacheMethodsImplement(ICacheMethods):
+class ServerCache(ICacheMethods):
 
-    def __init__(self, cache_instance: Cache):
-        self.cache = cache_instance
+    # singleton
+    _instance = None
+
+    def __new__(cls, *args, **kw):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls, *args, **kw)
+        return cls._instance
+
+    def __init__(self):
+        self.cache = Cache()
         self.last_time_cache_cleared = int(time.time())
 
     def get_instance(self) -> Any:
@@ -31,12 +39,3 @@ class CacheMethodsImplement(ICacheMethods):
 
     def clear_cache(self):
         self.cache.clear(retry=True)
-
-
-class ServerCache(metaclass=SingletonMeta):
-
-    def __init__(self):
-        self.cache = Cache()
-
-    def get_methods(self) -> ICacheMethods:
-        return CacheMethodsImplement(self.cache)

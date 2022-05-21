@@ -4,7 +4,7 @@ from typing import Any
 from HackingToolsWeb.DB.Entities.interface.BaseMethodsEntities import IEntity
 
 
-class IDBMethods(ABC):
+class IDBActions(ABC):
     """
     The Builder interface specifies methods for creating the different parts of a database
     """
@@ -14,7 +14,7 @@ class IDBMethods(ABC):
         pass
 
     @abstractmethod
-    def select_one(self, sql: str, entity: IEntity) -> Any:
+    def select_one(self, filter_query: str, entity: IEntity) -> Any:
         pass
 
     @abstractmethod

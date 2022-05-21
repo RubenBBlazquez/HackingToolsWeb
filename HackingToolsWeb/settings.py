@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from .DB.MySqlDB import MySqlDB
+from HackingToolsWeb.DB.DatabaseFactory.DatabaseFactory import DatabaseFactory
+from HackingToolsWeb.DB.DatabaseFactory.Enum.DatabaseTypesEnum import DATABASE_TYPES
 from .Cache.ServerCache import ServerCache
 from .Utils.Utils import Utils
 
@@ -133,5 +134,5 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MySqlDB = MySqlDB().get_methods()
-serverCache = ServerCache().get_methods()
+serverCache = ServerCache()
+Database = DatabaseFactory().get_database(DATABASE_TYPES.MYSQL)

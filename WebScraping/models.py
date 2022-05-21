@@ -6,7 +6,7 @@ from enum import Enum
 from bs4 import BeautifulSoup
 import requests
 import json
-from HackingToolsWeb.settings import MySqlDB, serverCache, Utils
+from HackingToolsWeb.settings import Database, serverCache, Utils
 import time
 from HackingToolsWeb.DB.Entities.TagScrapped.TagScrappedMysql import TagScrapped
 from HackingToolsWeb.DB.Entities.WebScrapped.WebScrappedMysql import WebScrapped
@@ -35,7 +35,7 @@ class WebScraping:
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
 
-        MySqlDB.insert(WebScrapped().setBaseUrl(self.base_url).setEndpoint(self.endpoints))
+        Database.insert(WebScrapped().setBaseUrl(self.base_url).setEndpoint(self.endpoints))
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -70,12 +70,12 @@ class WebScraping:
 
             else:
                 if type == 'tag':
-                    self.get_tags_web_data([element], element, False)
+                    self.get_tags_from_web_data([element], element, False)
 
                 elif type == 'attr':
                     get_only_attribute = True if element != 'id' and element != 'class' and element != 'text' else False
-                    self.get_tags_web_data(elements_to_find=[element], selectQuery='[' + element + ']',
-                                           large_identifier=False, get_only_attribute=get_only_attribute)
+                    self.get_tags_from_web_data(elements_to_find=[element], selectQuery='[' + element + ']',
+                                                large_identifier=False, get_only_attribute=get_only_attribute)
 
     def get_words_web_data(self):
 
@@ -84,8 +84,8 @@ class WebScraping:
         """
 
         for word in self.req_post_body['word']:
-            self.get_tags_web_data(elements_to_find=[word], selectQuery='*:-soup-contains("{item}")',
-                                   large_identifier=False)
+            self.get_tags_from_web_data(elements_to_find=[word], selectQuery='*:-soup-contains("{item}")',
+                                        large_identifier=False)
 
     def get_attr_class_or_ids_web_data(self, element):
 
@@ -95,10 +95,11 @@ class WebScraping:
 
         # {'class':... , 'id':...}
         for key in self.req_post_body['attributes'].keys():
-            self.get_tags_web_data(elements_to_find=self.req_post_body['attributes'][key],
-                                   selectQuery=element + '[' + key + '*="{item}"]', large_identifier=True)
+            self.get_tags_from_web_data(elements_to_find=self.req_post_body['attributes'][key],
+                                        selectQuery=element + '[' + key + '*="{item}"]', large_identifier=True)
 
-    def get_tags_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True, get_only_attribute=False):
+    def get_tags_from_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True,
+                               get_only_attribute=False):
 
         """
             buscamos las etiquetas y las añadimos al atributo de la clase llamado tags_scraped
@@ -191,12 +192,12 @@ class WebScraping:
             try:
                 entity = TagScrapped().setTag(identifier).setTagInfo(element).setWebScrapped(self.base_url) \
                     .setEndpointWebScrapped(self.endpoints)
-                MySqlDB.insert(entity)
+                Database.insert(entity)
             except Exception as ex:
                 self.insert_log(ex.args)
 
     def insert_log(self, message):
-        MySqlDB.insert(LogsWebScraping().setLogError(message).setBaseUrl(self.base_url).setEndpoint(self.endpoints))
+        Database.insert(LogsWebScraping().setLogError(message).setBaseUrl(self.base_url).setEndpoint(self.endpoints))
 
 
 class CrawlWeb(WebScraping):
