@@ -135,4 +135,4 @@ STATICFILES_DIRS = (
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 serverCache = ServerCache()
-Database = DatabaseFactory().get_database(DATABASE_TYPES.MYSQL)
+Database = DatabaseFactory().get_database(DATABASE_TYPES.MYSQL.value)

@@ -53,6 +53,9 @@ FROM TAGS_FROM_WEB_SCRAPPED;
 SELECT *
 FROM TAGS_FROM_WEB_SCRAPPED;
 
+SELECT *
+FROM TAGS_FROM_WEB_SCRAPPED where WEB_SCRAPPED like 'https://refactoring.guru';
+
 SELECT * FROM logs_webs_scrapped;
 
 commit;

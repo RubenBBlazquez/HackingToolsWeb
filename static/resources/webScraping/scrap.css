@@ -1,0 +1,13 @@
+.dataTables_info{
+    color: white!important;
+}
+input[type=search]{
+    background-color: white;
+    color: white;
+}
+input[name="dataTable-custom_lengt"]{
+    color: white !important;
+}
+label{
+    color: white;
+}

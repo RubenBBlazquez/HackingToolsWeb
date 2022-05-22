@@ -1,3 +1,7 @@
+const BASIC_HEADERS = {
+    'Content-Type': 'application/json'
+}
+
 const getToast = (type, title, message) => {
 
     switch (type) {
@@ -12,4 +16,18 @@ const getToast = (type, title, message) => {
             break;
     }
 
+}
+
+
+const fetchInformation = (url,method,headers,body) => {
+    const init = {
+        method: method,
+        headers:BASIC_HEADERS,
+    }
+
+    if (method !== "GET") {
+        init.body = JSON.stringify(body)
+    }
+
+    return fetch(url, init)
 }

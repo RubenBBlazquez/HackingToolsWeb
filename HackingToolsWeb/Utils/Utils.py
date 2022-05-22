@@ -21,3 +21,20 @@ class Utils:
                 data_to_append.append(tag)
 
         return data_to_append
+
+    @staticmethod
+    def cleanEmptyDataDict(dictionary):
+        """
+            method to clean positions/keys without information in dictionary
+
+            :param dictionary:
+
+        """
+        positions_to_delete = []
+
+        for key in dictionary.keys():
+            if not dictionary[key]:
+                positions_to_delete.append(key)
+
+        for position in positions_to_delete:
+            del dictionary[position]

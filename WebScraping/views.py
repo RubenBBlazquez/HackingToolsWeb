@@ -1,31 +1,38 @@
 import json
-from concurrent.futures import wait
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework.views import APIView
 import requests
 from bs4 import BeautifulSoup
 import os
-from concurrent.futures import ThreadPoolExecutor
 from WebScraping import models
-from HackingToolsWeb.settings import serverCache
 
 
 # Create your views here.
 
 def web_scraping_page(request):
     if request:
-        return render(request, 'scraping.html', context=None)
+        return render(request, 'scraping.html')
 
 
 class WebScrapingAction(APIView):
-    thread_pool = ThreadPoolExecutor(20)
-    module_dir = os.path.dirname(__file__)  # get current directory
-    tags_data_file = module_dir + '/files/html_wordlists.json'
-    data_crawled = []
+    tags_data_file = os.path.dirname(__file__) + '/files/html_wordlists.json'
 
     def get(self, request):
-        return JsonResponse(json.load(open(self.tags_data_file, "r")), safe=False)
+
+        action = request.GET.get('action')
+
+        if action == 'TAGS_INFORMATION':
+            return JsonResponse(
+                json.load(
+                    open(
+                        self.tags_data_file,
+                        "r"
+                    )),
+                safe=False)
+
+        elif action == 'WEBS_SCRAPPED_INFORMATION':
+            return JsonResponse({'index': 0, 'tags': 'a', 'count': 0, 'data': 'hola'}, safe=False)
 
     def post(self, request):
 
@@ -45,15 +52,5 @@ class WebScrapingAction(APIView):
             web_scraping_object = models.CrawlWeb(req_post_body=body)
             web_scraping_object.crawl_web(html, threads)
 
-        return JsonResponse({'message': 'success', 'code': 200}, safe=False, status=200)
-
-    # limpia posiciones sin datos en el diccionario
-    def cleanEmptyDataDict(self, dictionary):
-        positions_to_delete = []
-
-        for key in dictionary.keys():
-            if not dictionary[key]:
-                positions_to_delete.append(key)
-
-        for position in positions_to_delete:
-            del dictionary[position]
+        return JsonResponse(
+            {'message': 'success', 'code': 200}, safe=False, status=200)

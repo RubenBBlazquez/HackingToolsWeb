@@ -2,10 +2,50 @@ let scrapButton = document.getElementById("scrapButton")
 let url = 'http://127.0.0.1:8000';
 let dropdown = document.getElementById("inputDataList");
 
-document.addEventListener('DOMContentLoaded', () => initDataTables())
+document.addEventListener('DOMContentLoaded', async () => {
+    await initDataTables();
+    await getAvailableHtmlTags();
+})
 
+/**
+ *
+ */
+const getAvailableHtmlTags = () => {
+    fetchInformation(url + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, undefined)
+        .then(response => {
+            response.json()
+                .then((data) => {
+                    for (const i of data['tags']) {
+                        let option = document.createElement("option");
+                        option.setAttribute("data-value", i.trim());
+                        option.setAttribute("value", i.trim().split("-")[0].trim());
+                        option.text = i.trim().split("-")[1].trim();
+                        option.setAttribute("class", "col-12")
+                        document.getElementById("datalistOptions").appendChild(option)
+                    }
+                })
+        });
+}
+
+const getWebsScrappedInformation = () => {
+
+}
+
+/**
+ *
+ */
 const initDataTables = () => {
-    $('#dataTable-custom').DataTable();
+    $('#dataTable-custom').DataTable({
+        "serverSide": true,
+        "ajax": url + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION',
+        columns: [
+            {"data": "index"},
+            {"data": "tags"},
+            {"data": "count"},
+            {"data": "data"}]
+    });
+    const showEntriesSelector = document.getElementsByName('dataTable-custom_length')[0]
+    if (showEntriesSelector) showEntriesSelector.setAttribute('class', 'text-light bg-dark')
 }
 
 /**
@@ -36,26 +76,9 @@ dropdown.addEventListener('change', (event) => {
     }
 });
 
+scrapButton.addEventListener("click", async () => await getWebInformation());
 
-document.addEventListener("DOMContentLoaded", () => {
-    fetchDataFromWebScrapApi("GET", {})
-        .then(response => {
-            response.json()
-                .then((data) => {
-                    for (const i of data['tags']) {
-                        let option = document.createElement("option");
-                        option.setAttribute("data-value", i.trim());
-                        option.setAttribute("value", i.trim().split("-")[0].trim());
-                        option.text = i.trim().split("-")[1].trim();
-                        option.setAttribute("class", "col-12")
-                        document.getElementById("datalistOptions").appendChild(option)
-                    }
-                })
-        });
-});
-
-scrapButton.addEventListener("click", () => {
-
+const getWebInformation = async () => {
     let urlToScrap = document.getElementById("urlToScrap");
     let tags = document.getElementById("tagsToScrap");
     let classNames = document.getElementById("classNames") || "";
@@ -81,44 +104,7 @@ scrapButton.addEventListener("click", () => {
         'threads': parseInt(threads) ? threads !== '' : 3,
     }
 
-    fetchDataFromWebScrapApi("POST", data)
-        .then((response) => {
-            response.json()
-                .then((data) => {
-                    let i = 0;
-                    tagsFiltered.innerHTML = "";
-                    for (const tag of Object.keys(data.tags[0])) {
-                        i++;
-                        addElementScrapped(i, tag, data.tags[0][tag].length, data.tags[0])
-                    }
-                });
-        });
-});
-
-function fetchDataFromWebScrapApi(methodToUse, data) {
-
-    let init = {}
-    if (methodToUse === "GET") {
-        init = {
-            method: methodToUse, // or 'PUT'
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        }
-    } else {
-        console.log(data)
-        init = {
-            method: methodToUse, // or 'PUT'
-            body: JSON.stringify(data), // data can be `string` or {object}!
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        }
-    }
-    return fetch(url + "/scrapWebApi/", init)
-        .catch(error => {
-            console.error('Error:', error)
-        })
+    await fetchInformation(url + '/scrapWebApi/', "POST", BASIC_HEADERS, data)
 }
 
 function isTagAlreadyAdded(tag) {
@@ -182,7 +168,7 @@ function addTagElementToTagsList(value) {
 
         }
     } else {
-        getToast(ToastTypes.ERROR,'Tag Already Added', 'the tag cant be added the same 2 times')
+        getToast(ToastTypes.ERROR, 'Tag Already Added', 'the tag cant be added the same 2 times')
     }
 }
 

@@ -28,14 +28,17 @@ class WebScraping:
         self.is_compound_filter = bool(req_post_body['compoundFilter'])
         self.html = BeautifulSoup(requests.get(req_post_body['url']).text, 'html.parser')
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
-        self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] else \
-            json.load(open(self.tags_data_file, "r"))
+        self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] \
+            else json.load(open(self.tags_data_file, "r"))
         self.executor_crawler = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
 
-        Database.insert(WebScrapped().setBaseUrl(self.base_url).setEndpoint(self.endpoints))
+        Database.insert(
+            WebScrapped()
+                .setBaseUrl(self.base_url)
+                .setEndpoint(self.endpoints))
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -52,7 +55,6 @@ class WebScraping:
             self.get_words_web_data()
 
     def get_web_data(self):
-
         """
             Recorre las tags y separa el tag del tipo, para saber si una tag es un atributo o una etiqueta
             después comprueba si el usuario ha marcado que se realiza una busqueda compuesta, esto significa
@@ -63,7 +65,6 @@ class WebScraping:
         for tag in self.html_tag_wordlist['tags']:
 
             element = str(tag).split("-")[0].strip()
-            type = str(tag).split("-")[1].strip()
 
             if self.is_compound_filter:
                 self.get_attr_class_or_ids_web_data(element)
@@ -74,21 +75,24 @@ class WebScraping:
 
                 elif type == 'attr':
                     get_only_attribute = True if element != 'id' and element != 'class' and element != 'text' else False
-                    self.get_tags_from_web_data(elements_to_find=[element], selectQuery='[' + element + ']',
-                                                large_identifier=False, get_only_attribute=get_only_attribute)
+                    self.get_tags_from_web_data(
+                        elements_to_find=[element],
+                        selectQuery='[' + element + ']',
+                        large_identifier=False,
+                        get_only_attribute=get_only_attribute)
 
     def get_words_web_data(self):
-
         """
             obtenemos las tags que contengan la palabra especificada
         """
 
         for word in self.req_post_body['word']:
-            self.get_tags_from_web_data(elements_to_find=[word], selectQuery='*:-soup-contains("{item}")',
-                                        large_identifier=False)
+            self.get_tags_from_web_data(
+                elements_to_find=[word],
+                selectQuery='*:-soup-contains("{item}")',
+                large_identifier=False)
 
     def get_attr_class_or_ids_web_data(self, element):
-
         """
             recorremos los atributos de la request y buscamos las etiquetas que contengan ese atributo(element)
         """
@@ -96,11 +100,10 @@ class WebScraping:
         # {'class':... , 'id':...}
         for key in self.req_post_body['attributes'].keys():
             self.get_tags_from_web_data(elements_to_find=self.req_post_body['attributes'][key],
-                                        selectQuery=element + '[' + key + '*="{item}"]', large_identifier=True)
+                                        selectQuery=element + '[' + key + '*="{item}"]')
 
     def get_tags_from_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True,
                                get_only_attribute=False):
-
         """
             buscamos las etiquetas y las añadimos al atributo de la clase llamado tags_scraped
 
@@ -138,12 +141,13 @@ class WebScraping:
                 # comprobamos que necesite un identificador largo de diferenciación(esto pasa cuando queremos sacar
                 # elementos que contengan la clase x)
                 if not large_identifier:
-                    self.addNewTagDataToDB(element, tags_list)
+                    self.add_new_data_to_db(element, tags_list)
                 else:
-                    self.addNewTagDataToDB(self.getLargeIdentifier(soup_query=selectQuery, value=element), tags_list)
+                    self.add_new_data_to_db(
+                        WebScraping.get_large_identifier(soup_query=selectQuery, value=element), tags_list)
 
-    def getLargeIdentifier(self, soup_query: str, value: str) -> str:
-
+    @staticmethod
+    def get_large_identifier(soup_query: str, value: str) -> str:
         """
 
             method to get a large identifier from a tag/attribute
@@ -156,14 +160,16 @@ class WebScraping:
 
         """
 
-        bracket_position = soup_query.find('[') if soup_query.find('[') != -1 else 0
+        bracket_position = soup_query.find(
+            '[') if soup_query.find('[') != -1 else 0
+
         tag_father = soup_query[0:bracket_position]  # a
+
         type_tag = soup_query[soup_query.find('[') + 1:soup_query.find('*')]  # class
 
         return tag_father + '[' + type_tag + '=' + value + ']'
 
-    def addNewTagDataToDB(self, identifier, tags_list):
-
+    def add_new_data_to_db(self, identifier, tags_list):
         """
             Method to append the new data to tags scrapped
 
@@ -173,7 +179,8 @@ class WebScraping:
 
         """
 
-        tags_already_scrapped = serverCache.get(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
+        tags_already_scrapped = serverCache.get(
+            WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
 
         tags_not_repeated = tags_list
 
@@ -190,23 +197,29 @@ class WebScraping:
             print(identifier, element, self.url, self.endpoints)
             print('---------------------------------------------')
             try:
-                entity = TagScrapped().setTag(identifier).setTagInfo(element).setWebScrapped(self.base_url) \
+                entity = TagScrapped() \
+                    .setTag(identifier).setTagInfo(element) \
+                    .setWebScrapped(self.base_url) \
                     .setEndpointWebScrapped(self.endpoints)
                 Database.insert(entity)
             except Exception as ex:
                 self.insert_log(ex.args)
 
     def insert_log(self, message):
-        Database.insert(LogsWebScraping().setLogError(message).setBaseUrl(self.base_url).setEndpoint(self.endpoints))
+        Database.insert(
+            LogsWebScraping()
+                .setLogError(message)
+                .setBaseUrl(self.base_url)
+                .setEndpoint(self.endpoints))
 
 
 class CrawlWeb(WebScraping):
+    __name__ = 'Crawl Web'
 
     def __init__(self, req_post_body):
         super(CrawlWeb, self).__init__(req_post_body)
 
     def crawl_web(self, soup: BeautifulSoup, threads: []):
-
         """
             crawleamos la web, y vamos sacando todos los datos de todas las pestañas, cuando se recorre una pestaña esta
             se elimina para no recogerla de nuevo
@@ -221,6 +234,12 @@ class CrawlWeb(WebScraping):
         wait(threads)
 
     def get_links_to_crawl(self, soup: BeautifulSoup, threads: []):
+        """
+            Recursive method to get all information crawling tags <a> from a web
+
+            :param soup:
+            :param threads:
+        """
 
         try:
 
@@ -230,7 +249,7 @@ class CrawlWeb(WebScraping):
 
                 for tag in data_tags:
 
-                    if self.isUrlCrawlable(self.base_url, tag):
+                    if CrawlWeb.urlCanBeCrawled(self.base_url, tag):
 
                         new_soup = None
 
@@ -244,7 +263,7 @@ class CrawlWeb(WebScraping):
                                 response = requests.get(self.base_url + tag['href'])
                                 serverCache.put(self.base_url + tag['href'], True)
 
-                            # sacamos los nuevos datos del nuevo enlace
+                            # we get the new data from the response
                             new_soup = BeautifulSoup(response.text, 'html.parser')
 
                         except Exception as ex:
@@ -272,7 +291,8 @@ class CrawlWeb(WebScraping):
             self.insert_log(ex.args)
             print('Error -- ', ex.args)
 
-    def isUrlCrawlable(self, base_url: str, tag: {}) -> bool:
+    @staticmethod
+    def urlCanBeCrawled(base_url: str, tag: {}) -> bool:
         """
             check if an url can be visited or not
 
@@ -281,6 +301,6 @@ class CrawlWeb(WebScraping):
             :return: bool
 
         """
-        return 'href' in str(tag) and \
-               serverCache.get(tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
+        return 'href' in str(tag) and serverCache.get(
+            tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
                and (base_url in tag['href'] or 'http' not in tag['href'])
