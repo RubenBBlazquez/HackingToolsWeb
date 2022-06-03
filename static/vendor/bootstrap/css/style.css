@@ -6446,7 +6446,9 @@ button.bg-dark:focus {
   position: absolute !important; }
 
 .position-fixed {
-  position: fixed !important; }
+  position: fixed !important;
+  z-index: 100;
+}
 
 .position-sticky {
   position: -webkit-sticky !important;
@@ -8197,11 +8199,13 @@ h1, h2, h3, h4, h5,
   background-position: center center; }
 
 .wrapper {
-  width: 100%; }
+  min-width: 260px;
+  max-width: 260px;
+}
 
 #sidebar {
-  min-width: 300px;
-  max-width: 300px;
+  min-width: 260px;
+  max-width: 260px;
   background: #32373d;
   color: #fff;
   -webkit-transition: all 0.3s;

@@ -5368,10 +5368,10 @@ textarea.form-control-lg {
   }
 }
 .modal-fullscreen {
-  width: 100vw;
-  max-width: none;
-  height: 100%;
-  margin: 0;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100% !important;
+  margin: 0 !important;
 }
 .modal-fullscreen .modal-content {
   height: 100%;

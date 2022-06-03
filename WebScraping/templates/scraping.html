@@ -1,61 +1,131 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<html>
-    <head>
-        <link href="{% static 'resources/scrap.css' %}">
-    </head>
+    <link type="text/css" href="{% static 'resources/webScraping/scrap.css' %}" rel="stylesheet">
 
-<body>
-<div class="container-fluid ">
-      <header class="container-fluid d-flex justify-content-center">
-        <div class="col-12 row h-100 p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
-            <h1 class=" black_ops_font text-success mb-3">Web Scraping</h1>
+    <div class="container-fluid ">
+        <header class="container-fluid d-flex justify-content-center">
+            <div class="col-12 row h-100 p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
+                <div class="col-12 row">
+                    <h1 class="offset-md-3 col-md-5 col-sm-12 black_ops_font text-success mb-3 text-center">Web
+                        Scraping</h1>
+                    <input type="number"
+                           class="form-control chelsea_font text-center col-md-2 col-sm-10 mb-sm-3 mt-md-2"
+                           id="threads"
+                           name="threads"
+                           value=""
+                           placeholder="3 threads" min="0" max="10">
+                </div>
 
-              <div class="mb-3 row col-12 d-flex align-items-center justify-content-center flex-column">
-                  <div class="row col-12 d-flex justify-content-center">
-                      <label for="exampleFormControlInput1" class="form-label chelsea_font col-11">Web To Scrap</label>
-                     <input type="text" class="form-control chelsea_font text-center col-11 " id="urlToScrap" value="" placeholder="https://google.com">
-                  </div>
-                  <div class="row col-12 d-flex justify-content-center">
-                      <label for="exampleDataList" class="col-11 form-label mt-3 chelsea_font mr-2">Tags or Words to find</label>
+                <div class="mb-3 row col-12 d-flex align-items-center justify-content-center flex-column">
+                    <div class="row col-12 d-flex justify-content-center">
+                        <label for="exampleFormControlInput1" class="form-label chelsea_font col-11">Web To
+                            Scrap</label>
+                        <input type="text" class="form-control chelsea_font text-center col-11 " id="urlToScrap"
+                               value="" placeholder="https://google.com">
+                    </div>
+                    <div class="row col-12 d-flex justify-content-center">
+                        <label for="exampleDataList" class="col-11 form-label mt-3 chelsea_font mr-2">Tags or Words to
+                            find</label>
 
-                      <input class="form-control text-center col-5 chelsea_font " list="datalistOptions" id="inputDataList" placeholder="Type to search a tag...">
-                      <datalist id="datalistOptions" class="col-5">
+                        <input class="form-control text-center col-md-5 col-sm-12 mt-sm-2 mt-md-0 chelsea_font "
+                               list="datalistOptions" id="inputDataList" placeholder="Type to search a tag...">
+                        <datalist id="datalistOptions" class="col-md-5">
 
-                      </datalist>
+                        </datalist>
 
-                      <input type="text" class="form-control chelsea_font ml-1 col-6 text-dark text-center" id="tagsToScrap" value placeholder="Tags to filter and scrap to the url defined">
+                        <input type="text"
+                               class="form-control chelsea_font ml-1 col-md-6 col-sm-12 mt-sm-2 mt-md-0 text-dark text-center"
+                               id="tagsToScrap" value placeholder="Tags to filter and scrap to the url defined">
 
-                  </div>
-            <div class="row col-11 mt-2">
-                <button id="scrapButton" class="col-12 btn btn-outline-success text-light mt-3">Scrap Web</button>
-                <button id="scrapButton" class="col-12 btn btn-outline-success text-light mt-3">Reset Data</button>
+                    </div>
+
+                    <div id="auxContainer" class="row col-12 d-flex justify-content-center">
+
+                    </div>
+                    <div class="form-check form-switch row col-11 ml-2 mt-3 d-none" id="compoundFilterDiv">
+                        <input class="form-check-input col-2 " type="checkbox" id="compoundFilter">
+                        <label class="form-check-label col-10 chelsea_font ml-1 col-6 " for="compoundFilter">Compound
+                            Filter</label>
+                    </div>
+                    <div class="form-check form-switch row col-11 ml-2 mt-3 d-none" id="crawlLinksCheckDiv">
+                        <input class="form-check-input col-2 " type="checkbox" id="crawlLinksCheck">
+                        <label class="form-check-label col-10 chelsea_font ml-1 col-6 " for="crawlLinksCheck">Crawl
+                            Links</label>
+                    </div>
+                    <div class="row col-11 mt-2 float-right">
+                        <button id="scrapButton" class="col-12 btn btn-success text-light mt-3">Scrap Web
+                        </button>
+                        <button id="scrapResetButton" class="col-12 btn btn-outline-success text-light mt-3">Reset
+                            Data
+                        </button>
+                    </div>
+                </div>
+
             </div>
-            </div>
-
-        </div>
-    </header>
-    <section class="container-fluid d-flex justify-content-center mt-1">
-        <div class="col-12 row p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
-            <table class="table table-dark table-striped">
-                <thead>
+        </header>
+        <section class="container-fluid d-flex justify-content-center mt-1 row col-12">
+            <div class="col-12 row p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
+                <table id="dataTable-custom"
+                       class="table bg-black-dark table-dark table-striped table-hover nowrap col-12"
+                       style="width: 100%">
+                    <thead>
                     <tr id="nameTagsFiltered">
-
+                        <th scope="col" class="text-center">X</th>
+                        <th scope="col" class="text-center">WebsScrapped</th>
+                        <th scope="col" class="text-center">Endpoint</th>
+                        <th scope="col" class="text-center">Tags</th>
+                        <th scope="col" class="text-center">Count</th>
+                        <th scope="col" class="text-center">Action</th>
                     </tr>
-                  </thead>
-                  <tbody id="dataTagsFiltered">
+                    </thead>
+                    <tbody id="dataTagsFiltered">
 
-                  </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="container-fluid">
+
+        </footer>
+    </div>
+    <div class="modal fade" id="dataTagModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <table id="dataTable-custom-modal"
+                           class="table table-striped table-hover nowrap col-12"
+                           style="width: 100%">
+                        <thead>
+                        <tr id="nameTagsFiltered">
+                            <th scope="col" class="text-center">X</th>
+                            <th scope="col" class="text-center">tag</th>
+                            <th scope="col" class="text-center">tagInformation</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dataTagsFiltered">
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
-    <footer class="container-fluid">
+    <script src="{% static 'resources/webScraping/WebScrapingRequests.js' %}"></script>
+    <script src="{% static 'resources/webScraping/WebScrapingMethods.js' %}"></script>
+    <script src="{% static 'resources/webScraping/WebScrapingEvents.js' %}"></script>
+    <script src="{% static 'resources/webScraping/WebScrapingDatatables.js' %}"></script>
 
-    </footer>
-</div>
-<script src="{% static 'resources/scrap.js' %}"></script>
-</body>
-</html>
 {% endblock %}

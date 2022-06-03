@@ -1,63 +1,78 @@
 {% load static %}
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Tell the browser to be responsive to screen width -->
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link type="text/css" href="{% static 'vendor/bootstrap/css/style.css'%}" rel="stylesheet">
-  <link type="text/css" href="{% static 'vendor/toastr/toastr.css'%}" rel="stylesheet">
-  <link type="text/css" href="{% static 'resources/style.css'%}" rel="stylesheet">
-  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <link type="text/css" href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'vendor/bootstrap/css/style.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'vendor/toastr/toastr.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'resources/style.css' %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="{% static 'resources/Utils/ToastTypes.js' %}"></script>
+    <script src="{% static 'resources/Utils/Utils.js' %}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 
-  <title>Hacking Tools</title>
+    <title>Hacking Tools</title>
 
 </head>
 
 <body id="body-pd" class="bg-gray">
 
-    <div class="wrapper d-flex align-items-stretch bg-gray">
-			<nav id="sidebar" class="bg-black-dark">
-	  		<div class="img bg-wrap text-center py-4" style="background-image: url({% static 'images/ciber_background.jpg' %});">
-	  			<div class="user-logo">
-	  				<div class="img" style="background-image: url({% static 'images/cerberus.jpg' %});"></div>
-	  				<h3 class="chelsea_font">G3R1ON</h3>
-	  			</div>
-	  		</div>
-        <ul class="list-unstyled components mb-5">
-          <li class="active">
-            <a href="/" class="chelsea_font text-light"><span class="fa fa-home mr-3"></span> Home</a>
-          </li>
-          <li>
-            <a href="/webScraping/" class="chelsea_font text-light"><span class="far fa-claw-marks mr-3"></span>Web Scraping</a>
-          </li>
-          <li>
-            <a href="#" class="chelsea_font text-light"><span class="fas fa-scroll-old mr-3"></span>ReverShells</a>
-          </li>
-
-        </ul>
-
-    	</nav>
-        <div class="">
-            <button id="sidebarCollapse" class="btn btn-outline-blue-dark rounded-bottom"><i class="fas fa-bars"></i></button>
+<div class="d-flex bg-gray">
+    <nav id="sidebar" class="bg-black-dark wrapper">
+        <div class="position-fixed wrapper">
+            <div class="img bg-wrap text-center py-4"
+                 style="background-image: url({% static 'images/ciber_background.jpg' %});">
+                <div class="user-logo">
+                    <div class="img" style="background-image: url({% static 'images/cerberus.jpg' %});"></div>
+                    <h3 class="chelsea_font">G3R1ON</h3>
+                </div>
+            </div>
+            <ul class="list-unstyled components mb-5">
+                <li class="active">
+                    <a href="/" class="chelsea_font text-light"><span class="fa fa-home mr-3"></span> Home</a>
+                </li>
+                <li>
+                    <a href="/webScraping/" class="chelsea_font text-light"><span class="far fa-claw-marks mr-3"></span>Web
+                        Scraping</a>
+                </li>
+                <li>
+                    <a href="/revershellGenerator/" class="chelsea_font text-light"><span
+                            class="fas fa-scroll-old mr-3"></span>ReverShells</a>
+                </li>
+                <li>
+                    <a href="/apiSniffer/" class="chelsea_font text-light"><span class="fab fa-quinscape mr-3"></span>Api
+                        Sniffer</a>
+                </li>
+            </ul>
         </div>
+    </nav>
+    <div class="position-fixed">
+        <button id="sidebarCollapse" class="btn btn-outline-blue-dark rounded-bottom"><i class="fas fa-bars"></i>
+        </button>
+    </div>
 
 
-        <!-- Page Content  -->
-      <div id="content" class="p-4 p-md-5 pt-5">
-          {% block content %}
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
+        {% block content %}
 
         {% endblock %}
-      </div>
-		</div>
+    </div>
+</div>
+</div>
 
-    <script src="{% static 'vendor/bootstrap/js/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/popper.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
-    <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
+<script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>
 </body>
 
 </html>

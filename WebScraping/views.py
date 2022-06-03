@@ -1,64 +1,93 @@
 import json
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
-from pip._vendor import requests
+from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework.views import APIView
 import requests
 from bs4 import BeautifulSoup
 import os
-import pandas as pd
-import numpy as np
+from WebScraping import models
 
 
 # Create your views here.
 
-def WebScrapingPage(request):
+def web_scraping_page(request):
     if request:
-        return render(request, 'scraping.html', context=None)
+        return render(request, 'scraping.html')
 
 
 class WebScrapingAction(APIView):
+    tags_data_file = os.path.dirname(__file__) + '/files/html_wordlists.json'
 
     def get(self, request):
-        module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = module_dir + '/files/html_wordlists.json';
-        print("get method")
-        return JsonResponse(json.load(open(file_path, "r")),safe=False)
+
+        action = request.GET.get('action')
+        endpoint = request.GET.get('endpoint', '')
+        base_url = request.GET.get('baseUrl', '')
+        tag = request.GET.get('tag', '')
+        limit = request.GET.get('length', '10')
+        offset = request.GET.get('start', '0')
+        search_value = request.GET.get('search[value]', '')
+
+        if action == 'TAGS_INFORMATION':
+            return JsonResponse(
+                json.load(
+                    open(
+                        self.tags_data_file,
+                        "r"
+                    )),
+                safe=False)
+
+        elif action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED':
+
+            result = models.WebScraping.get_grouped_tag_count_from_web_scrapped(base_url,
+                                                                                endpoint, limit, offset, search_value)
+            total_results = len(models.WebScraping.get_grouped_tag_count_from_web_scrapped(base_url,
+                                                                                           endpoint, '', '',
+                                                                                           search_value))
+
+            return JsonResponse(
+                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
+                 'draw': request.GET.get('draw', 1)},
+                status=200,
+                safe=False)
+
+        elif action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION':
+
+            result = models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+                                                                               endpoint, tag, limit, offset,
+                                                                               search_value)
+            total_results = len(models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+                                                                                          endpoint, tag, '', '',
+                                                                                          search_value))
+
+            return JsonResponse(
+                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
+                 'draw': request.GET.get('draw', 1)},
+                status=200,
+                safe=False)
+
+        elif action == 'WEBS_SCRAPPED_INFORMATION':
+            return JsonResponse({'data': models.WebScraping.get_information_from_web_scrapped()},
+                                status=200,
+                                safe=False)
 
     def post(self, request):
 
-        module_dir = os.path.dirname(__file__)  # get current directory
-        file_path = module_dir + '/files/html_wordlists.json'
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
         response = requests.get(body['url'])
+        crawl_web = bool(body['crawlLinks'])
+
         html = BeautifulSoup(response.text, 'html.parser')
-
         print(body)
-        html_tag_wordlist = {}
-        if body['tags']:
-            html_tag_wordlist['tags'] = body['tags']
+
+        if not crawl_web:
+            web_scraping_object = models.WebScraping(req_post_body=body)
+            web_scraping_object.scrap_web()
         else:
-            html_tag_wordlist = json.load(open(file_path, "r"))
+            threads = list()
+            web_scraping_object = models.CrawlWeb(req_post_body=body)
+            web_scraping_object.crawl_web(html, threads)
 
-        serie = pd.Series(index=html_tag_wordlist['tags'])
-        print(serie)
-
-        for i in html_tag_wordlist['tags']:
-            quotes_html = html.find_all(i)
-            tagsList = []
-            for tag in quotes_html:
-                tagsList.append(str(tag))
-
-            if not tagsList:
-                tagsList = np.NAN
-
-            serie[i] = tagsList
-
-        dataframe = pd.DataFrame(serie, dtype=np.object_)
-        dataframe.to_csv("data.csv",sep=",")
-        array = dataframe.to_dict()
-        print(array[0])
-
-        return HttpResponse(array[0])
-
+        return JsonResponse(
+            {'message': 'success', 'code': 200}, safe=False, status=200)
