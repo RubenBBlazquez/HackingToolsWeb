@@ -2,6 +2,7 @@ from concurrent.futures._base import wait
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
 from enum import Enum
+from typing import Any
 
 from bs4 import BeautifulSoup
 import requests
@@ -9,6 +10,7 @@ import json
 from HackingToolsWeb.settings import Database, serverCache, Utils
 import time
 from HackingToolsWeb.DB.Entities.TagScrapped.TagScrappedMysql import TagScrapped
+from HackingToolsWeb.DB.Entities.TagScrapped.GroupedTagsScrappedMysql import GroupedTagsScrapped
 from HackingToolsWeb.DB.Entities.WebScrapped.WebScrappedMysql import WebScrapped
 from HackingToolsWeb.DB.Entities.LogsWebScraping.LogsWebScrapingMysql import LogsWebScraping
 
@@ -206,11 +208,72 @@ class WebScraping:
                 self.insert_log(ex.args)
 
     def insert_log(self, message):
+        """
+
+        :param message: error message to insert in database
+        """
         Database.insert(
             LogsWebScraping()
                 .setLogError(message)
                 .setBaseUrl(self.base_url)
                 .setEndpoint(self.endpoints))
+
+    @staticmethod
+    def get_tags_information_from_web_scrapped(base_url: str, endpoint: str, tag: str, limit: str, offset: str,
+                                               search_value: str) -> list:
+        """
+
+            :param base_url: from web
+            :param endpoint: endpoint from web
+            :return list:
+        """
+
+        select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
+
+        query_values = {'WEB_SCRAPPED-str-and': base_url.strip(), 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
+                        'TAG-str-and': tag.strip()}
+
+        return WebScraping.map_index_to_dict_of_lists(Database.select_many(select_values, query_values, TagScrapped(),
+                                                                           limit, offset))
+
+    @staticmethod
+    def get_grouped_tag_count_from_web_scrapped(base_url: str, endpoint: str, limit: str, offset: str,
+                                                search_value: str) -> list:
+        """
+
+            :param search_value:
+            :param limit:
+            :param offset:
+            :param base_url: from web
+            :param endpoint: endpoint from web
+            :return list:
+        """
+
+        select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
+
+        query_values = {'WEB_SCRAPPED-str-and': base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+                        'WEB_SCRAPPED-str-or': search_value,
+                        'ENDPOINT_WEB_SCRAPPED-str-or': search_value, 'TAG-str-or': search_value}
+
+        return WebScraping.map_index_to_dict_of_lists(Database.grouped_select(select_values, query_values,
+                                                                              GroupedTagsScrapped(), limit, offset))
+
+    @staticmethod
+    def get_information_from_web_scrapped() -> list:
+        """
+            method to get all webs scrapped already
+
+            return list:
+        """
+
+        return Database.select_many(dict(), dict(), WebScrapped(), '', '')
+
+    @staticmethod
+    def map_index_to_dict_of_lists(data: list) -> list:
+        for position in range(0, len(data)):
+            data[position]['index'] = position + 1
+
+        return data
 
 
 class CrawlWeb(WebScraping):
@@ -281,7 +344,8 @@ class CrawlWeb(WebScraping):
                                 threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
                                 # we continue crawling web
-                                threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
+                                threads.append(
+                                    self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
 
                         except Exception as ex:
                             self.insert_log(ex.args)

@@ -11,6 +11,9 @@ class LogsWebScraping(IEntity):
         self._endpoint = ""
         self._log_error = ""
 
+    def get_table(self) -> str:
+        return self._table
+
     def getLogDate(self) -> str:
         return self._log_date
 

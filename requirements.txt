@@ -10,3 +10,4 @@ mysql-connector-python~=8.0.28
 python-dotenv~=0.20.0
 cache~=1.0.3
 diskcache~=5.4.0
+mysqlclient~=2.1.0

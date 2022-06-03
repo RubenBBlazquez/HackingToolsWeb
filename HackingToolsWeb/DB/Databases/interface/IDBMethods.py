@@ -18,7 +18,13 @@ class IDBActions(ABC):
         pass
 
     @abstractmethod
-    def select_many(self) -> list:
+    def select_many(self, select_values: list, prepared_information: dict, entity: IEntity, limit: str,
+                    offset: str) -> list:
+        pass
+
+    @abstractmethod
+    def grouped_select(self, select_values: list, prepared_information: dict, entity: IEntity, limit: str,
+                       offset: str) -> list:
         pass
 
     @abstractmethod

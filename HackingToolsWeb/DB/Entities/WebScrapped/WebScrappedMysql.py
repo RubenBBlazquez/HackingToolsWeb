@@ -14,6 +14,9 @@ class WebScrapped(IEntity):
     def getScrapDate(self) -> str:
         return self._scrap_date
 
+    def get_table(self) -> str:
+        return self._table
+
     def setScrapDate(self, scrap_date: str):
         self._scrap_date = scrap_date
         return self

@@ -3,6 +3,9 @@ from ..interface.BaseMethodsEntities import IEntity
 
 class TagScrapped(IEntity):
 
+    def get_table(self) -> str:
+        return self._table
+
     def __init__(self):
         self._table = "TAGS_FROM_WEB_SCRAPPED"
         self._tag = ""
@@ -45,16 +48,18 @@ class TagScrapped(IEntity):
 
     def create_object(self, data):
 
-        if data['TAG']:
+        print(data)
+
+        if 'TAG' in data and data['TAG']:
             self.setTag(data['TAG'])
 
-        if data['TAG_INFO']:
+        if 'TAG_INFO' in data and data['TAG_INFO']:
             self.setTagInfo(data['TAG_INFO'])
 
-        if data['WEB_SCRAPPED']:
+        if 'WEB_SCRAPPED' in data and data['WEB_SCRAPPED']:
             self.setWebScrapped(data['WEB_SCRAPPED'])
 
-        if data['ENDPOINT_WEB_SCRAPPED']:
+        if 'ENDPOINT_WEB_SCRAPPED' in data and data['ENDPOINT_WEB_SCRAPPED']:
             self.setEndpointWebScrapped(data['ENDPOINT_WEB_SCRAPPED'])
 
         return self

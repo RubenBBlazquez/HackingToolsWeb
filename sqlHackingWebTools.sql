@@ -6,7 +6,7 @@ SET GLOBAL connect_timeout = 600;
 SET GLOBAL net_read_timeout = 600;
 SET GLOBAL net_read_timeout = 600;
 SET GLOBAL interactive_timeout = 6000;
-
+SET GLOBAL wait_timeout = 1000;
 drop table IF EXISTS TAGS_FROM_WEB_SCRAPPED CASCADE;
 drop table IF EXISTS webs_scrapped CASCADE;
 

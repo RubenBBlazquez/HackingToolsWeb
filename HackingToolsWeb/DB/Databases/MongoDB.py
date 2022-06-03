@@ -22,7 +22,7 @@ class MongoDB(IDBActions):
     def select_one(self, filter_query: str, entity: IEntity) -> Any:
         pass
 
-    def select_many(self) -> list:
+    def select_many(self, prepared_values: tuple, entity: IEntity) -> list:
         pass
 
     def delete(self) -> Any:

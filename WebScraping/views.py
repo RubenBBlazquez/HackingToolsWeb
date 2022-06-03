@@ -21,6 +21,12 @@ class WebScrapingAction(APIView):
     def get(self, request):
 
         action = request.GET.get('action')
+        endpoint = request.GET.get('endpoint', '')
+        base_url = request.GET.get('baseUrl', '')
+        tag = request.GET.get('tag', '')
+        limit = request.GET.get('length', '10')
+        offset = request.GET.get('start', '0')
+        search_value = request.GET.get('search[value]', '')
 
         if action == 'TAGS_INFORMATION':
             return JsonResponse(
@@ -31,8 +37,39 @@ class WebScrapingAction(APIView):
                     )),
                 safe=False)
 
+        elif action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED':
+
+            result = models.WebScraping.get_grouped_tag_count_from_web_scrapped(base_url,
+                                                                                endpoint, limit, offset, search_value)
+            total_results = len(models.WebScraping.get_grouped_tag_count_from_web_scrapped(base_url,
+                                                                                           endpoint, '', '',
+                                                                                           search_value))
+
+            return JsonResponse(
+                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
+                 'draw': request.GET.get('draw', 1)},
+                status=200,
+                safe=False)
+
+        elif action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION':
+
+            result = models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+                                                                               endpoint, tag, limit, offset,
+                                                                               search_value)
+            total_results = len(models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+                                                                                          endpoint, tag, '', '',
+                                                                                          search_value))
+
+            return JsonResponse(
+                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
+                 'draw': request.GET.get('draw', 1)},
+                status=200,
+                safe=False)
+
         elif action == 'WEBS_SCRAPPED_INFORMATION':
-            return JsonResponse({'index': 0, 'tags': 'a', 'count': 0, 'data': 'hola'}, safe=False)
+            return JsonResponse({'data': models.WebScraping.get_information_from_web_scrapped()},
+                                status=200,
+                                safe=False)
 
     def post(self, request):
 

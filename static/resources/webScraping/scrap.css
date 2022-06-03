@@ -11,3 +11,5 @@ input[name="dataTable-custom_lengt"]{
 label{
     color: white;
 }
+
+th, td { text-align: center; }
