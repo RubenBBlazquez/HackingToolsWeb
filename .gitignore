@@ -4,5 +4,5 @@ HackingToolsWeb.iml
 /.idea
 .idea
 .pyc
-/__pycache__/
-!/.gitignore
+**/__pycache__/
+.env
