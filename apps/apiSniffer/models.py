@@ -6,16 +6,16 @@ import numpy as np
 
 class FileCreator:
     _dictionary = {}
-    _absolutePath = os.path.abspath(os.getcwd())
+    _absolute_path = os.path.abspath(os.getcwd())
 
-    def __init__(self, dictionary={}, default_file=None):
+    def __init__(self, dictionary=None, default_file=None):
         if not default_file:
             self._dictionary = dictionary
         else:
             self._dictionary = FileCreator.get_default_endpoints_dictionary()
 
     def getXlsFile(self, main_dict_key='Endpoints'):
-        file_dir = self._absolutePath + '\\dictionary.xlsx'
+        file_dir = self._absolute_path + '\\dictionary.xlsx'
 
         # con json_normalize transformamos un json (dict) en un dataframe,
         # y con recordPath sacamos las keys de dentro de ese array
@@ -27,7 +27,7 @@ class FileCreator:
         return file_dir
 
     def getJsonFile(self, main_dict_key='Endpoints'):
-        file_dir = self._absolutePath + '\\dictionary.json'
+        file_dir = self._absolute_path + '\\dictionary.json'
 
         # con json_normalize transformamos un json (dict) en un dataframe,
         # y con recordPath sacamos las keys de dentro de ese array
@@ -40,18 +40,19 @@ class FileCreator:
 
     @staticmethod
     def get_default_endpoints_dictionary() -> dict:
+        default_url = 'http://127.0.0.1/'
         return {
             'Endpoints': [
                 {
-                    'url': 'http://127.0.0.1/',
+                    'url'     : default_url,
                     "Endpoint": 'v1/example'
                 },
                 {
-                    'url': 'http://127.0.0.1/',
+                    'url'     : default_url,
                     "Endpoint": 'v1/example2'
                 },
                 {
-                    'url': 'http://127.0.0.1/',
+                    'url'     : default_url,
                     "Endpoint": 'v1/example3'
                 }
             ]

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 import requests
 from bs4 import BeautifulSoup
 import os
-from WebScraping import models
+from apps.WebScraping import models
 
 
 # Create your views here.
@@ -45,26 +45,24 @@ class WebScrapingAction(APIView):
                                                                                            endpoint, '', '',
                                                                                            search_value))
 
-            return JsonResponse(
-                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
-                 'draw': request.GET.get('draw', 1)},
-                status=200,
-                safe=False)
+            return JsonResponse({'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
+                                 'draw'        : request.GET.get('draw', 1)},
+                                status=200,
+                                safe=False)
 
         elif action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION':
 
-            result = models.WebScraping.get_tags_information_from_web_scrapped(base_url,
-                                                                               endpoint, tag, limit, offset,
-                                                                               search_value)
-            total_results = len(models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+            records = models.WebScraping.get_tags_information_from_web_scrapped(base_url,
+                                                                                endpoint, tag, limit, offset,
+                                                                                search_value)
+            total_records = len(models.WebScraping.get_tags_information_from_web_scrapped(base_url,
                                                                                           endpoint, tag, '', '',
                                                                                           search_value))
 
-            return JsonResponse(
-                {'recordsTotal': total_results, 'recordsFiltered': total_results, 'data': result,
-                 'draw': request.GET.get('draw', 1)},
-                status=200,
-                safe=False)
+            return JsonResponse({'recordsTotal': total_records, 'recordsFiltered': total_records, 'data': records,
+                                 'draw'        : request.GET.get('draw', 1)},
+                                status=200,
+                                safe=False)
 
         elif action == 'WEBS_SCRAPPED_INFORMATION':
             return JsonResponse({'data': models.WebScraping.get_information_from_web_scrapped()},

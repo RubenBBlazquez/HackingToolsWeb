@@ -1,9 +1,7 @@
-import os
-
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
-from apiSniffer.models import FileCreator
+from apps.apiSniffer.models import FileCreator
 
 
 def goToApiSnifferPage(request):

@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class ApisnifferConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apiSniffer'
+    name = 'apps.apiSniffer'

@@ -45,9 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'HomePage',
-    'WebScraping',
-    'apiSniffer',
+    'apps.HomePage',
+    'apps.WebScraping',
+    'apps.apiSniffer',
 ]
 
 MIDDLEWARE = [
