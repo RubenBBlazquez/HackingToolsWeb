@@ -1,3 +1,5 @@
+
+
 /**
  * method to get the available html tags to use in data-lists
  */
@@ -6,6 +8,7 @@ const getAvailableHtmlTags = () => {
         .then(response => {
             response.json()
                 .then((data) => {
+                    console.log(data)
                     for (const i of data['tags']) {
                         let option = document.createElement("option");
                         option.setAttribute("data-value", i.trim());

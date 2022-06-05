@@ -1,8 +1,8 @@
 venv
 db.sqlite3
 HackingToolsWeb.iml
-/.idea
+**/.idea
 .idea
 .pyc
-/__pycache__/
-!/.gitignore
+**/__pycache__/
+.env

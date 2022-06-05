@@ -1,4 +1,5 @@
 {% load static %}
+
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -24,6 +25,7 @@
 
 </head>
 
+<input id="server-url" value="{% get_env_extras 'WEB_URL' %}" type="hidden" />
 <body id="body-pd" class="bg-gray">
 
 <div class="d-flex bg-gray">
@@ -49,7 +51,8 @@
                             class="fas fa-scroll-old mr-3"></span>ReverShells</a>
                 </li>
                 <li>
-                    <a href="/apiSniffer/" class="chelsea_font text-light"><span class="fab fa-quinscape mr-3"></span>Api
+                    <a href="/apps/apiSniffer/" class="chelsea_font text-light"><span
+                            class="fab fa-quinscape mr-3"></span>Api
                         Sniffer</a>
                 </li>
             </ul>
@@ -60,6 +63,7 @@
         </button>
     </div>
 
+    <script src="{% static 'resource/script.js' %}"></script>
 
     <!-- Page Content  -->
     <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
@@ -73,6 +77,7 @@
 <script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
 <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>
+
 </body>
 
 </html>

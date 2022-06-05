@@ -4,7 +4,7 @@
 const initWebsAlreadyScrappedDatatables = async () => {
     dataTable = $('#dataTable-custom').DataTable({
         serverSide: true,
-        lengthMenu: [20, 50],
+        lengthMenu: [25],
         "ajax": {
             cache: true,
             url: url + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED',
@@ -45,6 +45,9 @@ const initDatatableTagsInformation = () => {
     const ajaxUrl = url + `/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION&baseUrl=${webToGetInformation['WEBS_SCRAPPED']}
             &endpoint=${webToGetInformation['ENDPOINT']}&tag=${webToGetInformation['TAGS']}`
 
+    document.getElementById('modal-tags-title').textContent = 'TAGS_INFORMATION FROM : '
+        + webToGetInformation['WEBS_SCRAPPED'] + webToGetInformation['ENDPOINT']
+
     if (!(dataTableModal instanceof $.fn.dataTable.Api)) {
         dataTableModal = $('#dataTable-custom-modal').DataTable({
             serverSide: true,
@@ -70,7 +73,7 @@ const setCustomElementsToDatatable = async () => {
     const showEntriesSelector = document.getElementsByName('dataTable-custom_length')[0]
     if (showEntriesSelector) {
         showEntriesSelector.setAttribute('class', 'text-light bg-dark')
-        showEntriesSelector.parentElement.setAttribute('class', 'col-3')
+        showEntriesSelector.parentElement.setAttribute('class', 'col-sm-12 col-xl-4 col-xxl-3')
     }
 
     const divSelectors = document.getElementById('dataTable-custom_length')
@@ -90,7 +93,7 @@ const setCustomElementsToDatatable = async () => {
 
     const web_scrapped_selector = document.createElement('select')
     web_scrapped_selector.id = 'web_scrapped_selector'
-    web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold mb-xs-2 mt-xs-1 col-xs-12 col-lg-3')
+    web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold mb-sm-1 mt-sm-1 col-sm-12 col-xl-3 mb-md-0 mt-md-0')
     setOptionsIntoSelector(web_scrapped_selector, mapped_webs_scrapped)
 
     const endpoint_web_scrapped_selector = document.createElement('select')
@@ -112,7 +115,7 @@ const setCustomElementsToDatatable = async () => {
             return {value: web['BASE_URL'] + '-' + web['ENDPOINT'], name: web['ENDPOINT'], text: web['ENDPOINT']}
         })
 
-        endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-xs-12 col-lg-3 mb-xs-2 mt-xs-1')
+        endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
         setOptionsIntoSelector(endpoint_web_scrapped_selector, mapped_endpoints_from_web)
 
         await getTagsFromWebAlreadyScrapped(web['BASE_URL'], mapped_endpoints_from_web[0].name)
