@@ -2,9 +2,40 @@
 {% load static %}
 {% block content %}
     <link type="text/css" href="{% static 'resources/webScraping/scrap.css' %}" rel="stylesheet">
+    <div class="modal fade" id="dataTagModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-light">
+                <div class="modal-header bg-black-dark p-2">
+                    <h5 class="modal-title text-light text-center black_ops_font col-12" id="modal-tags-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+
+                    <table id="dataTable-custom-modal"
+                           class="table table-striped table-hover nowrap w-100 table-bordered">
+                        <thead class="thead-dark">
+                        <tr id="nameTagsFiltered">
+                            <th scope="col" class="text-center">X</th>
+                            <th scope="col" class="text-center">tag</th>
+                            <th scope="col" class="text-center">tagInformation</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dataTagsFiltered">
+
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer bg-black-dark">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container-fluid ">
-        <header class="container-fluid d-flex justify-content-center">
+        <header class="container-fluid d-flex row col-12 justify-content-center">
             <div class="col-12 row h-100 p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
                 <div class="col-12 row">
                     <h1 class="offset-md-3 col-md-5 col-sm-12 black_ops_font text-success mb-3 text-center">Web
@@ -67,8 +98,7 @@
         <section class="container-fluid d-flex justify-content-center mt-1 row col-12">
             <div class="col-12 row p-5 text-white bg-black-dark rounded d-flex align-items-center justify-content-center flex-column">
                 <table id="dataTable-custom"
-                       class="table bg-black-dark table-dark table-striped table-hover nowrap col-12"
-                       style="width: 100%">
+                       class="table bg-black-dark table-dark table-responsive-md table-striped table-hover nowrap col-12 w-100">
                     <thead>
                     <tr id="nameTagsFiltered">
                         <th scope="col" class="text-center">X</th>
@@ -90,42 +120,10 @@
 
         </footer>
     </div>
-    <div class="modal fade" id="dataTagModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-
-                    <table id="dataTable-custom-modal"
-                           class="table table-striped table-hover nowrap col-12"
-                           style="width: 100%">
-                        <thead>
-                        <tr id="nameTagsFiltered">
-                            <th scope="col" class="text-center">X</th>
-                            <th scope="col" class="text-center">tag</th>
-                            <th scope="col" class="text-center">tagInformation</th>
-                        </tr>
-                        </thead>
-                        <tbody id="dataTagsFiltered">
-
-                        </tbody>
-                    </table>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="{% static 'resources/webScraping/WebScrapingRequests.js' %}"></script>
-    <script src="{% static 'resources/webScraping/WebScrapingMethods.js' %}"></script>
     <script src="{% static 'resources/webScraping/WebScrapingEvents.js' %}"></script>
+    <script src="{% static 'resources/webScraping/WebScrapingMethods.js' %}"></script>
     <script src="{% static 'resources/webScraping/WebScrapingDatatables.js' %}"></script>
 
 {% endblock %}

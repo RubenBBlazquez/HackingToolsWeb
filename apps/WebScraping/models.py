@@ -1,3 +1,9 @@
+"""
+
+    Performed By Ruben Barroso Blázquez
+
+"""
+
 from concurrent.futures._base import wait
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
@@ -7,12 +13,12 @@ from typing import Any
 from bs4 import BeautifulSoup
 import requests
 import json
-from HackingToolsWeb.settings import Database, serverCache, Utils
+from HackingToolsWebCore.settings import Database, serverCache, Utils
 import time
-from HackingToolsWeb.DB.Entities.TagScrapped.TagScrappedMysql import TagScrapped
-from HackingToolsWeb.DB.Entities.TagScrapped.GroupedTagsScrappedMysql import GroupedTagsScrapped
-from HackingToolsWeb.DB.Entities.WebScrapped.WebScrappedMysql import WebScrapped
-from HackingToolsWeb.DB.Entities.LogsWebScraping.LogsWebScrapingMysql import LogsWebScraping
+from HackingToolsWebCore.DB.Entities.TagScrapped.TagScrappedMysql import TagScrapped
+from HackingToolsWebCore.DB.Entities.TagScrapped.GroupedTagsScrappedMysql import GroupedTagsScrapped
+from HackingToolsWebCore.DB.Entities.WebScrapped.WebScrappedMysql import WebScrapped
+from HackingToolsWebCore.DB.Entities.LogsWebScraping.LogsWebScrapingMysql import LogsWebScraping
 
 
 class WEB_SCRAPING_CACHE_KEYS(Enum):
@@ -107,7 +113,7 @@ class WebScraping:
     def get_tags_from_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True,
                                get_only_attribute=False):
         """
-            buscamos las etiquetas y las añadimos al atributo de la clase llamado tags_scraped
+            method to search tags and add to database
 
             :parameter elements_to_find -> it's a field that contains the elements (tags,attributes,words..)
                                            that we are going to find in the html
@@ -136,17 +142,15 @@ class WebScraping:
 
                     if get_only_attribute:
                         quote = quote[element]
-                        print(quote)
+                        quote = self.format_href_with_url(quote)
 
                     tags_list.append(str(quote))
 
-                # comprobamos que necesite un identificador largo de diferenciación(esto pasa cuando queremos sacar
-                # elementos que contengan la clase x)
                 if not large_identifier:
                     self.add_new_data_to_db(element, tags_list)
                 else:
-                    self.add_new_data_to_db(
-                        WebScraping.get_large_identifier(soup_query=selectQuery, value=element), tags_list)
+                    large_identifier = WebScraping.get_large_identifier(soup_query=selectQuery, value=element)
+                    self.add_new_data_to_db(large_identifier, tags_list)
 
     @staticmethod
     def get_large_identifier(soup_query: str, value: str) -> str:
@@ -171,6 +175,12 @@ class WebScraping:
 
         return tag_father + '[' + type_tag + '=' + value + ']'
 
+    def format_href_with_url(self, tag):
+        if 'href' in tag and 'http' not in tag['href']:
+            tag['href'] = self.base_url + tag['href']
+
+        return tag
+
     def add_new_data_to_db(self, identifier, tags_list):
         """
             Method to append the new data to tags scrapped
@@ -190,7 +200,7 @@ class WebScraping:
             tags_not_repeated = Utils.getElementsNotRepeated(tags_already_scrapped[identifier], tags_list)
             tags_already_scrapped[identifier].extend(tags_not_repeated)
         else:
-            tags_already_scrapped = tags_list
+            tags_already_scrapped = tags_not_repeated
 
         serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
 
@@ -231,10 +241,11 @@ class WebScraping:
         select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
 
         query_values = {'WEB_SCRAPPED-str-and': base_url.strip(), 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
-                        'TAG-str-and': tag.strip()}
+                        'TAG-str-and'         : tag.strip()}
 
-        return WebScraping.map_index_to_dict_of_lists(Database.select_many(select_values, query_values, TagScrapped(),
-                                                                           limit, offset))
+        return WebScraping.map_index_to_dict_of_lists(
+            Database.select_many(select_values, query_values, TagScrapped(),
+                                 limit, offset))
 
     @staticmethod
     def get_grouped_tag_count_from_web_scrapped(base_url: str, endpoint: str, limit: str, offset: str,
@@ -251,8 +262,8 @@ class WebScraping:
 
         select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
 
-        query_values = {'WEB_SCRAPPED-str-and': base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
-                        'WEB_SCRAPPED-str-or': search_value,
+        query_values = {'WEB_SCRAPPED-str-and'        : base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+                        'WEB_SCRAPPED-str-or'         : search_value,
                         'ENDPOINT_WEB_SCRAPPED-str-or': search_value, 'TAG-str-or': search_value}
 
         return WebScraping.map_index_to_dict_of_lists(Database.grouped_select(select_values, query_values,
@@ -284,8 +295,7 @@ class CrawlWeb(WebScraping):
 
     def crawl_web(self, soup: BeautifulSoup, threads: []):
         """
-            crawleamos la web, y vamos sacando todos los datos de todas las pestañas, cuando se recorre una pestaña esta
-            se elimina para no recogerla de nuevo
+            method to start crawling
 
             :param soup:
             :param threads:
@@ -317,8 +327,7 @@ class CrawlWeb(WebScraping):
                         new_soup = None
 
                         try:
-                            # comprobamos si la url contiene http, sino le añadimos la base url al enlace, y añadimos
-                            # la url a la lista de urls investigadas
+
                             if 'http' in tag['href']:
                                 response = requests.get(tag['href'])
                                 serverCache.put(tag['href'], True)

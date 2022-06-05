@@ -1,6 +1,3 @@
-let scrapButton = document.getElementById("scrapButton")
-let url = 'http://127.0.0.1:8000';
-let dropdown = document.getElementById("inputDataList");
 let webs_scrapped = []
 let dataTable = undefined;
 let dataTableModal = undefined;

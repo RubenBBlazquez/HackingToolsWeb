@@ -1,15 +1,23 @@
-.dataTables_info{
-    color: white!important;
-}
-input[type=search]{
-    background-color: white;
-    color: white;
-}
-input[name="dataTable-custom_lengt"]{
+.dataTables_info {
     color: white !important;
 }
-label{
+
+#dataTable-custom_filter > label > input[type=search] {
     color: white;
 }
 
-th, td { text-align: center; }
+input[name="dataTable-custom_length"] {
+    color: white !important;
+}
+
+#dataTable-custom_length label {
+    color: white;
+}
+
+#dataTable-custom_filter label {
+    color: white;
+}
+
+th, td {
+    text-align: center;
+}
