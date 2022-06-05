@@ -5,7 +5,6 @@ let dropdown = document.getElementById("inputDataList");
  *  method to load main data-table and get tags available
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("sokidjfñskljdfdf")
     await initWebsAlreadyScrappedDatatables();
     await getAvailableHtmlTags();
 })
