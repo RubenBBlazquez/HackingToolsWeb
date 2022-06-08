@@ -7,8 +7,8 @@ from apps.apiSniffer import views as api_sniffer
 
 urlpatterns = [
     url(r'^$', hp.home, name="homePage"),
-    url(r'^webScraping/$', ws.web_scraping_page, name="WebScraping"),
-    url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="WebScraping"),
+    url(r'^webScraping/$', ws.web_scraping_page, name="webScraping"),
+    url(r'^scrapWebApi/$', ws.WebScrapingAction.as_view(), name="webScraping"),
     url(r'^apiSniffer/$', api_sniffer.goToApiSnifferPage, name="apiSniffer"),
     url(r'^getDefaultApiSnifferFile/$', api_sniffer.DefaultFileAPI.as_view(), name="getDefaultFileAPI"),
 ]
