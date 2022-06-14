@@ -1,5 +1,5 @@
 {% load static %}
-
+{{ WEB_URL|json_script:"WEB_URL" }}
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -20,14 +20,12 @@
     <script src="{% static 'resources/Utils/ToastTypes.js' %}"></script>
     <script src="{% static 'resources/Utils/Utils.js' %}"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'resources/script.js' %}"></script>
 
     <title>Hacking Tools</title>
 
 </head>
-
-<input id="server-url" value="{% get_env_extras 'WEB_URL' %}" type="hidden" />
 <body id="body-pd" class="bg-gray">
-
 <div class="d-flex bg-gray">
     <nav id="sidebar" class="bg-black-dark wrapper">
         <div class="position-fixed wrapper">
@@ -51,7 +49,7 @@
                             class="fas fa-scroll-old mr-3"></span>ReverShells</a>
                 </li>
                 <li>
-                    <a href="/apps/apiSniffer/" class="chelsea_font text-light"><span
+                    <a href="/apiSniffer/" class="chelsea_font text-light"><span
                             class="fab fa-quinscape mr-3"></span>Api
                         Sniffer</a>
                 </li>
@@ -63,7 +61,6 @@
         </button>
     </div>
 
-    <script src="{% static 'resource/script.js' %}"></script>
 
     <!-- Page Content  -->
     <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
@@ -71,9 +68,9 @@
 
         {% endblock %}
     </div>
-</div>
-</div>
 
+</div>
+</div>
 <script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
 <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>

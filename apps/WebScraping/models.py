@@ -42,6 +42,7 @@ class WebScraping:
         self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
+        serverCache.clear_cache()
 
         Database.insert(
             WebScrapped()
@@ -71,17 +72,18 @@ class WebScraping:
         """
 
         for tag in self.html_tag_wordlist['tags']:
-
-            element = str(tag).split("-")[0].strip()
+            tag = str(tag).split("-")
+            element = tag[0].strip()
+            tag_type = tag[1].strip()
 
             if self.is_compound_filter:
                 self.get_attr_class_or_ids_web_data(element)
 
             else:
-                if type == 'tag':
+                if tag_type == 'tag':
                     self.get_tags_from_web_data([element], element, False)
 
-                elif type == 'attr':
+                elif tag_type == 'attr':
                     get_only_attribute = True if element != 'id' and element != 'class' and element != 'text' else False
                     self.get_tags_from_web_data(
                         elements_to_find=[element],
@@ -118,15 +120,15 @@ class WebScraping:
             :parameter elements_to_find -> it's a field that contains the elements (tags,attributes,words..)
                                            that we are going to find in the html
 
-            :parameter selectQuery -> its a Optional field that contains the query we can use to find attributes or
+            :parameter selectQuery -> it's a Optional field that contains the query we can use to find attributes or
                                       words for example `*:-soup-contains("{item}")` {item} will be replace with
                                       the elements from elements to find
 
-            :parameter large_identifier -> its a field that define if identifier will be large ,
+            :parameter large_identifier -> it's a field that define if identifier will be large ,
                                            for example if its True -> a[class=black_ops_font] and if its False -> a
 
-            :parameter get_only_attribute -> its a boolean field to know if we must get all tag,
-                                             or only the attribute that we want
+            :parameter get_only_attribute -> it's a boolean field to know if we must get all tag,
+                                             or only the attribute that we want like href
 
         """
 
@@ -140,9 +142,10 @@ class WebScraping:
 
                 for quote in quotes_html:
 
+                    quote = self.format_href_with_url(quote)
+
                     if get_only_attribute:
                         quote = quote[element]
-                        quote = self.format_href_with_url(quote)
 
                     tags_list.append(str(quote))
 
@@ -176,7 +179,7 @@ class WebScraping:
         return tag_father + '[' + type_tag + '=' + value + ']'
 
     def format_href_with_url(self, tag):
-        if 'href' in tag and 'http' not in tag['href']:
+        if tag['href'] and 'http' not in tag['href']:
             tag['href'] = self.base_url + tag['href']
 
         return tag
@@ -194,20 +197,21 @@ class WebScraping:
         tags_already_scrapped = serverCache.get(
             WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
 
+        if tags_already_scrapped is None: tags_already_scrapped = {}
+
         tags_not_repeated = tags_list
 
         if tags_already_scrapped and identifier in dict(tags_already_scrapped).keys():
             tags_not_repeated = Utils.getElementsNotRepeated(tags_already_scrapped[identifier], tags_list)
             tags_already_scrapped[identifier].extend(tags_not_repeated)
         else:
-            tags_already_scrapped = tags_not_repeated
+            tags_already_scrapped[identifier] = tags_not_repeated
 
         serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
 
         for element in tags_not_repeated:
-            print('---------------------------------------------')
-            print(identifier, element, self.url, self.endpoints)
-            print('---------------------------------------------')
+            print(element)
+            print('--------------------------------------------')
             try:
                 entity = TagScrapped() \
                     .setTag(identifier).setTagInfo(element) \
@@ -241,7 +245,7 @@ class WebScraping:
         select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
 
         query_values = {'WEB_SCRAPPED-str-and': base_url.strip(), 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
-                        'TAG-str-and'         : tag.strip()}
+                        'TAG-str-and': tag.strip()}
 
         return WebScraping.map_index_to_dict_of_lists(
             Database.select_many(select_values, query_values, TagScrapped(),
@@ -262,8 +266,8 @@ class WebScraping:
 
         select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
 
-        query_values = {'WEB_SCRAPPED-str-and'        : base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
-                        'WEB_SCRAPPED-str-or'         : search_value,
+        query_values = {'WEB_SCRAPPED-str-and': base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+                        'WEB_SCRAPPED-str-or': search_value,
                         'ENDPOINT_WEB_SCRAPPED-str-or': search_value, 'TAG-str-or': search_value}
 
         return WebScraping.map_index_to_dict_of_lists(Database.grouped_select(select_values, query_values,

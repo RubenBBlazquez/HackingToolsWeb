@@ -4,7 +4,7 @@
  * method to get the available html tags to use in data-lists
  */
 const getAvailableHtmlTags = () => {
-    fetchInformation(url + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, undefined)
+    fetchInformation(backendUrl + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, undefined)
         .then(response => {
             response.json()
                 .then((data) => {
@@ -28,7 +28,7 @@ const getAvailableHtmlTags = () => {
  */
 const getWebsScrappedInformation = () => {
     return new Promise((resolve, reject) => {
-        fetchInformation(url + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, undefined)
+        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, undefined)
             .then(response => {
                 response.json()
                     .then((result) => {
@@ -71,7 +71,7 @@ const startWebScrap = async () => {
         'threads': parseInt(threads) ? threads !== '' : 3,
     }
 
-    await fetchInformation(url + '/scrapWebApi/', "POST", BASIC_HEADERS, data)
+    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, data)
 }
 
 /**
@@ -80,7 +80,7 @@ const startWebScrap = async () => {
  * @param endpoint
  */
 const getTagsFromWebAlreadyScrapped = async (baseUrl, endpoint) => {
-    dataTable.ajax.url(url + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION&baseUrl=' + baseUrl + '&endpoint=' + endpoint).reload()
+    dataTable.ajax.url(backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
 }
 
 
