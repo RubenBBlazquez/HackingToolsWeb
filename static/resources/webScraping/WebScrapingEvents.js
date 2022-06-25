@@ -77,3 +77,8 @@ const websAlreadyScrappedSelectorEvent = async () => {
     await getTagsFromWebAlreadyScrapped(web['BASE_URL'], mapped_endpoints_from_web[0].name)
 
 }
+
+/**
+ * Method to stop scraping
+ */
+document.getElementById('stopScraping').addEventListener('click',()=>stopRequests());

@@ -2,7 +2,12 @@ let webs_scrapped = []
 let dataTable = undefined;
 let dataTableModal = undefined;
 
-
+/**
+ * Method to get an array from a string separated by commas
+ *
+ * @param data
+ * @returns {string[]}
+ */
 function getArrayFromStringSeparatedByComas(data = "") {
 
     if (data.indexOf(",") !== -1) {
@@ -15,6 +20,11 @@ function getArrayFromStringSeparatedByComas(data = "") {
     return data;
 }
 
+/**
+ * Method to add Tags to tags to find input
+ *
+ * @param value: string
+ */
 function addTagElementToTagsList(value) {
     if (!isTagAlreadyAdded(value)) {
         let actualValue = document.getElementById('tagsToScrap').value;
@@ -49,7 +59,11 @@ function addTagElementToTagsList(value) {
     }
 }
 
-
+/**
+ * Method to check if a tag is already added to tags to find input
+ * @param tag
+ * @returns {boolean}
+ */
 function isTagAlreadyAdded(tag) {
     let tags = document.getElementById("tagsToScrap").value;
 

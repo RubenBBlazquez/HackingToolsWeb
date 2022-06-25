@@ -38,3 +38,10 @@ class Utils:
 
         for position in positions_to_delete:
             del dictionary[position]
+
+    @staticmethod
+    def map_index_to_dict_of_lists(data: list) -> list:
+        for position in range(0, len(data)):
+            data[position]['index'] = position + 1
+
+        return data

@@ -8,8 +8,8 @@ from concurrent.futures._base import wait
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
 from enum import Enum
-from typing import Any
 
+import bs4
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -40,8 +40,10 @@ class WebScraping:
             else json.load(open(self.tags_data_file, "r"))
         self.executor_crawler = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
         self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
+        self.threads = []
         self.base_url = self.url[0: self.url.find('/', 9)]
         self.endpoints = self.url[self.url.find('/', 9):]
+
         serverCache.clear_cache()
 
         Database.insert(
@@ -58,7 +60,7 @@ class WebScraping:
             self.get_web_data()
 
         if not self.is_compound_filter:
-            self.get_attr_class_or_ids_web_data("")
+            self.get_web_data_attrs_from_class_or_id("")
 
         if self.req_post_body['word']:
             self.get_words_web_data()
@@ -77,23 +79,26 @@ class WebScraping:
             tag_type = tag[1].strip()
 
             if self.is_compound_filter:
-                self.get_attr_class_or_ids_web_data(element)
+                self.get_web_data_attrs_from_class_or_id(element)
+                continue
 
-            else:
-                if tag_type == 'tag':
-                    self.get_tags_from_web_data([element], element, False)
+            if tag_type == 'tag':
+                self.get_tags_from_web_data(elements_to_find=[element], selectQuery=element, large_identifier=False)
+                continue
 
-                elif tag_type == 'attr':
-                    get_only_attribute = True if element != 'id' and element != 'class' and element != 'text' else False
-                    self.get_tags_from_web_data(
-                        elements_to_find=[element],
-                        selectQuery='[' + element + ']',
-                        large_identifier=False,
-                        get_only_attribute=get_only_attribute)
+            if tag_type == 'attr':
+                get_only_attribute = True if element != 'id' and element != 'class' and element != 'text' else False
 
-    def get_words_web_data(self):
+                self.get_tags_from_web_data(
+                    elements_to_find=[element],
+                    selectQuery='[' + element + ']',
+                    large_identifier=False,
+                    get_only_attribute=get_only_attribute
+                )
+
+    def get_words_web_data(self) -> None:
         """
-            obtenemos las tags que contengan la palabra especificada
+            we get the tags that contains the specific word
         """
 
         for word in self.req_post_body['word']:
@@ -102,9 +107,13 @@ class WebScraping:
                 selectQuery='*:-soup-contains("{item}")',
                 large_identifier=False)
 
-    def get_attr_class_or_ids_web_data(self, element):
+    def get_web_data_attrs_from_class_or_id(self, element) -> None:
         """
-            recorremos los atributos de la request y buscamos las etiquetas que contengan ese atributo(element)
+            we get the attributes from the request and we search tags that contains the tag passed by
+            parameter
+
+            :param element: str (html class or html id)
+            :return void:
         """
 
         # {'class':... , 'id':...}
@@ -113,7 +122,7 @@ class WebScraping:
                                         selectQuery=element + '[' + key + '*="{item}"]')
 
     def get_tags_from_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True,
-                               get_only_attribute=False):
+                               get_only_attribute=False) -> None:
         """
             method to search tags and add to database
 
@@ -124,7 +133,7 @@ class WebScraping:
                                       words for example `*:-soup-contains("{item}")` {item} will be replace with
                                       the elements from elements to find
 
-            :parameter large_identifier -> it's a field that define if identifier will be large ,
+            :parameter large_identifier -> it's a field that define if identifier must be large ,
                                            for example if its True -> a[class=black_ops_font] and if its False -> a
 
             :parameter get_only_attribute -> it's a boolean field to know if we must get all tag,
@@ -149,11 +158,15 @@ class WebScraping:
 
                     tags_list.append(str(quote))
 
-                if not large_identifier:
-                    self.add_new_data_to_db(element, tags_list)
-                else:
-                    large_identifier = WebScraping.get_large_identifier(soup_query=selectQuery, value=element)
-                    self.add_new_data_to_db(large_identifier, tags_list)
+                tag_identifier = WebScraping.compound_tag_identifier(large_identifier, selectQuery, element)
+                self.add_new_data_to_db(tag_identifier, tags_list)
+
+    @staticmethod
+    def compound_tag_identifier(large_identifier: bool, select_query: str, element: str):
+        if large_identifier:
+            return WebScraping.get_large_identifier(soup_query=select_query, value=element)
+
+        return element
 
     @staticmethod
     def get_large_identifier(soup_query: str, value: str) -> str:
@@ -169,22 +182,25 @@ class WebScraping:
 
         """
 
-        bracket_position = soup_query.find(
-            '[') if soup_query.find('[') != -1 else 0
-
+        bracket_position = soup_query.find('[') if soup_query.find('[') != -1 else 0
         tag_father = soup_query[0:bracket_position]  # a
-
         type_tag = soup_query[soup_query.find('[') + 1:soup_query.find('*')]  # class
 
         return tag_father + '[' + type_tag + '=' + value + ']'
 
-    def format_href_with_url(self, tag):
-        if tag['href'] and 'http' not in tag['href']:
+    def format_href_with_url(self, tag: bs4.element.Tag) -> bs4.element.Tag:
+        """
+            Method to format a tag <a> to set always the baseUrl to an endpoint
+
+            :param tag: BeautifulSoupTag
+            :return: str
+        """
+        if 'href' in tag.attrs and tag['href'] and 'http' not in tag['href']:
             tag['href'] = self.base_url + tag['href']
 
         return tag
 
-    def add_new_data_to_db(self, identifier, tags_list):
+    def add_new_data_to_db(self, identifier, tags_list) -> None:
         """
             Method to append the new data to tags scrapped
 
@@ -194,32 +210,41 @@ class WebScraping:
 
         """
 
-        tags_already_scrapped = serverCache.get(
-            WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
-
-        if tags_already_scrapped is None: tags_already_scrapped = {}
-
-        tags_not_repeated = tags_list
-
-        if tags_already_scrapped and identifier in dict(tags_already_scrapped).keys():
-            tags_not_repeated = Utils.getElementsNotRepeated(tags_already_scrapped[identifier], tags_list)
-            tags_already_scrapped[identifier].extend(tags_not_repeated)
-        else:
-            tags_already_scrapped[identifier] = tags_not_repeated
+        tags_information = WebScraping.get_tags_information(identifier, tags_list)
+        tags_not_repeated = tags_information['tagsNotRepeated']
+        tags_already_scrapped = tags_information['tagsAlreadyScrapped']
 
         serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
 
         for element in tags_not_repeated:
-            print(element)
-            print('--------------------------------------------')
             try:
                 entity = TagScrapped() \
                     .setTag(identifier).setTagInfo(element) \
                     .setWebScrapped(self.base_url) \
                     .setEndpointWebScrapped(self.endpoints)
+
                 Database.insert(entity)
+
             except Exception as ex:
                 self.insert_log(ex.args)
+
+    @staticmethod
+    def get_tags_information(identifier, tags_list) -> dict:
+
+        tags_already_scrapped = serverCache.get(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
+
+        if tags_already_scrapped is None:
+            tags_already_scrapped = {}
+
+        if tags_already_scrapped and identifier in dict(tags_already_scrapped).keys():
+            tags_not_repeated = Utils.getElementsNotRepeated(tags_already_scrapped[identifier], tags_list)
+            tags_already_scrapped[identifier].extend(tags_not_repeated)
+
+            return {'tagsNotRepeated': tags_not_repeated, 'tagsAlreadyScrapped': tags_already_scrapped}
+
+        tags_already_scrapped[identifier] = tags_list
+
+        return {'tagsNotRepeated': tags_list, 'tagsAlreadyScrapped': tags_already_scrapped}
 
     def insert_log(self, message):
         """
@@ -239,39 +264,43 @@ class WebScraping:
 
             :param base_url: from web
             :param endpoint: endpoint from web
+
             :return list:
         """
 
         select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
 
         query_values = {'WEB_SCRAPPED-str-and': base_url.strip(), 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
-                        'TAG-str-and': tag.strip()}
+                        'TAG-str-and'         : tag.strip()}
 
-        return WebScraping.map_index_to_dict_of_lists(
-            Database.select_many(select_values, query_values, TagScrapped(),
-                                 limit, offset))
+        tags = Database.select_many(select_values, query_values, TagScrapped(), limit, offset)
+
+        return Utils.map_index_to_dict_of_lists(tags)
 
     @staticmethod
     def get_grouped_tag_count_from_web_scrapped(base_url: str, endpoint: str, limit: str, offset: str,
                                                 search_value: str) -> list:
         """
+            method to get grouped tags from webs scrapped
 
-            :param search_value:
-            :param limit:
-            :param offset:
-            :param base_url: from web
-            :param endpoint: endpoint from web
+            :param search_value: value to find webs with a name that contains this
+            :param limit: limit of values to get from db
+            :param offset: start position of values
+            :param base_url: from web scrapped
+            :param endpoint: from web scrapped
+
             :return list:
         """
 
         select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
 
-        query_values = {'WEB_SCRAPPED-str-and': base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
-                        'WEB_SCRAPPED-str-or': search_value,
+        query_values = {'WEB_SCRAPPED-str-and'        : base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+                        'WEB_SCRAPPED-str-or'         : search_value,
                         'ENDPOINT_WEB_SCRAPPED-str-or': search_value, 'TAG-str-or': search_value}
 
-        return WebScraping.map_index_to_dict_of_lists(Database.grouped_select(select_values, query_values,
-                                                                              GroupedTagsScrapped(), limit, offset))
+        tags = Database.grouped_select(select_values, query_values, GroupedTagsScrapped(), limit, offset)
+
+        return Utils.map_index_to_dict_of_lists(tags)
 
     @staticmethod
     def get_information_from_web_scrapped() -> list:
@@ -283,40 +312,56 @@ class WebScraping:
 
         return Database.select_many(dict(), dict(), WebScrapped(), '', '')
 
-    @staticmethod
-    def map_index_to_dict_of_lists(data: list) -> list:
-        for position in range(0, len(data)):
-            data[position]['index'] = position + 1
-
-        return data
-
 
 class CrawlWeb(WebScraping):
     __name__ = 'Crawl Web'
 
+    # singleton
+    _instance = None
+
+    def __new__(cls, req_post_body, *args, **kw):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls, *args, **kw)
+        return cls._instance
+
     def __init__(self, req_post_body):
         super(CrawlWeb, self).__init__(req_post_body)
+        self.must_stop_crawling = bool(req_post_body['stopCrawling'])
 
-    def crawl_web(self, soup: BeautifulSoup, threads: []):
+    def scrap_web(self):
+        self.crawl_web(self.html)
+
+    def crawl_web(self, soup) -> None:
         """
             method to start crawling
 
             :param soup:
-            :param threads:
 
             :return:
 
         """
-        self.get_links_to_crawl(soup, threads)
-        wait(threads)
 
-    def get_links_to_crawl(self, soup: BeautifulSoup, threads: []):
+        self.get_links_to_crawl(soup)
+        wait(self.threads)
+
+    def check_if_stop_crawling(self) -> bool:
+        if self.must_stop_crawling and len(self.threads) > 0:
+            map(lambda thread: thread.cancel(), self.threads)
+            self.executor_crawler.shutdown()
+            self.executor_get_web_data.shutdown()
+
+            return True
+
+        return False
+
+    def get_links_to_crawl(self, soup: BeautifulSoup):
         """
             Recursive method to get all information crawling tags <a> from a web
 
             :param soup:
-            :param threads:
         """
+
+        self.check_if_stop_crawling()
 
         try:
 
@@ -326,21 +371,16 @@ class CrawlWeb(WebScraping):
 
                 for tag in data_tags:
 
-                    if CrawlWeb.urlCanBeCrawled(self.base_url, tag):
+                    if self.urlCanBeCrawled(self.base_url, tag):
 
                         new_soup = None
 
                         try:
 
-                            if 'http' in tag['href']:
-                                response = requests.get(tag['href'])
-                                serverCache.put(tag['href'], True)
-                            else:
-                                response = requests.get(self.base_url + tag['href'])
-                                serverCache.put(self.base_url + tag['href'], True)
+                            response = self.get_url_crawled_response(tag)
 
                             # we get the new data from the response
-                            new_soup = BeautifulSoup(response.text, 'html.parser')
+                            new_soup = BeautifulSoup(response, 'html.parser')
 
                         except Exception as ex:
                             print('Error : to request url', ex)
@@ -349,16 +389,15 @@ class CrawlWeb(WebScraping):
 
                         try:
 
-                            if new_soup and '404' not in new_soup.text:
+                            if new_soup and '404' not in new_soup.text and not self.must_stop_crawling:
                                 # we set the new html beautifulSoup
                                 self.html = new_soup
 
                                 # we start to get information from the html set recently
-                                threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
+                                self.threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
                                 # we continue crawling web
-                                threads.append(
-                                    self.executor_crawler.submit(self.get_links_to_crawl, new_soup, threads))
+                                self.threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup))
 
                         except Exception as ex:
                             self.insert_log(ex.args)
@@ -368,8 +407,22 @@ class CrawlWeb(WebScraping):
             self.insert_log(ex.args)
             print('Error -- ', ex.args)
 
-    @staticmethod
-    def urlCanBeCrawled(base_url: str, tag: {}) -> bool:
+    def get_url_crawled_response(self, tag: bs4.element.Tag) -> str:
+        """
+            Method to get the url response text
+
+            :param tag:
+            :return: str
+        """
+
+        if 'http' in tag['href']:
+            serverCache.put(tag['href'], True)
+            return requests.get(tag['href']).text
+
+        serverCache.put(self.base_url + tag['href'], True)
+        return requests.get(self.base_url + tag['href']).text
+
+    def urlCanBeCrawled(self, base_url: str, tag: {}) -> bool:
         """
             check if an url can be visited or not
 
@@ -378,6 +431,7 @@ class CrawlWeb(WebScraping):
             :return: bool
 
         """
-        return 'href' in str(tag) and serverCache.get(
+
+        return not self.must_stop_crawling and 'href' in str(tag) and serverCache.get(
             tag['href']) is None and serverCache.get(base_url + tag['href']) is None \
                and (base_url in tag['href'] or 'http' not in tag['href'])
