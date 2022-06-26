@@ -122,7 +122,7 @@ const stopRequests = async () => {
     console.log('stop crawling')
     actualScrapData.stopCrawling = true;
 
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, actualScrapData)
+    await getTagsFromWebAlreadyScrapped('','')
 }
 
 
