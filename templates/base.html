@@ -1,4 +1,5 @@
 {% load static %}
+{{ WEB_URL|json_script:"WEB_URL" }}
 
 <html lang="en">
 <head>
@@ -20,13 +21,13 @@
     <script src="{% static 'resources/Utils/ToastTypes.js' %}"></script>
     <script src="{% static 'resources/Utils/Utils.js' %}"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="{% static 'resources/script.js' %}"></script>
 
     <title>Hacking Tools</title>
 
 </head>
 
 <body id="body-pd" class="bg-gray">
-
 <div class="d-flex bg-gray">
     <nav id="sidebar" class="bg-black-dark wrapper">
         <div class="position-fixed wrapper">
@@ -62,7 +63,6 @@
         </button>
     </div>
 
-    <script src="{% static 'resource/script.js' %}"></script>
 
     <!-- Page Content  -->
     <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
@@ -70,9 +70,9 @@
 
         {% endblock %}
     </div>
-</div>
-</div>
 
+</div>
+</div>
 <script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
 <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>

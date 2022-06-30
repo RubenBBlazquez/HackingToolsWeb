@@ -7,7 +7,7 @@ const initWebsAlreadyScrappedDatatables = async () => {
         lengthMenu: [25],
         "ajax": {
             cache: true,
-            url: url + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED',
+            url: backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED',
             dataSrc: 'data'
         },
         columns: [
@@ -42,7 +42,7 @@ const initDatatableTagsInformation = () => {
     const position = parseInt(event.target.dataset['text'])
     const columnNamesList = ['INDEX', 'WEBS_SCRAPPED', 'ENDPOINT', 'TAGS', 'COUNT']
     const webToGetInformation = getTrInformationFromTable('dataTable-custom', position, columnNamesList)
-    const ajaxUrl = url + `/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION&baseUrl=${webToGetInformation['WEBS_SCRAPPED']}
+    const ajaxUrl = backendUrl + `/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION&baseUrl=${webToGetInformation['WEBS_SCRAPPED']}
             &endpoint=${webToGetInformation['ENDPOINT']}&tag=${webToGetInformation['TAGS']}`
 
     document.getElementById('modal-tags-title').textContent = 'TAGS_INFORMATION FROM : '
@@ -84,6 +84,7 @@ const setCustomElementsToDatatable = async () => {
     const mapped_webs_scrapped = [{value: -1, name: null, text: 'Select One Web Already Scrapped'}];
 
     let web_position = 0
+
     for (const web of webs_scrapped) {
         if (!mapped_webs_scrapped.map((x) => (x['name'])).includes(web['BASE_URL'])) {
             mapped_webs_scrapped.push({value: web_position, name: web['BASE_URL'], text: web['BASE_URL']})
@@ -100,27 +101,7 @@ const setCustomElementsToDatatable = async () => {
     endpoint_web_scrapped_selector.id = 'endpoint_web_scrapped_selector'
     endpoint_web_scrapped_selector.setAttribute('class', 'd-none')
 
-    web_scrapped_selector.addEventListener('change', async () => {
-        endpoint_web_scrapped_selector.innerHTML = ""
-
-        const web = webs_scrapped[event.target.value]
-
-        if (!web) {
-            endpoint_web_scrapped_selector.setAttribute('class', 'd-none')
-            return false
-        }
-        const mapped_endpoints_from_web = webs_scrapped.filter((element) => {
-            return element !== undefined && element['BASE_URL'] === web['BASE_URL']
-        }).map((web) => {
-            return {value: web['BASE_URL'] + '-' + web['ENDPOINT'], name: web['ENDPOINT'], text: web['ENDPOINT']}
-        })
-
-        endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
-        setOptionsIntoSelector(endpoint_web_scrapped_selector, mapped_endpoints_from_web)
-
-        await getTagsFromWebAlreadyScrapped(web['BASE_URL'], mapped_endpoints_from_web[0].name)
-
-    })
+    web_scrapped_selector.addEventListener('change', async () => await websAlreadyScrappedSelectorEvent())
 
     divSelectors.appendChild(web_scrapped_selector)
     divSelectors.appendChild(endpoint_web_scrapped_selector)

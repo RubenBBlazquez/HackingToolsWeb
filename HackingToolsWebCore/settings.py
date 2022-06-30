@@ -67,8 +67,7 @@ CSRF_COOKIE_SECURE = True
 TEMPLATES = [
     {
         'BACKEND' : 'django.template.backends.django.DjangoTemplates',
-        'DIRS'    : [BASE_DIR / 'templates', BASE_DIR / 'static', ]
-        ,
+        'DIRS'    : [BASE_DIR / 'templates', BASE_DIR / 'static', ],
         'APP_DIRS': True,
         'OPTIONS' : {
             'context_processors': [
@@ -76,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'HackingToolsWebCore.context_processors.processors.get_backend_url',
             ],
         },
     },

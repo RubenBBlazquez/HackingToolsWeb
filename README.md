@@ -2,7 +2,7 @@
 
 Web Application with django framework performed by Rubén Barroso Blázquez
 
--> Functionalities Performed
+-> Functionalities made
    - WebScraping
    
 -> Functionalities InProgress

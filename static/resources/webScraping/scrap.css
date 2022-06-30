@@ -1,16 +1,15 @@
-.dataTables_info {
-    color: white !important;
+.dataTables_info{
+    color: white!important;
 }
 
-#dataTable-custom_filter > label > input[type=search] {
+input[type=search]{
+    background-color: white;
     color: white;
 }
-
-input[name="dataTable-custom_length"] {
+input[name="dataTable-custom_lengt"]{
     color: white !important;
 }
-
-#dataTable-custom_length label {
+label{
     color: white;
 }
 
