@@ -10,11 +10,11 @@ let dataTableModal = undefined;
  */
 function getArrayFromStringSeparatedByComas(data = "") {
 
-    if (data.indexOf(",") !== -1) {
+    if (data.indexOf(",") === -1){
+        data = [];
+    }else{
         data = data.substr(0, data.length - 1);
         data = data.split(",");
-    } else {
-        data = [];
     }
 
     return data;
@@ -43,12 +43,11 @@ function addTagElementToTagsList(value) {
             input.setAttribute("id", value.split("-")[0].trim() + "Names");
             input.setAttribute("placeholder", "Write the " + value.split("-")[0].trim() + " Names , separated by comas")
             input.setAttribute("required", "true");
+            input.setAttribute("placeholder", "Write the words you can find in the web , separated by comas")
 
             if (value.split("-")[0].trim() !== 'text') {
                 input.setAttribute("placeholder", "Write the " + value.split("-")[0].trim() + " Names , separated by comas")
                 document.getElementById("compoundFilterDiv").setAttribute("class", "form-check form-switch row col-10 mt-3")
-            } else {
-                input.setAttribute("placeholder", "Write the words you can find in the web , separated by comas")
             }
 
             document.getElementById("auxContainer").appendChild(input);
@@ -77,9 +76,9 @@ function isTagAlreadyAdded(tag) {
             }
         }
 
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 

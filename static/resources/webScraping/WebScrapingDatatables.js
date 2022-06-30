@@ -84,6 +84,7 @@ const setCustomElementsToDatatable = async () => {
     const mapped_webs_scrapped = [{value: -1, name: null, text: 'Select One Web Already Scrapped'}];
 
     let web_position = 0
+
     for (const web of webs_scrapped) {
         if (!mapped_webs_scrapped.map((x) => (x['name'])).includes(web['BASE_URL'])) {
             mapped_webs_scrapped.push({value: web_position, name: web['BASE_URL'], text: web['BASE_URL']})

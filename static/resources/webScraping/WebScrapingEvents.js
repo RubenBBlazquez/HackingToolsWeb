@@ -33,6 +33,7 @@ scrapButton.addEventListener("click", async () => await startWebScrap());
 dropdown.addEventListener('keyup', async (event) => {
     let target = event.target.value;
     let datalist = document.getElementsByTagName('option');
+
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
             addTagElementToTagsList(datalist[i].dataset.value);
@@ -47,6 +48,7 @@ dropdown.addEventListener('keyup', async (event) => {
 dropdown.addEventListener('change', (event) => {
     let target = event.target.value;
     let datalist = document.getElementsByTagName('option');
+
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
             addTagElementToTagsList(datalist[i].dataset.value);
@@ -65,6 +67,7 @@ const websAlreadyScrappedSelectorEvent = async () => {
         endpoint_web_scrapped_selector.setAttribute('class', 'd-none')
         return false
     }
+
     const mapped_endpoints_from_web = webs_scrapped.filter((element) => {
         return element !== undefined && element['BASE_URL'] === web['BASE_URL']
     }).map((web) => {

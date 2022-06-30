@@ -67,9 +67,9 @@ class WebScraping:
 
     def get_web_data(self):
         """
-            Recorre las tags y separa el tag del tipo, para saber si una tag es un atributo o una etiqueta
-            después comprueba si el usuario ha marcado que se realiza una busqueda compuesta, esto significa
-            que se buscarán tags que tengan los atributos x, sino se ha marcado buscará todo por separado
+            1º Iterate tags and split the tag from type to know if the tag is an attribute or a tag
+            2º we check if the user have marked if he want to perform a compose search, it means that we will
+            search tags like classes or ids that contains the attribute x, if not we will search separately
 
         """
 
@@ -162,7 +162,16 @@ class WebScraping:
                 self.add_new_data_to_db(tag_identifier, tags_list)
 
     @staticmethod
-    def compound_tag_identifier(large_identifier: bool, select_query: str, element: str):
+    def compound_tag_identifier(large_identifier: bool, select_query: str, element: str) -> str:
+        """
+            Method to compound a large identifier to a tag, that is ,
+
+            :param large_identifier:
+            :param select_query:
+            :param element:
+            :return: str
+        """
+
         if large_identifier:
             return WebScraping.get_large_identifier(soup_query=select_query, value=element)
 
@@ -195,6 +204,7 @@ class WebScraping:
             :param tag: BeautifulSoupTag
             :return: str
         """
+
         if 'href' in tag.attrs and tag['href'] and 'http' not in tag['href']:
             tag['href'] = self.base_url + tag['href']
 
@@ -230,7 +240,13 @@ class WebScraping:
 
     @staticmethod
     def get_tags_information(identifier, tags_list) -> dict:
+        """
+            Method to filter tags already scrapped
 
+            :param identifier:
+            :param tags_list:
+            :return: dict
+        """
         tags_already_scrapped = serverCache.get(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value)
 
         if tags_already_scrapped is None:
@@ -248,9 +264,11 @@ class WebScraping:
 
     def insert_log(self, message):
         """
+            Method to insert an error in DB
 
-        :param message: error message to insert in database
+            :param message: error message to insert in database
         """
+
         Database.insert(
             LogsWebScraping()
                 .setLogError(message)
@@ -258,20 +276,30 @@ class WebScraping:
                 .setEndpoint(self.endpoints))
 
     @staticmethod
-    def get_tags_information_from_web_scrapped(base_url: str, endpoint: str, tag: str, limit: str, offset: str,
-                                               search_value: str) -> list:
+    def get_tags_information_from_web_scrapped(
+            base_url: str,
+            endpoint: str,
+            tag: str,
+            limit: str,
+            offset: str,
+            search_value: str
+    ) -> list:
         """
 
-            :param base_url: from web
-            :param endpoint: endpoint from web
-
-            :return list:
+        :param base_url:
+        :param endpoint:
+        :param tag:
+        :param limit:
+        :param offset:
+        :param search_value:
+        :return: list
         """
 
         select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
 
-        query_values = {'WEB_SCRAPPED-str-and': base_url.strip(), 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
-                        'TAG-str-and'         : tag.strip()}
+        query_values = {'WEB_SCRAPPED-str-and'         : base_url.strip(),
+                        'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
+                        'TAG-str-and'                  : tag.strip()}
 
         tags = Database.select_many(select_values, query_values, TagScrapped(), limit, offset)
 
@@ -294,9 +322,11 @@ class WebScraping:
 
         select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
 
-        query_values = {'WEB_SCRAPPED-str-and'        : base_url, 'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
-                        'WEB_SCRAPPED-str-or'         : search_value,
-                        'ENDPOINT_WEB_SCRAPPED-str-or': search_value, 'TAG-str-or': search_value}
+        query_values = {'WEB_SCRAPPED-str-and'         : base_url,
+                        'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+                        'WEB_SCRAPPED-str-or'          : search_value,
+                        'ENDPOINT_WEB_SCRAPPED-str-or' : search_value,
+                        'TAG-str-or'                   : search_value}
 
         tags = Database.grouped_select(select_values, query_values, GroupedTagsScrapped(), limit, offset)
 
@@ -340,15 +370,30 @@ class CrawlWeb(WebScraping):
             :return:
 
         """
+        try:
+            self.get_links_to_crawl(soup)
 
-        self.get_links_to_crawl(soup)
-        wait(self.threads)
+            if len(self.threads) > 0:
+                wait(self.threads)
+
+        except ValueError:
+            print('Error to wait threads')
 
     def check_if_stop_crawling(self) -> bool:
+        """
+            Method to check if we must stop all threads
+
+            :return: bool
+        """
+
+        print(self.must_stop_crawling and len(self.threads) > 0)
         if self.must_stop_crawling and len(self.threads) > 0:
             map(lambda thread: thread.cancel(), self.threads)
             self.executor_crawler.shutdown()
             self.executor_get_web_data.shutdown()
+
+            if len(self.threads) > 0:
+                wait(self.threads)
 
             return True
 
@@ -363,49 +408,41 @@ class CrawlWeb(WebScraping):
 
         self.check_if_stop_crawling()
 
-        try:
+        data_tags = soup.find_all('a')
 
-            data_tags = soup.find_all('a')
+        if len(data_tags) != 0:
 
-            if len(data_tags) != 0:
+            for tag in data_tags:
 
-                for tag in data_tags:
+                if self.urlCanBeCrawled(self.base_url, tag):
 
-                    if self.urlCanBeCrawled(self.base_url, tag):
+                    new_soup = None
 
-                        new_soup = None
+                    try:
+                        response = self.get_url_crawled_response(tag)
 
-                        try:
+                        # we get the new data from the response
+                        new_soup = BeautifulSoup(response, 'html.parser')
 
-                            response = self.get_url_crawled_response(tag)
+                    except Exception as ex:
+                        print('Error : to request url', ex)
 
-                            # we get the new data from the response
-                            new_soup = BeautifulSoup(response, 'html.parser')
+                    del tag
 
-                        except Exception as ex:
-                            print('Error : to request url', ex)
+                    try:
+                        if new_soup and '404' not in new_soup.text and not self.must_stop_crawling:
+                            # we set the new html beautifulSoup
+                            self.html = new_soup
 
-                        del tag
+                            # we start to get information from the html set recently
+                            self.threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
 
-                        try:
+                            # we continue crawling web
+                            self.threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup))
 
-                            if new_soup and '404' not in new_soup.text and not self.must_stop_crawling:
-                                # we set the new html beautifulSoup
-                                self.html = new_soup
-
-                                # we start to get information from the html set recently
-                                self.threads.append(self.executor_get_web_data.submit(self.get_web_data_router))
-
-                                # we continue crawling web
-                                self.threads.append(self.executor_crawler.submit(self.get_links_to_crawl, new_soup))
-
-                        except Exception as ex:
-                            self.insert_log(ex.args)
-                            print("Error: unable to start thread -> ", ex.args)
-
-        except Exception as ex:
-            self.insert_log(ex.args)
-            print('Error -- ', ex.args)
+                    except Exception as ex:
+                        self.insert_log(ex.args)
+                        print("Error: unable to start thread -> ", ex.args)
 
     def get_url_crawled_response(self, tag: bs4.element.Tag) -> str:
         """
@@ -417,9 +454,11 @@ class CrawlWeb(WebScraping):
 
         if 'http' in tag['href']:
             serverCache.put(tag['href'], True)
+
             return requests.get(tag['href']).text
 
         serverCache.put(self.base_url + tag['href'], True)
+
         return requests.get(self.base_url + tag['href']).text
 
     def urlCanBeCrawled(self, base_url: str, tag: {}) -> bool:

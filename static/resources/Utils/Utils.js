@@ -29,13 +29,15 @@ const getToast = (type, title, message) => {
  * @param url
  * @param method
  * @param headers
+ * @param signal: AbortSignal
  * @param body
  * @returns {Promise<Response>}
  */
-const fetchInformation = (url, method, headers, body) => {
+const fetchInformation = (url, method, headers, signal, body) => {
     const init = {
         method: method,
         headers: BASIC_HEADERS,
+        signal:signal,
     }
 
     if (method !== "GET") {

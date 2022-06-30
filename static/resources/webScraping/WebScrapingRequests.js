@@ -1,10 +1,11 @@
+const abortController = new AbortController()
 let actualScrapData = {};
 
 /**
  * method to get and set the available html tags to use in data-lists
  */
 const getAvailableHtmlTags = () => {
-    fetchInformation(backendUrl + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, undefined)
+    fetchInformation(backendUrl + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
         .then(response => {
             response.json()
                 .then((data) => {
@@ -28,7 +29,7 @@ const getAvailableHtmlTags = () => {
  */
 const getWebsScrappedInformation = () => {
     return new Promise((resolve, reject) => {
-        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, undefined)
+        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
             .then(response => {
                 response.json()
                     .then((result) => {
@@ -54,8 +55,6 @@ const startWebScrap = async () => {
     const endpoint = urlToScrap.value.trim().substring(endpointDelimiter);
     urlToScrap = urlToScrap.value.substr(0, endpointDelimiter);
 
-    console.log(urlToScrap,endpoint,endpointDelimiter)
-
     let tags = document.getElementById("tagsToScrap");
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
@@ -64,7 +63,6 @@ const startWebScrap = async () => {
     const compoundFilter = document.getElementById("compoundFilter");
     const crawlLinks = document.getElementById("crawlLinksCheck");
     const threads = document.getElementById("threads").value;
-
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
@@ -82,7 +80,7 @@ const startWebScrap = async () => {
         'stopCrawling': false,
     }
 
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, actualScrapData)
+    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
 
     launchThreadToGetInformationOfTheActualScraping(urlToScrap, endpoint)
 }
@@ -119,10 +117,12 @@ const getTagsFromWebAlreadyScrapped = async (baseUrl, endpoint) => {
  * @returns {Promise<void>}
  */
 const stopRequests = async () => {
-    console.log('stop crawling')
-    actualScrapData.stopCrawling = true;
-
     await getTagsFromWebAlreadyScrapped('','')
+
+     actualScrapData.stopCrawling = true
+
+    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
+
 }
 
 
