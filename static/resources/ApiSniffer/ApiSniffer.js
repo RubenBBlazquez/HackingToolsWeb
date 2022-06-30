@@ -1,4 +1,10 @@
 let url = 'http://127.0.0.1:8000/';
+const AUTHORIZATION_TYPES = {
+    BEARER: 'Bearer Token',
+    BASIC: 'Basic Auth',
+    NONE: 'None Auth',
+    DIGEST: 'Digest Auth'
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     getAuthorizationTypes()
@@ -39,15 +45,9 @@ const getDefaultFile = (params) => {
     return fetch(endpoint, init)
 }
 
-const AUTHORIZATION_TYPES = {
-    BEARER: 'Bearer Token',
-    BASIC: 'Basic Auth',
-    NONE: 'None Auth',
-    DIGEST: 'Digest Auth'
-}
-
 const getAuthorizationTypes = () => {
     const selector = document.getElementById("authorizationsSelector")
+
     for (const auth of Object.keys(AUTHORIZATION_TYPES)) {
         const option = document.createElement('option')
         option.value = auth
@@ -71,15 +71,16 @@ const setHTMLElementsFromAuthorizationType = () => {
         case AUTHORIZATION_TYPES.BASIC:
         case AUTHORIZATION_TYPES.DIGEST:
             bsCollapse.toggle()
-            setCollapseDataForAuthorizarionType(AUTHORIZATION_TYPES[event.target.value])
+            setCollapseDataForAuthorizationType(AUTHORIZATION_TYPES[event.target.value])
             break
+
         default:
             bsCollapse.toggle()
     }
 }
 
 
-const setCollapseDataForAuthorizarionType = (type) => {
+const setCollapseDataForAuthorizationType = (type) => {
     const divSectionAuthorizationCollapse = document.getElementById('authorizationCollapseData')
     divSectionAuthorizationCollapse.innerHTML = ""
 
@@ -128,6 +129,7 @@ authCollapse.addEventListener('hidden.bs.collapse', () => {
     const collapse = new bootstrap.Collapse(authCollapse, {
         toggle: false
     })
+
     if (AUTHORIZATION_TYPES[optionSelected] !== AUTHORIZATION_TYPES.NONE)
         collapse.show()
     else
@@ -184,10 +186,12 @@ const getInputsFromAuthorizationSaved = () => {
     const type = document.getElementById('savedAuthorizationType')
 
     const bearerToken = document.getElementById('bearerTokenInput')
-    if (bearerToken) return {'type':type.value, 'data': [bearerToken.value]}
+    if (bearerToken)
+        return {'type':type.value, 'data': [bearerToken.value]}
 
     const basicAuthUser = document.getElementById('basicAuthUserInput')
     const basicAuthPassword = document.getElementById('basicAuthPasswordInput')
-    if (basicAuthUser && basicAuthPassword) return {'type':type.value, 'data': [basicAuthUser.value, basicAuthPassword.value]}
+    if (basicAuthUser && basicAuthPassword)
+        return {'type':type.value, 'data': [basicAuthUser.value, basicAuthPassword.value]}
 
 }

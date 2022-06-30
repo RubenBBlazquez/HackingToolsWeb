@@ -11,8 +11,6 @@ Q
 !apps/HomePage/templates/home.html,0\2\028d84f735f9aceaa1280cfc403430039117ba16
 F
 sqlHackingWebTools.sql,6\3\63a7395e08090d9488797eb8a8a2cf2f4314ac52
-]
--apps/apiSniffer/templates/apiSnifferPage.html,2\b\2babbcc80fa4d58bb7fcf9d009178d68761dff4e
 X
 (apps/HomePage/templatetags/env_extras.py,a\f\af66b6a6801f1e0786eb6748f4e193505a052a07
 F
