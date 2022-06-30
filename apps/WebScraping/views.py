@@ -6,10 +6,7 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework.request import Request
 from rest_framework.views import APIView
-import requests
-from bs4 import BeautifulSoup
 import os
 from apps.WebScraping import models
 
@@ -45,7 +42,7 @@ class WebScrapingActionAPI(APIView):
         )
         response_information['draw'] = draw
 
-        return response_information
+        return JsonResponse(response_information)
 
     def get_information_by_action(self, action, base_url, tag, endpoint, limit, offset, search_value) -> dict:
 
