@@ -1,30 +1,23 @@
+let scrapButton = document.getElementById("scrapButton")
+let url = 'http://127.0.0.1:8000';
+let dropdown = document.getElementById("inputDataList");
 let webs_scrapped = []
 let dataTable = undefined;
 let dataTableModal = undefined;
 
-/**
- * Method to get an array from a string separated by commas
- *
- * @param data
- * @returns {string[]}
- */
+
 function getArrayFromStringSeparatedByComas(data = "") {
 
-    if (data.indexOf(",") === -1){
-        data = [];
-    }else{
+    if (data.indexOf(",") !== -1) {
         data = data.substr(0, data.length - 1);
         data = data.split(",");
+    } else {
+        data = [];
     }
 
     return data;
 }
 
-/**
- * Method to add Tags to tags to find input
- *
- * @param value: string
- */
 function addTagElementToTagsList(value) {
     if (!isTagAlreadyAdded(value)) {
         let actualValue = document.getElementById('tagsToScrap').value;
@@ -43,11 +36,12 @@ function addTagElementToTagsList(value) {
             input.setAttribute("id", value.split("-")[0].trim() + "Names");
             input.setAttribute("placeholder", "Write the " + value.split("-")[0].trim() + " Names , separated by comas")
             input.setAttribute("required", "true");
-            input.setAttribute("placeholder", "Write the words you can find in the web , separated by comas")
 
             if (value.split("-")[0].trim() !== 'text') {
                 input.setAttribute("placeholder", "Write the " + value.split("-")[0].trim() + " Names , separated by comas")
                 document.getElementById("compoundFilterDiv").setAttribute("class", "form-check form-switch row col-10 mt-3")
+            } else {
+                input.setAttribute("placeholder", "Write the words you can find in the web , separated by comas")
             }
 
             document.getElementById("auxContainer").appendChild(input);
@@ -58,11 +52,7 @@ function addTagElementToTagsList(value) {
     }
 }
 
-/**
- * Method to check if a tag is already added to tags to find input
- * @param tag
- * @returns {boolean}
- */
+
 function isTagAlreadyAdded(tag) {
     let tags = document.getElementById("tagsToScrap").value;
 
@@ -76,9 +66,9 @@ function isTagAlreadyAdded(tag) {
             }
         }
 
+    } else {
+        return false;
     }
-
-    return false;
 }
 
 

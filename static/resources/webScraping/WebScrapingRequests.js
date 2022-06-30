@@ -1,15 +1,11 @@
-const abortController = new AbortController()
-let actualScrapData = {};
-
 /**
- * method to get and set the available html tags to use in data-lists
+ * method to get the available html tags to use in data-lists
  */
 const getAvailableHtmlTags = () => {
-    fetchInformation(backendUrl + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
+    fetchInformation(url + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, undefined)
         .then(response => {
             response.json()
                 .then((data) => {
-                    console.log(data)
                     for (const i of data['tags']) {
                         let option = document.createElement("option");
                         option.setAttribute("data-value", i.trim());
@@ -25,11 +21,11 @@ const getAvailableHtmlTags = () => {
 /**
  * Method to get webs already scrapped
  *
- * @returns {Promise<dict>}
+ * @returns {Promise<unknown>}
  */
 const getWebsScrappedInformation = () => {
     return new Promise((resolve, reject) => {
-        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
+        fetchInformation(url + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, undefined)
             .then(response => {
                 response.json()
                     .then((result) => {
@@ -43,86 +39,45 @@ const getWebsScrappedInformation = () => {
 }
 
 /**
- * method to start getting information from web selected
  *
  * @returns {Promise<void>}
  */
 const startWebScrap = async () => {
-    actualScrapData = {};
-
-    let urlToScrap = document.getElementById("urlToScrap") || {value: ''};
-    const endpointDelimiter = urlToScrap.value.indexOf('/', 10) || 0;
-    const endpoint = urlToScrap.value.trim().substring(endpointDelimiter);
-    urlToScrap = urlToScrap.value.substr(0, endpointDelimiter);
-
+    let urlToScrap = document.getElementById("urlToScrap");
     let tags = document.getElementById("tagsToScrap");
     let classNames = document.getElementById("classNames") || "";
     let idNames = document.getElementById("idNames") || "";
     let words = document.getElementById("textNames") || "";
-
     const compoundFilter = document.getElementById("compoundFilter");
     const crawlLinks = document.getElementById("crawlLinksCheck");
     const threads = document.getElementById("threads").value;
+
 
     tags = getArrayFromStringSeparatedByComas(tags.value);
     classNames = getArrayFromStringSeparatedByComas(classNames.value);
     idNames = getArrayFromStringSeparatedByComas(idNames.value);
     words = getArrayFromStringSeparatedByComas(words.value);
 
-    actualScrapData = {
-        'url': urlToScrap + endpoint,
+    let data = {
+        'url': urlToScrap.value,
         'tags': tags,
         'attributes': {'class': classNames, 'id': idNames},
         'word': words,
         'compoundFilter': compoundFilter.checked,
         'crawlLinks': crawlLinks.checked,
         'threads': parseInt(threads) ? threads !== '' : 3,
-        'stopCrawling': false,
     }
 
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
-
-    launchThreadToGetInformationOfTheActualScraping(urlToScrap, endpoint)
-}
-
-/**
- * Method to launch a thread that check the current information from the actual web scraping request
- *
- * @param baseUrl: string
- * @param endpoint: string
- */
-const launchThreadToGetInformationOfTheActualScraping = (baseUrl, endpoint) => {
-
-    setTimeout(() => {
-
-        dataTable.ajax.url(backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
-
-    }, 1000)
-
+    await fetchInformation(url + '/scrapWebApi/', "POST", BASIC_HEADERS, data)
 }
 
 /**
  * method to get tags based on web already scrapped
- *
  * @param baseUrl
  * @param endpoint
  */
 const getTagsFromWebAlreadyScrapped = async (baseUrl, endpoint) => {
-    dataTable.ajax.url(backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
-}
-
-/**
- * Method to stop requests
-
- * @returns {Promise<void>}
- */
-const stopRequests = async () => {
-    await getTagsFromWebAlreadyScrapped('','')
-
-     actualScrapData.stopCrawling = true
-
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
-
+    dataTable.ajax.url(url + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION&baseUrl=' + baseUrl + '&endpoint=' + endpoint).reload()
 }
 
 
