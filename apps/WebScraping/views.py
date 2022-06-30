@@ -45,7 +45,7 @@ class WebScrapingActionAPI(APIView):
         )
         response_information['draw'] = draw
 
-        return response_information
+        return JsonResponse(response_information,safe=False,status=200)
 
     def get_information_by_action(self, action, base_url, tag, endpoint, limit, offset, search_value) -> dict:
 
