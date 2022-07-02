@@ -85,10 +85,12 @@
                             Links</label>
                     </div>
                     <div class="row col-11 mt-2 d-flex justify-content-center">
-                        <button id="scrapButton" class="col-6 btn btn-success scrap-button  text-light mt-3">
+                        <button id="scrapButton"
+                                class="col-6 btn btn-success scrap-button sriracha_font font-size-1-1 text-light mt-3">
                             Scrap Web
                         </button>
-                        <button id="scrapResetButton" class="col-6 btn btn-outline-success reset-button text-light mt-3">
+                        <button id="scrapResetButton"
+                                class="col-6 btn btn-outline-success sriracha_font reset-button font-size-1-1 text-light mt-3">
                             Reset Data
                         </button>
                     </div>
@@ -104,22 +106,24 @@
                 <div class="d-flex justify-content-end mb-3">
                     <button id="stopScraping" class="btn btn-success col-lg-2 col-sm-4 col-md 4 ">Stop Scraping</button>
                 </div>
-                <table id="dataTable-custom"
-                       class="table bg-black-dark table-dark table-responsive-md table-striped table-hover nowrap col-12 w-100">
-                    <thead>
-                    <tr id="nameTagsFiltered">
-                        <th scope="col" class="text-center">X</th>
-                        <th scope="col" class="text-center">WebsScrapped</th>
-                        <th scope="col" class="text-center">Endpoint</th>
-                        <th scope="col" class="text-center">Tags</th>
-                        <th scope="col" class="text-center">Count</th>
-                        <th scope="col" class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody id="dataTagsFiltered">
+                <div class="bg-black-dark">
+                    <table id="dataTable-custom"
+                           class="table table-responsive-md border border-dark rounded table-hover nowrap w-100">
+                        <thead class="bg-black-dark text-success ">
+                        <tr id="nameTagsFiltered">
+                            <th scope="col" class="text-left">X</th>
+                            <th scope="col" class="text-left">WebsScrapped</th>
+                            <th scope="col" class="text-left">Endpoint</th>
+                            <th scope="col" class="text-left">Tags</th>
+                            <th scope="col" class="text-left">Count</th>
+                            <th scope="col" class="text-left">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dataTagsFiltered">
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 

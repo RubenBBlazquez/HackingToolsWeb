@@ -19,7 +19,7 @@ const initWebsAlreadyScrappedDatatables = async () => {
             {
                 data: "index",
                 render: function (data, type, full, meta) {
-                    return `<button data-text="` + data + `" type="button" name="tagInformationModalButton" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#dataTagModal">
+                    return `<button data-text="` + data + `" type="button" name="tagInformationModalButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#dataTagModal">
                               <i data-text="` + data + `" class="fas fa-expand-arrows-alt"></i>
                             </button>`;
                 }

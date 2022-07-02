@@ -34,6 +34,15 @@
   font-family: harmattan-regular;
 }
 
+@font-face {
+    font-family: Sriracha;
+    src: url(../fonts/Sriracha-Regular.ttf);
+}
+
+.sriracha_font{
+    font-family: Sriracha;
+}
+
 .bg-gray{
     background-color:#1D1C1C !important;
 }
@@ -279,4 +288,8 @@
 
 .font-size-1-1{
   font-size: 1.1rem;
+}
+
+.head-webs-scrapped{
+  background-color: #198754 !important;
 }

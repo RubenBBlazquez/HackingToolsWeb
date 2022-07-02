@@ -18,11 +18,40 @@ label{
 }
 
 th, td {
-    text-align: center;
+    text-align: left;
 }
 .scrap-button{
     border-radius: 50rem 5% 5% 50rem !important;
 }
 .reset-button{
     border-radius: 5% 50rem 50rem 5%!important;
+}
+
+.sorting, .sorting_asc, .sorting_desc{
+    font-family: Sriracha;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.odd, .even{
+    background-color:#161515 !important;
+    color: #198754;
+    font-family: Sriracha;
+}
+
+.table{
+    background-color: #198754 !important;
+    --bs-table-hover-color: #198754 !important;
+    --bs-table-hover-bg: #198754 !important;
+}
+
+.table th, .table td{
+    border-top: none !important;
+    border-color: #1a1919;
+}
+
+table.dataTable thead th{
+    font-weight: normal !important;
+    font-style: italic !important;
+    font-size: 1.2rem !important;
 }
