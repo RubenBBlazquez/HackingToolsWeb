@@ -93,6 +93,7 @@ class WebScrapingActionAPI(APIView):
                 tag,
                 limit='',
                 offset='',
+                search_value=''
             )
 
             response_information = {

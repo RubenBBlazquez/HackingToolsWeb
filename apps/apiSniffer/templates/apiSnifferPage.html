@@ -2,28 +2,33 @@
 {% load static %}
 {% block content %}
 
-    <header class="container ">
+    <header class="container-fluid">
+        <button class="btn btn-secondary harmattan-bold-font font-italic font-italic col-2 font-size-1-3" id="getExampleFileButton">Get Example Endpoints
+            file
+        </button>
         <h1 class=" black_ops_font text-success
-        mb-3 text-center ">Api Sniffer</h1>
+        mb-3 text-center ">
+
+            Api Sniffer
+        </h1>
     </header>
-    <section class="container d">
+    <section class="container">
         <div class="form-group">
             <div class="row d-flex justify-content-center">
-                <button class="btn btn-outline-green" id="getExampleFileButton">get Example endpoints file</button>
                 <form action="/getDefaultApiSnifferFile/" method="post"
                       class="p-4 row col-12 mt-2 d-flex justify-content-center">
                     <div class="col-11">
                         <button type="button" id="setEndpointsFile"
-                                class="mt-3 mb-3 btn btn-outline-success col-12 black_ops_font">
+                                class="mt-3 mb-3 btn btn-outline-success col-12 harmattan-bold-font font-italic font-size-1-4 font-italic ">
                             Set Endpoints File
                         </button>
                     </div>
                     <div id="authorizationsDiv" class="col-11">
                         <input type="file" name="endpointsFile" placeholder="Set Endpoints File"
                                class="form-control-file col-12 d-none" id="inputEndpointsFile">
-                        <label class="text-left black_ops_font text-light" for="authorizationsSelector">Set Possible
+                        <label class="text-left harmattan-bold-regular-font font-size-1-1 font-weight-bold text-light" for="authorizationsSelector">Set Possible
                             Authorizations</label>
-                        <select name="authSelector" id="authorizationsSelector" class="form-control col-12">
+                        <select name="authSelector" id="authorizationsSelector" class="form-control col-12 chelsea_font">
                             <option value="NONE">Set Authorization Types</option>
                         </select>
 
@@ -64,7 +69,7 @@
                     </div>
 
                     <div class="col-11">
-                        <button id="sendData" class="mt-3 btn btn-outline-success col-12 black_ops_font">
+                        <button id="sendData" class="mt-3 btn btn-success col-12 harmattan-bold-font font-size-1-4">
                             Send Data
                         </button>
                     </div>

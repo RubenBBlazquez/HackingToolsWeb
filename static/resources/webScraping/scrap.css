@@ -20,3 +20,9 @@ label{
 th, td {
     text-align: center;
 }
+.scrap-button{
+    border-radius: 50rem 5% 5% 50rem !important;
+}
+.reset-button{
+    border-radius: 5% 50rem 50rem 5%!important;
+}

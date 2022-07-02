@@ -5,14 +5,8 @@ F
 apps/HomePage/tests.py,2\7\27a5b2613fc74b808ebda6ef95b1515e5588dd13
 H
 apps/apiSniffer/views.py,f\d\fdbd50b701199435529acf666ceb2af65d430ba9
-C
-templates/base.html,d\a\da7c237b85a69c00a9ab8c189bf63e22070fcac3
 Q
 !apps/HomePage/templates/home.html,0\2\028d84f735f9aceaa1280cfc403430039117ba16
-F
-sqlHackingWebTools.sql,6\3\63a7395e08090d9488797eb8a8a2cf2f4314ac52
-X
-(apps/HomePage/templatetags/env_extras.py,a\f\af66b6a6801f1e0786eb6748f4e193505a052a07
 F
 apps/HomePage/views.py,4\4\44afa1c22c4dbba3ef1d217f7aab6665a800f6e0
 R

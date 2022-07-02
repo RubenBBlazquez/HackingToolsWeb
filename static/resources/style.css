@@ -16,6 +16,24 @@
     font-family: black_ops;
 }
 
+@font-face {
+    font-family: harmattan-bold;
+    src: url(../fonts/harmattan-Bold.ttf);
+}
+
+@font-face {
+    font-family: harmattan-regular;
+    src: url(../fonts/harmattan-Regular.ttf);
+}
+
+.harmattan-bold-font{
+    font-family: harmattan-bold;
+}
+
+.harmattan-regular-font{
+  font-family: harmattan-regular;
+}
+
 .bg-gray{
     background-color:#1D1C1C !important;
 }
@@ -249,4 +267,16 @@
 .form-switch .form-check-input:checked {
   background-position: right center;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.font-size-1-3{
+  font-size: 1.3rem;
+}
+
+.font-size-1-4{
+  font-size: 1.5rem;
+}
+
+.font-size-1-1{
+  font-size: 1.1rem;
 }
