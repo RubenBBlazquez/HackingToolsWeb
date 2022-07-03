@@ -57,7 +57,12 @@ dropdown.addEventListener('change', (event) => {
     }
 });
 
+/**
+ *
+ * @returns {Promise<boolean>}
+ */
 const websAlreadyScrappedSelectorEvent = async () => {
+
     const endpoint_web_scrapped_selector = document.getElementById('endpoint_web_scrapped_selector')
     endpoint_web_scrapped_selector.innerHTML = ""
 
@@ -65,6 +70,8 @@ const websAlreadyScrappedSelectorEvent = async () => {
 
     if (!web) {
         endpoint_web_scrapped_selector.setAttribute('class', 'd-none')
+        await getTagsFromWebAlreadyScrapped('', '')
+
         return false
     }
 
@@ -76,6 +83,10 @@ const websAlreadyScrappedSelectorEvent = async () => {
 
     endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
     setOptionsIntoSelector(endpoint_web_scrapped_selector, mapped_endpoints_from_web)
+    endpoint_web_scrapped_selector.addEventListener(
+        'change',
+        async () => await getTagsFromWebAlreadyScrapped(web['BASE_URL'], event.target.name)
+    )
 
     await getTagsFromWebAlreadyScrapped(web['BASE_URL'], mapped_endpoints_from_web[0].name)
 
@@ -84,4 +95,4 @@ const websAlreadyScrappedSelectorEvent = async () => {
 /**
  * Method to stop scraping
  */
-document.getElementById('stopScraping').addEventListener('click',()=>stopRequests());
+document.getElementById('stopScraping').addEventListener('click', () => stopRequests());

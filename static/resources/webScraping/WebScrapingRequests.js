@@ -2,24 +2,29 @@ const abortController = new AbortController()
 let actualScrapData = {};
 
 /**
- * method to get and set the available html tags to use in data-lists
+ * method to get available html tags
  */
 const getAvailableHtmlTags = () => {
     fetchInformation(backendUrl + '/scrapWebApi/?action=TAGS_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
         .then(response => {
             response.json()
-                .then((data) => {
-                    console.log(data)
-                    for (const i of data['tags']) {
-                        let option = document.createElement("option");
-                        option.setAttribute("data-value", i.trim());
-                        option.setAttribute("value", i.trim().split("-")[0].trim());
-                        option.text = i.trim().split("-")[1].trim();
-                        option.setAttribute("class", "col-12")
-                        document.getElementById("datalistOptions").appendChild(option)
-                    }
-                })
+                .then((data) => createHtmlTagsOptions(data.tags))
         });
+}
+
+/**
+ * Method to create HTML tags options to use in data-lists
+ * @param {[]} tags
+ */
+const createHtmlTagsOptions = (tags) => {
+    for (const i of tags) {
+        let option = document.createElement("option");
+        option.setAttribute("data-value", i.trim());
+        option.setAttribute("value", i.trim().split("-")[0].trim());
+        option.text = i.trim().split("-")[1].trim();
+        option.setAttribute("class", "col-12")
+        document.getElementById("datalistOptions").appendChild(option)
+    }
 }
 
 /**
@@ -35,9 +40,10 @@ const getWebsScrappedInformation = () => {
                     .then((result) => {
                         return resolve(result.data)
                     })
-            }).catch((err) => {
-            return reject(err)
-        });
+            })
+            .catch((err) => {
+                return reject(err)
+            });
 
     })
 }
@@ -82,14 +88,19 @@ const startWebScrap = async () => {
 
     await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
 
+    document.getElementById('stopScraping').setAttribute(
+        'class',
+        'btn btn-success col-lg-2 col-sm-4'
+    )
+
     launchThreadToGetInformationOfTheActualScraping(urlToScrap, endpoint)
 }
 
 /**
  * Method to launch a thread that check the current information from the actual web scraping request
  *
- * @param baseUrl: string
- * @param endpoint: string
+ * @param {string} baseUrl
+ * @param {string} endpoint
  */
 const launchThreadToGetInformationOfTheActualScraping = (baseUrl, endpoint) => {
 
@@ -117,11 +128,13 @@ const getTagsFromWebAlreadyScrapped = async (baseUrl, endpoint) => {
  * @returns {Promise<void>}
  */
 const stopRequests = async () => {
-    await getTagsFromWebAlreadyScrapped('','')
+    await getTagsFromWebAlreadyScrapped('', '')
 
-     actualScrapData.stopCrawling = true
+    actualScrapData.stopCrawling = true
 
     await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
+
+    document.getElementById('stopScraping').setAttribute('class', 'btn btn-success col-lg-2 col-sm-4 d-none')
 
 }
 
