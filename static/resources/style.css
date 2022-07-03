@@ -55,6 +55,14 @@
     background-color: #1d1b1b !important;
 }
 
+.border-radius-left{
+    border-radius: 50rem 5% 5% 50rem !important;
+}
+
+.border-radius-right{
+    border-radius: 5% 50rem 50rem 5%!important;
+}
+
 .p-0-5{
     padding: 0.125rem !important;
 }
@@ -342,6 +350,10 @@
 
 .font-size-1-1 {
     font-size: 1.1rem;
+}
+
+.font-size-1-2 {
+    font-size: 1.2rem;
 }
 
 .head-webs-scrapped {

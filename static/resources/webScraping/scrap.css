@@ -21,13 +21,6 @@ th, td {
     text-align: left;
 }
 
-.scrap-button{
-    border-radius: 50rem 5% 5% 50rem !important;
-}
-.reset-button{
-    border-radius: 5% 50rem 50rem 5%!important;
-}
-
 .sorting, .sorting_asc, .sorting_desc{
     font-family: Sriracha;
     font-size: 1.1rem;
