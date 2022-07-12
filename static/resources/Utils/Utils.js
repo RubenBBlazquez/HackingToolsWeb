@@ -59,8 +59,8 @@ const setOptionsIntoSelector = (selector, options) => {
         option.setAttribute('name', option_information['name'])
         option.setAttribute('value',option_information['value'])
         option.textContent = option_information['text']
-        selector.appendChild(option)
 
+        selector.appendChild(option)
     }
 
 }

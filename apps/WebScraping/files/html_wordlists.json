@@ -124,6 +124,6 @@
     "wbr - tag",
     "action - attr",
     "method - attr",
-    "text - attr"
+    "text/words - attr"
   ]
 }

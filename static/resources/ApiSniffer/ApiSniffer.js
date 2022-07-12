@@ -18,6 +18,7 @@ const getDefaultDownloadFileLink = () => {
     const type = 'xlsx'
     let param = '&fileType=' + type
     param += '&fileContent=auth'
+
     getDefaultFile(param).then((res) => res.blob())
         .then((blob) => URL.createObjectURL(blob))
         .then((href) => {
@@ -96,7 +97,7 @@ const setCollapseDataForAuthorizationType = (type) => {
             authorizationCollapseTitle.textContent = 'Bearer Authorization'
 
             const inputToken = document.createElement('input')
-            inputToken.setAttribute('class', 'black_ops_font form-control text-black border border-dark col-12')
+            inputToken.setAttribute('class', 'chelsea_font form-control text-black border border-dark col-12')
             inputToken.setAttribute('placeholder', 'Set Bearer Token')
             inputToken.setAttribute('id', 'bearerTokenInput')
             divSectionAuthorizationCollapse.appendChild(inputToken)
@@ -106,13 +107,13 @@ const setCollapseDataForAuthorizationType = (type) => {
             authorizationCollapseTitle.textContent = 'Basic Authorization'
 
             const inputUsername = document.createElement('input')
-            inputUsername.setAttribute('class', 'black_ops_font form-control text-black border border-dark col-12')
+            inputUsername.setAttribute('class', 'chelsea_font form-control text-black border border-dark col-12')
             inputUsername.setAttribute('placeholder', 'Set UserName From Basic Auth')
             inputUsername.setAttribute('id', 'basicAuthUserInput')
             divSectionAuthorizationCollapse.appendChild(inputUsername)
 
             const inputPassword = document.createElement('input')
-            inputPassword.setAttribute('class', 'mt-2 black_ops_font form-control text-black border border-dark col-12')
+            inputPassword.setAttribute('class', 'mt-2 chelsea_font form-control text-black border border-dark col-12')
             inputPassword.setAttribute('placeholder', 'Set Password From Basic Auth')
             inputPassword.setAttribute('id', 'basicAuthPasswordInput')
             divSectionAuthorizationCollapse.appendChild(inputPassword)
@@ -186,11 +187,13 @@ const getInputsFromAuthorizationSaved = () => {
     const type = document.getElementById('savedAuthorizationType')
 
     const bearerToken = document.getElementById('bearerTokenInput')
+
     if (bearerToken)
         return {'type':type.value, 'data': [bearerToken.value]}
 
     const basicAuthUser = document.getElementById('basicAuthUserInput')
     const basicAuthPassword = document.getElementById('basicAuthPasswordInput')
+
     if (basicAuthUser && basicAuthPassword)
         return {'type':type.value, 'data': [basicAuthUser.value, basicAuthPassword.value]}
 

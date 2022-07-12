@@ -23,6 +23,7 @@ const createHtmlTagsOptions = (tags) => {
         option.setAttribute("value", i.trim().split("-")[0].trim());
         option.text = i.trim().split("-")[1].trim();
         option.setAttribute("class", "col-12")
+
         document.getElementById("datalistOptions").appendChild(option)
     }
 }

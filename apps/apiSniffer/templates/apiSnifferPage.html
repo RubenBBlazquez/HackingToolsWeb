@@ -29,9 +29,10 @@
         <div class="form-group">
             <div class="row d-flex justify-content-center">
                 <div id="authorizationsDiv" class="col-11">
-                    <div class="mb-5 mt-3">
+                    <div class="mb-2 mt-3">
                         <label class="text-left harmattan-regular-font font-size-1-4  text-light"
-                               for="authorizationsSelector"><i class="fa fa-key  mr-2 mb-1 font-size-1-1" aria-hidden="true"></i>
+                               for="authorizationsSelector"><i class="fa fa-key  mr-2 mb-1 font-size-1-1"
+                                                               aria-hidden="true"></i>
                             Set Possible</i>
                             Authorizations</label>
                         <select name="authSelector" id="authorizationsSelector"
@@ -57,20 +58,8 @@
                         </div>
 
                     </div>
-
-                    <div class="mb-3 d-flex flex-column">
-                        <label class="text-left harmattan-regular-font font-size-1-4  text-light"
-                               for="authorizationsSelector"><i class="fa fa-brackets-curly mr-2 font-size-1-1"></i>Endpoints To Sniff</label>
-                        <div>
-
-                        </div>
-                        <button class="btn btn-success sriracha_font col-sm-12 col-md-3">
-                            Add New Endpoint
-                        </button>
-                    </div>
-
                     <label id="savedAuthorizationsLabel"
-                           class="d-none ml-3 text-left black_ops_font text-light mt-3"
+                           class="d-none ml-3 text-left sriracha_font text-light"
                            for="authorizationsSelector">
                         Authorizations Saved</label>
                     <div id="savedAuthorizations" class="ml-2 d-none">
@@ -86,6 +75,34 @@
 
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mb-3 mt-4 d-flex flex-column">
+                        <label class="text-left harmattan-regular-font font-size-1-4  text-light"
+                               for="authorizationsSelector"><i class="fa fa-brackets-curly mr-2 font-size-1-1"></i>Endpoints
+                            To Sniff</label>
+                        <div>
+
+                        </div>
+
+                        <button class="btn btn-success sriracha_font col-sm-12 col-md-3">
+                            Add New Endpoint
+                        </button>
+
+                          <div class="collapse card mt-3 border border-dark" id="endpointCollapse">
+                            <h6 id="authorizationCollapseTitle"
+                                class="black_ops_font mt-2 text-dark text-center col-12"></h6>
+                            <div id="authorizationCollapseData" class="card-body row">
+
+                            </div>
+                            <div class="card-footer row">
+                                <button id="saveAuthorizationConfig" class="col-12 btn btn-outline-blue-dark"
+                                        type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#authorizationCollapse" aria-expanded="false"
+                                        aria-controls="collapseExample">
+                                    Save Authorization Config
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -45,15 +45,14 @@ class WebScrapingActionAPI(APIView):
         )
         response_information['draw'] = draw
 
-        return JsonResponse(response_information,safe=False,status=200)
+        return JsonResponse(response_information, safe=False, status=200)
 
     def get_information_by_action(self, action, base_url, tag, endpoint, limit, offset, search_value) -> dict:
 
         response_information = {}
 
         if action == 'TAGS_INFORMATION':
-            tags_information = json.load(open(self.tags_data_file, "r"))
-            return tags_information
+            response_information = json.load(open(self.tags_data_file, "r"))
 
         if action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED':
             result = models.WebScraping.get_grouped_tag_count_from_web_scrapped(
@@ -61,7 +60,8 @@ class WebScrapingActionAPI(APIView):
                 endpoint,
                 limit,
                 offset,
-                search_value)
+                search_value
+            )
 
             total_results = models.WebScraping.get_grouped_tag_count_from_web_scrapped(
                 base_url,
@@ -72,9 +72,9 @@ class WebScrapingActionAPI(APIView):
             )
 
             response_information = {
-                'recordsTotal'   : len(total_results),
+                'recordsTotal': len(total_results),
                 'recordsFiltered': total_results,
-                'data'           : result
+                'data': result
             }
 
         if action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION':
@@ -97,9 +97,9 @@ class WebScrapingActionAPI(APIView):
             )
 
             response_information = {
-                'recordsTotal'   : len(total_records),
+                'recordsTotal': len(total_records),
                 'recordsFiltered': total_records,
-                'data'           : records
+                'data': records
             }
 
         if action == 'WEBS_SCRAPPED_INFORMATION':

@@ -1,5 +1,6 @@
 let scrapButton = document.getElementById("scrapButton")
 let dropdown = document.getElementById("inputDataList");
+let isAddElementToTagListBlocked = false;
 
 /**
  *  method to load main data-table and get tags available
@@ -36,10 +37,22 @@ dropdown.addEventListener('keyup', async (event) => {
 
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
+            await new Promise((res) => {
+                setTimeout(res, 200)
+            })
+
+            if (isAddElementToTagListBlocked) {
+                break;
+            }
+
             addTagElementToTagsList(datalist[i].dataset.value);
+
             break;
         }
     }
+
+    isAddElementToTagListBlocked = false;
+
 });
 
 /**
@@ -52,7 +65,8 @@ dropdown.addEventListener('change', (event) => {
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
             addTagElementToTagsList(datalist[i].dataset.value);
-            break;
+
+            return;
         }
     }
 });
