@@ -68,7 +68,7 @@ class WebScraping:
     def get_web_data(self):
         """
             1º Iterate tags and split the tag from type to know if the tag is an attribute or a tag
-            2º we check if the user have marked if he want to perform a compose search, it means that we will
+            2º we check if the user have marked that he want to perform a compose search, it means that we will
             search tags like classes or ids that contains the attribute x, if not we will search separately
 
         """

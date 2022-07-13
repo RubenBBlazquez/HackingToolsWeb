@@ -6,10 +6,7 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework.request import Request
 from rest_framework.views import APIView
-import requests
-from bs4 import BeautifulSoup
 import os
 from apps.WebScraping import models
 
