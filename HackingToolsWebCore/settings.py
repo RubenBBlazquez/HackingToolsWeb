@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'apps.HomePage',
     'apps.WebScraping',
     'apps.apiSniffer',
+    'fontawesomefree'
 ]
 
 MIDDLEWARE = [
@@ -66,10 +67,10 @@ ROOT_URLCONF = 'HackingToolsWebCore.urls'
 CSRF_COOKIE_SECURE = True
 TEMPLATES = [
     {
-        'BACKEND' : 'django.template.backends.django.DjangoTemplates',
-        'DIRS'    : [BASE_DIR / 'templates', BASE_DIR / 'static', ],
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR / 'static', ],
         'APP_DIRS': True,
-        'OPTIONS' : {
+        'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -89,7 +90,7 @@ WSGI_APPLICATION = 'HackingToolsWebCore.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME'  : BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

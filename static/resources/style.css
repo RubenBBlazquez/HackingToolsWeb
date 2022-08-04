@@ -359,3 +359,11 @@
 .head-webs-scrapped {
     background-color: #198754 !important;
 }
+
+th, td {
+    text-align: left;
+}
+
+.font-awesome-size{
+    font-size: 25px;
+}

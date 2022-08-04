@@ -1,0 +1,27 @@
+.gray-green{
+    background-color: #4e5a56;
+}
+.dataTables_length{
+    display: none;
+}
+
+.dataTables_info{
+    display: none;
+}
+
+.table{
+    background-color: #4e5a56 !important;
+    --bs-table-hover-bg: #424c49 !important;
+}
+
+.table th, .table td{
+    border-top: none !important;
+    border-color: #433f3f;
+}
+
+td{
+    color: #198754;
+    font-size: 1.2em;
+    font-family: harmattan-bold, serif;
+    font-weight: bold;
+}

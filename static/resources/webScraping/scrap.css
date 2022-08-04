@@ -17,10 +17,6 @@ label{
     color: white;
 }
 
-th, td {
-    text-align: left;
-}
-
 .sorting, .sorting_asc, .sorting_desc{
     font-family: Sriracha;
     font-size: 1.1rem;
@@ -49,3 +45,4 @@ table.dataTable thead th{
     font-style: italic !important;
     font-size: 1.2rem !important;
 }
+
