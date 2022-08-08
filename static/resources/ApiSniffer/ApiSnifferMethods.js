@@ -1,8 +1,6 @@
-const savedAuthentications = [];
-const savedEndpoints = [];
 let authorizationsDatatable = undefined;
 let isEditingSavedAuthentication = false;
-let actualEditAuthentication = 0;
+let actualEditAuthenticationNumber = 0;
 
 /**
  *
@@ -64,8 +62,7 @@ const getAuthInformationFromSetAuthModal = () => {
 }
 
 const savedAuthenticationAction = () => {
-    console.log(isEditingSavedAuthentication)
-    if (isEditingSavedAuthentication){
+    if (isEditingSavedAuthentication) {
         editSavedAuthorization();
         return;
     }
@@ -77,8 +74,6 @@ const savedAuthenticationAction = () => {
  *
  */
 const addNewAuthentication = () => {
-    setVisibilityToAuthorizationTable();
-
     numberOfAuthorizations += 1
 
     document.getElementById('authorizationsSelector').options.selectedIndex = 0
@@ -95,46 +90,38 @@ const addNewAuthentication = () => {
                 `
     }];
 
-    savedAuthentications.push({
-        type: authorizationInformation.type,
-        value: authorizationInformation.data
-    })
-
     addRowToDatatable(authorizationsDatatable, newRowsInformation);
     setSavedAuthenticationEvents(numberOfAuthorizations);
+    setVisibilityToAuthorizationTable();
 }
 
 const editSavedAuthorization = () => {
     const authorizationInformation = getAuthInformationFromSetAuthModal()
 
-    const newRowInformation = {
-        index: actualEditAuthentication ,
-        type: authorizationInformation.type,
-        value: authorizationInformation.data,
-        action: `
-                   <button class="btn btn-success fa fa-pencil " id="editAuthSaved${numberOfAuthorizations}"></button>
-                   <button class="btn btn-success fa-solid fa-trash-can" id="removeAuthSaved${numberOfAuthorizations}"></button>
-                `
-    };
+    const newRowInformation = [
+        actualEditAuthenticationNumber,
+        authorizationInformation.type,
+        authorizationInformation.data,
+        `
+        <button class="btn btn-success fa fa-pencil " id="editAuthSaved${numberOfAuthorizations}"></button>
+        <button class="btn btn-success fa-solid fa-trash-can" id="removeAuthSaved${numberOfAuthorizations}"></button>
+        `
+    ];
 
-    savedAuthentications.push({
-        type: authorizationInformation.type,
-        value: authorizationInformation.data
-    })
-
-    updateRowDatatable(authorizationsDatatable, actualEditAuthentication, newRowInformation);
+    updateRowDatatable(authorizationsDatatable, actualEditAuthenticationNumber - 1, newRowInformation);
     setSavedAuthenticationEvents(numberOfAuthorizations);
 }
 
 const setVisibilityToAuthorizationTable = () => {
     const $savedAuthorizationTable = document.getElementById('savedAuthorizationTable')
+    console.log(numberOfAuthorizations)
 
     if (numberOfAuthorizations > 0) {
-        $savedAuthorizationTable.style.display = 'inline'
-        return;
+        $savedAuthorizationTable.classList.remove('d-sm-none')
+        return false;
     }
 
-    $savedAuthorizationTable.style.display = 'none'
+    $savedAuthorizationTable.classList.add('d-sm-none')
 }
 
 const editSavedAuthentication = (numberOfAuthorization) => {
@@ -143,10 +130,13 @@ const editSavedAuthentication = (numberOfAuthorization) => {
     });
     collapse.toggle();
 
-    const authToEdit = savedAuthentications[numberOfAuthorization];
-    actualEditAuthentication = numberOfAuthorization;
+    const authData = getInformationFromDatatable(authorizationsDatatable, numberOfAuthorization - 1);
+    const authInformation = {index: authData[0], type: authData[1], value: authData[2], action: authData[3]}
 
-    setCollapseDataForAuthorizationType(authToEdit.type, authToEdit)
+    console.log(authInformation)
+    actualEditAuthenticationNumber = numberOfAuthorization;
+
+    setCollapseDataForAuthorizationType(authInformation.type, authInformation)
 }
 
 /**
@@ -155,11 +145,7 @@ const editSavedAuthentication = (numberOfAuthorization) => {
  * @param {{}} editInformation
  */
 const setCollapseDataForAuthorizationType = (type, editInformation = {}) => {
-    isEditingSavedAuthentication = false;
-
-    if (Object.keys(editInformation).length > 0 ) {
-        isEditingSavedAuthentication = true;
-    }
+    isEditingSavedAuthentication = Object.keys(editInformation).length > 0;
 
     const divSectionAuthorizationCollapse = document.getElementById('authorizationCollapseData')
     divSectionAuthorizationCollapse.innerHTML = ""
@@ -259,13 +245,20 @@ const setHTMLElementsFromNewEndpoint = () => {
     const authSelector = document.getElementById('endpointAuthSelector');
     authSelector.innerHTML = "";
 
-    const defaultAuthorizationOption = [{
-        value: 1,
-        name: 'defaultSavedAuthorization',
-        text: 'Available Saved Authorization'
-    }]
+    const defaultAuthorizationOption = [
+        {
+            value: 1,
+            name: 'defaultSavedAuthorization',
+            text: 'Available Saved Authorization'
+        }, {
+            value: 2,
+            name: 'None Auth',
+            text: 'None Authorization'
+        }
+    ]
     setOptionsIntoSelector(authSelector, defaultAuthorizationOption)
 
+    const savedAuthentications = getAllRowsInformationFromSavedAuthorizations(numberOfAuthorizations);
     const definedAuthentications = savedAuthentications.map((auth) => {
         return {value: auth.value, name: auth.type, text: auth.value}
     })
@@ -280,6 +273,7 @@ const addNewEndpoint = () => {
     const endpointUrl = document.getElementById('endpointUrl')
     const authorization = document.getElementById('endpointAuthorization')
 
+    let savedEndpoints;
     savedEndpoints.push({endpoint: endpointUrl, authorizationNumber: authorization.value})
 }
 

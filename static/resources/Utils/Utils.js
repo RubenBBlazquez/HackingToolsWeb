@@ -164,3 +164,7 @@ const deleteRowFromDatatable = (datatable, rowNumber) => {
 const updateRowDatatable = (datatable, rowNumber, newRowInformation) => {
     datatable.row(rowNumber).data(newRowInformation).draw();
 }
+
+const getInformationFromDatatable = (datatable, rowNumber) => {
+    return datatable.row(rowNumber).data();
+}
