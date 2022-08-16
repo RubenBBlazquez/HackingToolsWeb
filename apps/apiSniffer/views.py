@@ -1,7 +1,11 @@
-from django.http import HttpResponse
+import json
+
+import pandas
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from apps.apiSniffer.models import FileCreator
+import pandas as pd
 
 
 class APISnifferRedirectMethods:
@@ -12,9 +16,7 @@ class APISnifferRedirectMethods:
 
 
 class ManageEndpointsInformation:
-
     pass
-
 
 
 class DefaultFileAPI(APIView):
@@ -30,3 +32,20 @@ class DefaultFileAPI(APIView):
 
         return response
 
+
+class Endpoints:
+
+    @staticmethod
+    def get_endpoints_from_file(request):
+        print('hola buenas tardes')
+        return render(request, 'apiSnifferPage.html')
+
+
+class GenerateEndpointsFromFile(APIView):
+
+    @staticmethod
+    def post(request):
+        data = request.data
+        dataframe = pandas.read_excel(data['endpointsFile'])
+
+        return JsonResponse(status=200, data={'message': 'success'}, safe=False)

@@ -1,6 +1,11 @@
 let authorizationsDatatable = undefined;
+let endpointsDatatable = undefined;
 let isEditingSavedAuthentication = false;
+let isEditingSavedEndpoint = false;
 let actualEditAuthenticationNumber = 0;
+let actualEditEndpointNumber = 0;
+let numberOfAuthorizations = 0
+let numberOfEndpoints = 0
 
 /**
  *
@@ -93,9 +98,12 @@ const addNewAuthentication = () => {
     addRowToDatatable(authorizationsDatatable, newRowsInformation);
     setSavedAuthenticationEvents(numberOfAuthorizations);
     setVisibilityToAuthorizationTable();
+    setVisibilityToSavedAuthorizationTabs();
 }
 
 const editSavedAuthorization = () => {
+    isEditingSavedEndpoint = false;
+
     const authorizationInformation = getAuthInformationFromSetAuthModal()
 
     const newRowInformation = [
@@ -122,21 +130,6 @@ const setVisibilityToAuthorizationTable = () => {
     }
 
     $savedAuthorizationTable.classList.add('d-sm-none')
-}
-
-const editSavedAuthentication = (numberOfAuthorization) => {
-    const collapse = new bootstrap.Collapse(authCollapse, {
-        toggle: false
-    });
-    collapse.toggle();
-
-    const authData = getInformationFromDatatable(authorizationsDatatable, numberOfAuthorization - 1);
-    const authInformation = {index: authData[0], type: authData[1], value: authData[2], action: authData[3]}
-
-    console.log(authInformation)
-    actualEditAuthenticationNumber = numberOfAuthorization;
-
-    setCollapseDataForAuthorizationType(authInformation.type, authInformation)
 }
 
 /**
@@ -219,6 +212,22 @@ const collapseSavedAuthenticationSelector = () => {
     collapse.hide()
 }
 
+const editSavedAuthentication = (numberOfAuthorization) => {
+
+    const collapse = new bootstrap.Collapse(authCollapse, {
+        toggle: false
+    });
+    collapse.toggle();
+
+    const authData = getInformationFromDatatable(authorizationsDatatable, numberOfAuthorization - 1);
+    const authInformation = {index: authData[0], type: authData[1], value: authData[2], action: authData[3]}
+
+    actualEditAuthenticationNumber = numberOfAuthorization;
+
+    setCollapseDataForAuthorizationType(authInformation.type, authInformation)
+}
+
+
 /**
  *
  */
@@ -251,7 +260,7 @@ const setHTMLElementsFromNewEndpoint = () => {
             name: 'defaultSavedAuthorization',
             text: 'Available Saved Authorization'
         }, {
-            value: 2,
+            value: 'None Auth',
             name: 'None Auth',
             text: 'None Authorization'
         }
@@ -260,22 +269,168 @@ const setHTMLElementsFromNewEndpoint = () => {
 
     const savedAuthentications = getAllRowsInformationFromSavedAuthorizations(numberOfAuthorizations);
     const definedAuthentications = savedAuthentications.map((auth) => {
-        return {value: auth.value, name: auth.type, text: auth.value}
+        return {value: auth.type + ': ' + auth.value, name: auth.type, text: auth.type + ': ' + auth.value}
     })
 
     setOptionsIntoSelector(authSelector, definedAuthentications)
+}
+
+const setVisibilityToEndpointsTable = () => {
+    const $savedEndpointsTable = document.getElementById('savedEndpoints')
+
+    if (numberOfEndpoints > 0) {
+        $savedEndpointsTable.classList.remove('d-sm-none')
+        return false;
+    }
+
+    $savedEndpointsTable.classList.add('d-sm-none')
 }
 
 /**
  *
  */
 const addNewEndpoint = () => {
-    const endpointUrl = document.getElementById('endpointUrl')
-    const authorization = document.getElementById('endpointAuthorization')
+    numberOfEndpoints += 1;
 
-    let savedEndpoints;
-    savedEndpoints.push({endpoint: endpointUrl, authorizationNumber: authorization.value})
+    const endpointUrl = document.getElementById('endpointUrl')
+    const authorization = document.getElementById('endpointAuthSelector')
+
+    const endpointInformation = [{
+        index: numberOfEndpoints,
+        endpoint: endpointUrl.value,
+        authentication: authorization.value,
+        action: `
+                   <button  class="btn btn-success fa fa-pencil " id="editSavedEndpoint${numberOfEndpoints}"></button>
+                   <button class="btn btn-success fa-solid fa-trash-can" id="removeSavedEndpoint${numberOfEndpoints}"></button>
+                `
+    }]
+
+    addRowToDatatable(endpointsDatatable, endpointInformation)
+    setSavedEndpointsEvents(numberOfEndpoints)
+    setVisibilityToEndpointsTable();
+    setVisibilityToSavedEndpointsTabs();
+}
+
+const editEndpoint = (endpointNumber) => {
+    isEditingSavedEndpoint = true;
+    actualEditEndpointNumber = endpointNumber;
+
+    const endpointCollapse = document.getElementById('endpointsCollapse');
+    const collapse = new bootstrap.Collapse(endpointCollapse, {
+        toggle: false
+    });
+    collapse.toggle();
+
+    const endpointData = getInformationFromDatatable(endpointsDatatable, endpointNumber - 1);
+    const endpointInformation = {
+        index: endpointData[0],
+        endpoint: endpointData[1],
+        authentication: endpointData[2],
+        action: endpointData[3]
+    }
+
+    const endpointUrl = document.getElementById('endpointUrl')
+    const authSelector = document.getElementById('endpointAuthSelector')
+
+    endpointUrl.value = endpointInformation.endpoint
+
+    let index = 0;
+    for (const option of authSelector) {
+        if (option.value.trim() !== endpointInformation.authentication) {
+            return;
+        }
+
+        authSelector.selectedIndex = index;
+        index++;
+    }
+}
+
+const updateEndpoint = () => {
+    isEditingSavedEndpoint = false;
+
+    const INDEX_ENDPOINT = 0;
+    const ACTION_ENDPOINT = 3;
+
+    const endpointData = getInformationFromDatatable(endpointsDatatable, actualEditEndpointNumber - 1);
+
+    const endpointUrl = document.getElementById('endpointUrl');
+    const authSelector = document.getElementById('endpointAuthSelector')
+
+    const endpointInformation = [
+        endpointData[INDEX_ENDPOINT],
+        endpointUrl.value,
+        authSelector.value,
+        endpointData[ACTION_ENDPOINT]
+    ]
+
+    updateRowDatatable(endpointsDatatable, actualEditEndpointNumber - 1, endpointInformation)
+    setSavedEndpointsEvents(endpointData[INDEX_ENDPOINT])
+}
+
+const savedEndpointAction = () => {
+    if (isEditingSavedEndpoint) {
+        updateEndpoint();
+        return;
+    }
+
+    isEditingSavedEndpoint = false;
+    addNewEndpoint();
+}
+
+const setVisibilityToSavedAuthorizationTabs = () => {
+    const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
+    const $savedInformationTabs = document.getElementById('savedInformationTabs')
+    const $savedAuthenticationsTabButton = document.getElementById('savedAuthentications-tab')
+
+    if (numberOfAuthorizations > 0) {
+        $labelNoSavedInformation.classList.add('d-sm-none');
+        $savedInformationTabs.classList.remove('d-sm-none');
+        $savedAuthenticationsTabButton.click();
+        return;
+    }
+
+    $labelNoSavedInformation.classList.remove('d-sm-none')
+    $savedInformationTabs.classList.add('d-sm-none')
+}
+
+const setVisibilityToSavedEndpointsTabs = () => {
+    const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
+    const $savedInformationTabs = document.getElementById('savedInformationTabs')
+    const $savedEndpointsTabButton = document.getElementById('savedEndpoints-tab')
+
+    if (numberOfEndpoints > 0) {
+        $labelNoSavedInformation.classList.add('d-sm-none');
+        $savedInformationTabs.classList.remove('d-sm-none');
+        $savedEndpointsTabButton.click();
+        return;
+    }
+
+    $labelNoSavedInformation.classList.remove('d-sm-none')
+    $savedInformationTabs.classList.add('d-sm-none')
 }
 
 
+const setEndpointsFromFile = async () => {
+    const file = event.target
+    const fileName = file.value
 
+
+    let formData = new FormData();
+    formData.append(file.name, event.target.files[0]);
+
+    for (var key of formData.entries()) {
+        console.log(key[0] + ', ' + key[1]);
+    }
+    const response = await fetchInformation(
+        backendUrl + 'generateEndpointsFromFile/',
+        'POST',
+        {},
+        undefined,
+        formData,
+        false
+    )
+
+    const endpointsInformation = await response.json();
+
+    console.log(endpointsInformation)
+}

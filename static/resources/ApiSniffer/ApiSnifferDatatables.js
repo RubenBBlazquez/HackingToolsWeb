@@ -7,6 +7,15 @@ const initSavedAuthorizationsDatatable = () => {
     });
 }
 
+/**
+ * method to init data-table with tags information
+ */
+const initSavedEndpointsDatatable = () => {
+    endpointsDatatable = $('#dataTable-endpoints').DataTable({
+        lengthMenu: [20],
+    });
+}
+
 const getAllRowsInformationFromSavedAuthorizations = (numberOfAuthorizations) => {
     const savedAuths = [];
 

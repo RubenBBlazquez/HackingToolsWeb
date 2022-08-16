@@ -31,17 +31,18 @@ const getToast = (type, title, message) => {
  * @param {{}} headers
  * @param {AbortSignal} signal
  * @param {{}} body
+ * @param {boolean} mustParseBody
  * @returns {Promise<Response>}
  */
-const fetchInformation = (url, method, headers, signal, body) => {
+const fetchInformation = (url, method, headers, signal, body, mustParseBody = true) => {
     const init = {
         method: method,
-        headers: BASIC_HEADERS,
+        headers: headers ? headers : BASIC_HEADERS,
         signal: signal,
     }
 
     if (method !== "GET") {
-        init.body = JSON.stringify(body)
+        init.body = mustParseBody ? JSON.stringify(body) : body
     }
 
     return fetch(url, init)
