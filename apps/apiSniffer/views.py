@@ -6,7 +6,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from apps.apiSniffer.models import FileCreator
 import pandas as pd
-
+import numpy as np
 
 class APISnifferRedirectMethods:
 
@@ -46,6 +46,15 @@ class GenerateEndpointsFromFile(APIView):
     @staticmethod
     def post(request):
         data = request.data
-        dataframe = pandas.read_excel(data['endpointsFile'])
 
-        return JsonResponse(status=200, data={'message': 'success'}, safe=False)
+        dataframe = pd.DataFrame(pd.read_excel(data['endpointsFile']))
+        groups_index = dataframe.groupby(['url']).groups
+        new_endpoints = {}
+
+        for url in groups_index.keys():
+            position_elements = groups_index[url]
+            new_endpoints[url] = list(
+                map(lambda position: pd.Series(dataframe.iloc[position]).fillna('').to_dict(), position_elements)
+            )
+
+        return JsonResponse(status=200, data={'message': 'success', 'data': new_endpoints}, safe=False)

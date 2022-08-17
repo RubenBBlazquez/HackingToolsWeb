@@ -26,8 +26,8 @@ class FileCreator:
         # y con recordPath sacamos las keys de dentro de ese array
         dataframe = pd.json_normalize(self._dictionary, record_path=main_dict_key)
 
-        # creamos el excel
-        dataframe.to_excel(file_dir)
+        # we create the xls file
+        dataframe.to_excel(file_dir, index=False)
 
         return file_dir
 
@@ -46,8 +46,8 @@ class FileCreator:
         # y con recordPath sacamos las keys de dentro de ese array
         dataframe = pd.json_normalize(self._dictionary, record_path=main_dict_key)
 
-        # creamos el excel
-        dataframe.to_json(file_dir)
+        # we create the json file
+        dataframe.to_json(file_dir, index=False)
 
         return file_dir
 
@@ -59,9 +59,9 @@ class FileCreator:
         excel_types = ['excel', 'xls', 'xlsx']
 
         if file_type not in excel_types:
-            return self.get_xls_file(main_dict_key)
+            return self.get_json_file(main_dict_key)
 
-        return self.get_json_file(main_dict_key)
+        return self.get_xls_file(main_dict_key)
 
     @staticmethod
     def get_default_endpoints_dictionary() -> dict:
@@ -71,17 +71,17 @@ class FileCreator:
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example',
-                    "auth": "api key"
+                    "Optional Auth": 'Bearer xxxx'
                 },
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example2',
-                    "auth": "bearer"
+                    "Optional Auth": 'cHJ1ZWJhMTIzMTM='
                 },
                 {
-                    'url': default_url,
+                    'url': default_url+'123',
                     "Endpoint": 'v1/example3',
-                    "auth": "basic"
+                    "Optional Auth": ''
                 }
             ]
         }
