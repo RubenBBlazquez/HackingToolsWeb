@@ -6,7 +6,7 @@ let actualEditAuthenticationNumber = 0;
 let actualEditEndpointNumber = 0;
 let numberOfAuthorizations = 0
 let numberOfEndpoints = 0
-
+const NOT_VALID_AUTH = 'not_valid';
 /**
  *
  */
@@ -66,6 +66,9 @@ const getAuthInformationFromSetAuthModal = () => {
         return {'type': type.value, 'data': basicAuthUser.value + '-' + basicAuthPassword.value}
 }
 
+/**
+ *
+ */
 const savedAuthenticationAction = () => {
     if (isEditingSavedAuthentication) {
         editSavedAuthorization();
@@ -101,6 +104,9 @@ const addNewAuthentication = () => {
     setVisibilityToSavedAuthorizationTabs();
 }
 
+/**
+ *
+ */
 const editSavedAuthorization = () => {
     isEditingSavedEndpoint = false;
 
@@ -120,6 +126,10 @@ const editSavedAuthorization = () => {
     setSavedAuthenticationEvents(numberOfAuthorizations);
 }
 
+/**
+ *
+ * @returns {boolean}
+ */
 const setVisibilityToAuthorizationTable = () => {
     const $savedAuthorizationTable = document.getElementById('savedAuthorizationTable')
     console.log(numberOfAuthorizations)
@@ -212,6 +222,10 @@ const collapseSavedAuthenticationSelector = () => {
     collapse.hide()
 }
 
+/**
+ *
+ * @param numberOfAuthorization
+ */
 const editSavedAuthentication = (numberOfAuthorization) => {
 
     const collapse = new bootstrap.Collapse(authCollapse, {
@@ -274,7 +288,10 @@ const setHTMLElementsFromNewEndpoint = () => {
 
     setOptionsIntoSelector(authSelector, definedAuthentications)
 }
-
+/**
+ *
+ * @returns {boolean}
+ */
 const setVisibilityToEndpointsTable = () => {
     const $savedEndpointsTable = document.getElementById('savedEndpoints')
 
@@ -288,17 +305,20 @@ const setVisibilityToEndpointsTable = () => {
 
 /**
  *
+ * @param {{}} endpointInfo
  */
-const addNewEndpoint = () => {
+const addNewEndpoint = (endpointInfo = {}) => {
     numberOfEndpoints += 1;
 
-    const endpointUrl = document.getElementById('endpointUrl')
-    const authorization = document.getElementById('endpointAuthSelector')
+    const endpointUrl = endpointInfo.url ?? document.getElementById('endpointUrl').value
+    const authorization = endpointInfo.auth ?? document.getElementById('endpointAuthSelector').value
+
+    console.log(endpointInfo, endpointUrl, authorization)
 
     const endpointInformation = [{
         index: numberOfEndpoints,
-        endpoint: endpointUrl.value,
-        authentication: authorization.value,
+        endpoint: endpointUrl,
+        authentication: authorization,
         action: `
                    <button  class="btn btn-success fa fa-pencil " id="editSavedEndpoint${numberOfEndpoints}"></button>
                    <button class="btn btn-success fa-solid fa-trash-can" id="removeSavedEndpoint${numberOfEndpoints}"></button>
@@ -311,6 +331,10 @@ const addNewEndpoint = () => {
     setVisibilityToSavedEndpointsTabs();
 }
 
+/**
+ *
+ * @param endpointNumber
+ */
 const editEndpoint = (endpointNumber) => {
     isEditingSavedEndpoint = true;
     actualEditEndpointNumber = endpointNumber;
@@ -345,6 +369,9 @@ const editEndpoint = (endpointNumber) => {
     }
 }
 
+/**
+ *
+ */
 const updateEndpoint = () => {
     isEditingSavedEndpoint = false;
 
@@ -367,6 +394,9 @@ const updateEndpoint = () => {
     setSavedEndpointsEvents(endpointData[INDEX_ENDPOINT])
 }
 
+/**
+ *
+ */
 const savedEndpointAction = () => {
     if (isEditingSavedEndpoint) {
         updateEndpoint();
@@ -377,6 +407,9 @@ const savedEndpointAction = () => {
     addNewEndpoint();
 }
 
+/**
+ *
+ */
 const setVisibilityToSavedAuthorizationTabs = () => {
     const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
     const $savedInformationTabs = document.getElementById('savedInformationTabs')
@@ -393,6 +426,9 @@ const setVisibilityToSavedAuthorizationTabs = () => {
     $savedInformationTabs.classList.add('d-sm-none')
 }
 
+/**
+ *
+ */
 const setVisibilityToSavedEndpointsTabs = () => {
     const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
     const $savedInformationTabs = document.getElementById('savedInformationTabs')
@@ -409,18 +445,17 @@ const setVisibilityToSavedEndpointsTabs = () => {
     $savedInformationTabs.classList.add('d-sm-none')
 }
 
-
+/**
+ *
+ * @returns {Promise<void>}
+ */
 const setEndpointsFromFile = async () => {
     const file = event.target
     const fileName = file.value
 
-
     let formData = new FormData();
     formData.append(file.name, event.target.files[0]);
 
-    for (var key of formData.entries()) {
-        console.log(key[0] + ', ' + key[1]);
-    }
     const response = await fetchInformation(
         backendUrl + 'generateEndpointsFromFile/',
         'POST',
@@ -432,5 +467,65 @@ const setEndpointsFromFile = async () => {
 
     const endpointsInformation = await response.json();
 
-    console.log(endpointsInformation)
+    composeAuthenticationAndEndpointsInformationFrom(endpointsInformation)
+}
+
+/**
+ * @param {{}} endpointInformation
+ */
+const composeAuthenticationAndEndpointsInformationFrom = (endpointInformation) => {
+
+    endpointInformation = endpointInformation.data
+
+    const EndpointKey = 'Endpoint';
+    const AuthTypeKey = 'Optional auth type';
+    const AuthKey = 'auth';
+    const UrlKey = 'url';
+
+    const endpointKeys = Object.keys(endpointInformation);
+
+    if (endpointKeys.length === 0) {
+        getToast(ToastTypes.ERROR, '', 'Endpoints Information set in file, is empty or is not valid')
+    }
+
+    const authentications = [];
+
+    endpointKeys.forEach((key) => {
+        const endpointData = endpointInformation[key];
+        endpointData[UrlKey] = endpointData[UrlKey] + endpointData[EndpointKey]
+
+        let authType = endpointData[AuthTypeKey];
+        const auth = endpointData[AuthKey];
+        const authElement = {
+            [AuthTypeKey]: authType,
+            auth
+        }
+
+        const isAuthTypeAlreadySaved = authentications.filter(
+            (element) => {
+                return element[AuthTypeKey] === auth;
+            }
+        ).length !== 0;
+
+        if (isAuthTypeAlreadySaved) {
+            const authTypeLength = authentications.filter((auth) => {
+                return auth === authType;
+            }).length;
+
+            authType = authType + authTypeLength;
+            authElement[AuthTypeKey] = authType
+        }
+
+
+        delete endpointData[AuthTypeKey];
+
+        endpointData[AuthKey] = 'none';
+
+        if (authType !== '' && auth !== NOT_VALID_AUTH) {
+            endpointData[AuthTypeKey] = authElement[AuthTypeKey];
+            authentications.push(authElement)
+        }
+
+        addNewEndpoint(endpointData);
+    })
 }

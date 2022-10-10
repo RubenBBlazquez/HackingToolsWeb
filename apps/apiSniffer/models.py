@@ -66,22 +66,26 @@ class FileCreator:
     @staticmethod
     def get_default_endpoints_dictionary() -> dict:
         default_url = 'http://127.0.0.1:8000/'
+
         return {
             'Endpoints': [
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example',
-                    "Optional Auth": 'Bearer xxxx'
+                    "Optional auth type": 'bearer',
+                    "auth": 'Bearer xxxx'
                 },
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example2',
-                    "Optional Auth": 'cHJ1ZWJhMTIzMTM='
+                    "Optional auth type": 'basic',
+                    "auth": 'cHJ1ZWJhMTIzMTM='
                 },
                 {
                     'url': default_url+'123',
                     "Endpoint": 'v1/example3',
-                    "Optional Auth": ''
+                    "Optional auth type": '',
+                    "auth": ''
                 }
             ]
         }

@@ -1,12 +1,13 @@
-import json
+import binascii
 
-import pandas
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from apps.apiSniffer.models import FileCreator
 import pandas as pd
-import numpy as np
+from .Enums import AuthTypesEnum
+import base64
+
 
 class APISnifferRedirectMethods:
 
@@ -37,7 +38,6 @@ class Endpoints:
 
     @staticmethod
     def get_endpoints_from_file(request):
-        print('hola buenas tardes')
         return render(request, 'apiSnifferPage.html')
 
 
@@ -47,14 +47,36 @@ class GenerateEndpointsFromFile(APIView):
     def post(request):
         data = request.data
 
-        dataframe = pd.DataFrame(pd.read_excel(data['endpointsFile']))
-        groups_index = dataframe.groupby(['url']).groups
+        dataframe = pd.DataFrame(pd.read_excel(data['endpointsFile'], ))
         new_endpoints = {}
+        print(dataframe)
 
-        for url in groups_index.keys():
-            position_elements = groups_index[url]
-            new_endpoints[url] = list(
-                map(lambda position: pd.Series(dataframe.iloc[position]).fillna('').to_dict(), position_elements)
-            )
+        for index, row in dataframe.iterrows():
+            endpoint = row['Endpoint']
+            endpoint_dict = row.fillna("").to_dict()
+            auth = endpoint_dict['auth']
+            auth_type = endpoint_dict['Optional auth type']
+
+            endpoint_dict['auth'] = auth if GenerateEndpointsFromFile.valid_auth_tokens(auth_type, auth) else 'not_valid'
+
+            new_endpoints[endpoint] = endpoint_dict
 
         return JsonResponse(status=200, data={'message': 'success', 'data': new_endpoints}, safe=False)
+
+    @staticmethod
+    def valid_auth_tokens(auth_type, value: str) -> bool:
+        if auth_type == AuthTypesEnum.BEARER.value:
+            value = value.lower().replace(AuthTypesEnum.BEARER.value, '').strip()
+
+            return value == ''
+
+        if auth_type == AuthTypesEnum.BASIC:
+            if value == '':
+                return False
+
+            try:
+                value = base64.b64decode(value)
+
+                return value != ''
+            except binascii.Error:
+                return False
