@@ -12,7 +12,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import platform
 from pathlib import Path
+
 from dotenv import load_dotenv
 from HackingToolsWebCore.DB.DatabaseFactory.DatabaseFactory import DatabaseFactory
 from HackingToolsWebCore.DB.DatabaseFactory.Enum.DatabaseTypesEnum import DATABASE_TYPES
@@ -21,7 +23,12 @@ from HackingToolsWebCore.Utils.Utils import Utils
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(str(BASE_DIR) + '\config\.env')
+operative_system = platform.system()
+
+if operative_system.lower() == 'windows':
+    load_dotenv(str(BASE_DIR) + '\config\.env')
+else:
+    load_dotenv(str(BASE_DIR) + '/config/.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 

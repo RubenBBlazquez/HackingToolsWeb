@@ -5,5 +5,5 @@ HackingToolsWeb.iml
 .idea
 .pyc
 **/__pycache__/
-.env
+/config/.env
 index.pb
