@@ -1,7 +1,7 @@
+CREATE DATABASE IF NOT EXISTS hacking_tools_web;
 use hacking_tools_web;
 
 #config
-SHOW VARIABLES LIKE "%timeout";
 SET GLOBAL connect_timeout = 600;
 SET GLOBAL net_read_timeout = 600;
 SET GLOBAL net_read_timeout = 600;
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS LOGS_WEBS_SCRAPPED
 );
 
 SELECT *
-FROM webs_scrapped;
+FROM WEBS_SCRAPPED;
 
 SELECT *
 FROM TAGS_FROM_WEB_SCRAPPED

@@ -12,7 +12,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import platform
 from pathlib import Path
+
 from dotenv import load_dotenv
 from HackingToolsWebCore.DB.DatabaseFactory.DatabaseFactory import DatabaseFactory
 from HackingToolsWebCore.DB.DatabaseFactory.Enum.DatabaseTypesEnum import DATABASE_TYPES
@@ -21,7 +23,12 @@ from HackingToolsWebCore.Utils.Utils import Utils
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(str(BASE_DIR) + '\config\.env')
+operative_system = platform.system()
+
+if operative_system.lower() == 'windows':
+    load_dotenv(str(BASE_DIR) + '\config\.env')
+else:
+    load_dotenv(str(BASE_DIR) + '/config/.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -66,10 +73,10 @@ ROOT_URLCONF = 'HackingToolsWebCore.urls'
 CSRF_COOKIE_SECURE = True
 TEMPLATES = [
     {
-        'BACKEND' : 'django.template.backends.django.DjangoTemplates',
-        'DIRS'    : [BASE_DIR / 'templates', BASE_DIR / 'static', ],
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates', BASE_DIR / 'static', ],
         'APP_DIRS': True,
-        'OPTIONS' : {
+        'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -89,7 +96,7 @@ WSGI_APPLICATION = 'HackingToolsWebCore.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME'  : BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
