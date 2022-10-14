@@ -286,6 +286,10 @@ const setHTMLElementsFromNewEndpoint = () => {
         return {value: auth.type + ': ' + auth.value, name: auth.type, text: auth.type + ': ' + auth.value}
     })
 
+    if (definedAuthentications.length === 0){
+        return;
+    }
+
     setOptionsIntoSelector(authSelector, definedAuthentications)
 }
 /**
@@ -359,7 +363,7 @@ const editEndpoint = (endpointNumber) => {
     endpointUrl.value = endpointInformation.endpoint
 
     let index = 0;
-    for (const option of authSelector) {
+    for (const option of authSelector.options) {
         if (option.value.trim() !== endpointInformation.authentication) {
             return;
         }
@@ -443,31 +447,6 @@ const setVisibilityToSavedEndpointsTabs = () => {
 
     $labelNoSavedInformation.classList.remove('d-sm-none')
     $savedInformationTabs.classList.add('d-sm-none')
-}
-
-/**
- *
- * @returns {Promise<void>}
- */
-const setEndpointsFromFile = async () => {
-    const file = event.target
-    const fileName = file.value
-
-    let formData = new FormData();
-    formData.append(file.name, event.target.files[0]);
-
-    const response = await fetchInformation(
-        backendUrl + 'generateEndpointsFromFile/',
-        'POST',
-        {},
-        undefined,
-        formData,
-        false
-    )
-
-    const endpointsInformation = await response.json();
-
-    composeAuthenticationAndEndpointsInformationFrom(endpointsInformation)
 }
 
 /**

@@ -64,6 +64,7 @@ const setSavedEndpointsEvents = (numberOfEndpoint) => {
 
         const editSavedEndpoint = document.getElementById(`editSavedEndpoint${numberOfEndpoint}`)
         editSavedEndpoint.addEventListener('click', () => {
+            setHTMLElementsFromNewEndpoint();
             editEndpoint(numberOfEndpoint)
         })
     }

@@ -46,8 +46,8 @@ class GenerateEndpointsFromFile(APIView):
     @staticmethod
     def post(request):
         data = request.data
-
-        dataframe = pd.DataFrame(pd.read_excel(data['endpointsFile'], ))
+        print(data)
+        dataframe = pd.DataFrame(pd.read_excel(data['endpointsFile']))
         new_endpoints = {}
         print(dataframe)
 
