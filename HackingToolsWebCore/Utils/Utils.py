@@ -1,3 +1,8 @@
+import json
+
+import requests
+
+
 class Utils:
 
     @staticmethod
@@ -45,3 +50,12 @@ class Utils:
             data[position]['index'] = position + 1
 
         return data
+
+    @staticmethod
+    def compose_request(url: str, method: str, headers: dict, body: dict):
+
+        if method.upper() == 'GET':
+            return requests.get(url, headers=headers).status_code
+
+        if method.upper() == 'POST':
+            return requests.post(url, headers=headers, data=json.dumps(body)).status_code

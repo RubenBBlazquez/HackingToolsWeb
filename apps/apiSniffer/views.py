@@ -3,7 +3,7 @@ import binascii
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
-from apps.apiSniffer.models import FileCreator
+from apps.apiSniffer.models import FileCreator, ApiSniffer
 import pandas as pd
 from .Enums import AuthTypesEnum
 import base64
@@ -57,7 +57,8 @@ class GenerateEndpointsFromFile(APIView):
             auth = endpoint_dict['auth']
             auth_type = endpoint_dict['Optional auth type']
 
-            endpoint_dict['auth'] = auth if GenerateEndpointsFromFile.valid_auth_tokens(auth_type, auth) else 'not_valid'
+            endpoint_dict['auth'] = auth if GenerateEndpointsFromFile.valid_auth_tokens(auth_type,
+                                                                                        auth) else 'not_valid'
 
             new_endpoints[endpoint] = endpoint_dict
 
@@ -80,3 +81,17 @@ class GenerateEndpointsFromFile(APIView):
                 return value != ''
             except binascii.Error:
                 return False
+
+
+class APISnifferAPI(APIView):
+    @staticmethod
+    def post(request):
+
+        endpoints = []
+        if request.data and 'endpointsInformation' in request.data:
+            endpoints = request.data['endpointsInformation']
+
+        api_sniffer = ApiSniffer(endpoints)
+        api_sniffer.startSniffer()
+
+        return JsonResponse(status=200, data={}, safe=False)

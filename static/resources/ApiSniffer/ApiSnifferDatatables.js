@@ -28,3 +28,22 @@ const getAllRowsInformationFromSavedAuthorizations = (numberOfAuthorizations) =>
 
     return savedAuths;
 }
+
+const getAllRowsInformationFromSavedEndpoints = (numberOfEndpoints) => {
+    const savedEndpoints = [];
+
+    for (let row = 0; row < numberOfEndpoints; row++) {
+        const endpointRowData = getInformationFromDatatable(endpointsDatatable, row);
+        const endpointInformation = {
+            index: endpointRowData[0],
+            endpoint: endpointRowData[1],
+            customHeaders: endpointRowData[2],
+            auth: endpointRowData[3],
+            action: endpointRowData[4]
+        }
+
+        savedEndpoints.push(endpointInformation)
+    }
+
+    return savedEndpoints;
+}

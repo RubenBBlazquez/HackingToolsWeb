@@ -18,12 +18,12 @@
 
 @font-face {
     font-family: harmattan-bold;
-    src: url(../fonts/harmattan-Bold.ttf);
+    src: url(../fonts/Harmattan-Bold.ttf);
 }
 
 @font-face {
     font-family: harmattan-regular;
-    src: url(../fonts/harmattan-Regular.ttf);
+    src: url(../fonts/Harmattan-Regular.ttf);
 }
 
 .harmattan-bold-font {

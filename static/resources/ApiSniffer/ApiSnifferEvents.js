@@ -31,6 +31,8 @@ document.getElementById('saveAuthorizationConfig').addEventListener('click', () 
 document.getElementById('endpointsCollapseButton').addEventListener('click', () => setHTMLElementsFromNewEndpoint())
 document.getElementById('saveEndpoint').addEventListener('click', () => savedEndpointAction())
 
+document.getElementById('sendData').addEventListener('click', startApiSniffer)
+
 const setSavedAuthenticationEvents = (numberOfAuthorizations) => {
     const handler = () => {
         const removeSavedAuth = document.getElementById(`removeAuthSaved${numberOfAuthorizations}`);
@@ -107,4 +109,50 @@ const updateEndpointNumberEvents = (deletedEndpointNumber) => {
             setSavedEndpointsEvents(endpointNumber)
         }
     }
+}
+
+function startApiSniffer() {
+    const savedAuthentications = getAllRowsInformationFromSavedAuthorizations(numberOfAuthorizations);
+    const endpoints = getAllRowsInformationFromSavedEndpoints(numberOfEndpoints);
+
+    endpoints.map((endpoint) => {
+        let endpointAuth = {type: 'none', value: 'none'}
+
+        if (endpoint.auth.includes(':')) {
+            const endpointAuthSplit = endpoint.auth.split(':');
+            const endpointAuthType = endpointAuthSplit[0].trim();
+            const endpointAuthValue = endpointAuthSplit[1].trim();
+
+            const authFromEndpoint = savedAuthentications
+                .filter((auth) => {
+                    if (auth.type === endpointAuthType && auth.value === endpointAuthValue) {
+                        return true;
+                    }
+                }).map((auth) => {
+                    return {type: auth.type, value: auth.value}
+                })
+
+            if (authFromEndpoint.length > 0) {
+                endpointAuth = authFromEndpoint[0];
+            }
+        }
+
+        endpoint.auth = endpointAuth;
+        delete endpoint.action
+
+        return endpoint;
+    })
+
+    console.log(endpoints)
+
+    const body = {
+        endpointsInformation: endpoints
+    }
+
+    fetchInformation(backendUrl + 'startSniffingEndpoints/', 'POST', BASIC_HEADERS, null, body).then(async (response) => {
+        const result = await response.json();
+
+        console.log(result)
+    })
+
 }

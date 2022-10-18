@@ -264,6 +264,8 @@ const getDefaultDownloadFileLink = () => {
  *
  */
 const setHTMLElementsFromNewEndpoint = () => {
+    document.getElementById('additionalEndpointHeaders').value = "";
+    document.getElementById('endpointUrl').value = "";
 
     const authSelector = document.getElementById('endpointAuthSelector');
     authSelector.innerHTML = "";
@@ -286,7 +288,7 @@ const setHTMLElementsFromNewEndpoint = () => {
         return {value: auth.type + ': ' + auth.value, name: auth.type, text: auth.type + ': ' + auth.value}
     })
 
-    if (definedAuthentications.length === 0){
+    if (definedAuthentications.length === 0) {
         return;
     }
 
@@ -307,6 +309,47 @@ const setVisibilityToEndpointsTable = () => {
     $savedEndpointsTable.classList.add('d-sm-none')
 }
 
+const formatEndpointCustomHeaders = (customHeaders) => {
+    if (customHeaders.includes(',')) {
+        const headers = customHeaders.split(',');
+
+        const filteredHeaders = headers.flatMap((header) => {
+            if (header.includes(':')) {
+                return [];
+            }
+
+            return header;
+        })
+
+        if (filteredHeaders.length > 0) {
+            getToast(ToastTypes.ERROR, `the headers [${filteredHeaders.join(',')}] not have a valid format, must be 'headerType:headerValue'`)
+            return;
+        }
+
+    }
+
+    if (!customHeaders.includes(',') && !customHeaders.includes(':')) {
+        getToast(ToastTypes.ERROR, `the header [${customHeaders}] not have a valid format , must be 'headerType:headerValue'`)
+        return;
+    }
+
+    if (!customHeaders.includes(',') && customHeaders.includes(':')) {
+        const splitHeader = customHeaders.split(':');
+        return `{${splitHeader[0]}:${splitHeader[1]}}`
+    }
+
+    if (customHeaders.includes('{') && customHeaders.includes('}')) {
+        return;
+    }
+
+    return '{' + customHeaders.split(',').map((header) => {
+        const splitHeader = header.trim().split(':');
+
+        return `${splitHeader[0].trim()}:${splitHeader[1].trim()}`
+    }).join(',') + '}';
+
+
+}
 /**
  *
  * @param {{}} endpointInfo
@@ -316,24 +359,30 @@ const addNewEndpoint = (endpointInfo = {}) => {
 
     const endpointUrl = endpointInfo.url ?? document.getElementById('endpointUrl').value
     const authorization = endpointInfo.auth ?? document.getElementById('endpointAuthSelector').value
+    let customHeaders = endpointInfo.customHeaders ?? document.getElementById('additionalEndpointHeaders').value
+    customHeaders = formatEndpointCustomHeaders(customHeaders)
 
-    console.log(endpointInfo, endpointUrl, authorization)
+    if (!customHeaders) {
+        return;
+    }
 
     const endpointInformation = [{
         index: numberOfEndpoints,
         endpoint: endpointUrl,
+        customHeaders,
         authentication: authorization,
         action: `
                    <button  class="btn btn-success fa fa-pencil " id="editSavedEndpoint${numberOfEndpoints}"></button>
                    <button class="btn btn-success fa-solid fa-trash-can" id="removeSavedEndpoint${numberOfEndpoints}"></button>
                 `
     }]
-
+    
     addRowToDatatable(endpointsDatatable, endpointInformation)
     setSavedEndpointsEvents(numberOfEndpoints)
     setVisibilityToEndpointsTable();
     setVisibilityToSavedEndpointsTabs();
 }
+
 
 /**
  *
@@ -350,17 +399,21 @@ const editEndpoint = (endpointNumber) => {
     collapse.toggle();
 
     const endpointData = getInformationFromDatatable(endpointsDatatable, endpointNumber - 1);
+
     const endpointInformation = {
         index: endpointData[0],
         endpoint: endpointData[1],
-        authentication: endpointData[2],
-        action: endpointData[3]
+        customHeaders: endpointData[2].replace('{', '').replace('}', ''),
+        authentication: endpointData[3],
+        action: endpointData[4]
     }
 
     const endpointUrl = document.getElementById('endpointUrl')
     const authSelector = document.getElementById('endpointAuthSelector')
+    const customHeaders = document.getElementById('additionalEndpointHeaders')
 
     endpointUrl.value = endpointInformation.endpoint
+    customHeaders.value = endpointInformation.customHeaders
 
     let index = 0;
     for (const option of authSelector.options) {
@@ -380,19 +433,28 @@ const updateEndpoint = () => {
     isEditingSavedEndpoint = false;
 
     const INDEX_ENDPOINT = 0;
-    const ACTION_ENDPOINT = 3;
+    const ACTION_ENDPOINT = 4;
 
     const endpointData = getInformationFromDatatable(endpointsDatatable, actualEditEndpointNumber - 1);
 
     const endpointUrl = document.getElementById('endpointUrl');
     const authSelector = document.getElementById('endpointAuthSelector')
+    let customHeaders = document.getElementById('additionalEndpointHeaders')
+    customHeaders = formatEndpointCustomHeaders(customHeaders.value)
+
+    if (!customHeaders) {
+        return;
+    }
 
     const endpointInformation = [
         endpointData[INDEX_ENDPOINT],
         endpointUrl.value,
+        customHeaders,
         authSelector.value,
         endpointData[ACTION_ENDPOINT]
     ]
+
+    console.log(endpointInformation)
 
     updateRowDatatable(endpointsDatatable, actualEditEndpointNumber - 1, endpointInformation)
     setSavedEndpointsEvents(endpointData[INDEX_ENDPOINT])

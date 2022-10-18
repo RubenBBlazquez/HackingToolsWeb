@@ -89,8 +89,13 @@
                                 <select id="endpointAuthSelector"
                                         class=" harmattan-bold-font font-size-1-2 mt-1 border border-dark form-select">
                                 </select>
+                                <input title="custom Headers Separated By commas, for example: content-type:application/json, Accept-Language:en"
+                                       class="chelsea_font border form-control mt-1 text-black border border-dark col-12"
+                                       id="additionalEndpointHeaders"
+                                       type="text"
+                                       placeholder="custom Headers Separated By commas, for example: content-type:application/json, Accept-Language:en">
                             </div>
-                            <div class="card-footer row">
+                            <div class=" card-footer row">
                                 <button id="saveEndpoint" class="col-12 btn btn-dark"
                                         type="button" data-bs-toggle="collapse"
                                         data-bs-target="#endpointsCollapse" aria-expanded="false"
@@ -163,6 +168,7 @@
                                     <tr id="tableIndexEndpoints" class="ha">
                                         <th scope="col" class="text-left">X</th>
                                         <th scope="col" class="text-left">Endpoint</th>
+                                        <th scope="col" class="text-left">CustomHeaders</th>
                                         <th scope="col" class="text-left">Authentication</th>
                                         <th scope="col" class="text-left">Action</th>
                                     </tr>

@@ -108,6 +108,4 @@ const getTrInformationFromTable = (table_identifier, position, column_names_list
     }
 
     return dict_data
-
-
 }
