@@ -59,7 +59,7 @@ class GenerateEndpointsFromFile(APIView):
 
             endpoint_dict['auth'] = auth if GenerateEndpointsFromFile.valid_auth_tokens(auth_type,
                                                                                         auth) else 'not_valid'
-
+            print(endpoint_dict)
             new_endpoints[endpoint] = endpoint_dict
 
         return JsonResponse(status=200, data={'message': 'success', 'data': new_endpoints}, safe=False)

@@ -55,7 +55,7 @@ class Utils:
     def compose_request(url: str, method: str, headers: dict, body: dict):
 
         if method.upper() == 'GET':
-            return requests.get(url, headers=headers).status_code
+            return requests.get(url, headers=headers)
 
         if method.upper() == 'POST':
             return requests.post(url, headers=headers, data=json.dumps(body)).status_code

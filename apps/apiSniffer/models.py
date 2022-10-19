@@ -1,3 +1,4 @@
+import json
 import os.path
 
 import pandas as pd
@@ -74,21 +75,21 @@ class FileCreator:
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example',
-                    'customHeaders': [{'content-type': 'application/json'}, {'Accept-Language': 'en'}],
+                    'customHeaders': "{'content-type': 'application/json', 'Accept-Language': 'en'}",
                     "Optional auth type": 'bearer',
                     "auth": 'Bearer xxxx'
                 },
                 {
                     'url': default_url,
                     "Endpoint": 'v1/example2',
-                    'customHeaders': [{'content-type': 'application/json'}, {'Accept-Language': 'en'}],
+                    'customHeaders': "{'content-type': 'application/json', 'Accept-Language': 'en'}",
                     "Optional auth type": 'basic',
                     "auth": 'cHJ1ZWJhMTIzMTM='
                 },
                 {
                     'url': default_url + '123',
                     "Endpoint": 'v1/example3',
-                    'customHeaders': [{'content-type': 'application/json'}, {'Accept-Language': 'en'}],
+                    'customHeaders': "{'content-type': 'application/json', 'Accept-Language': 'en'}",
                     "Optional auth type": '',
                     "auth": ''
                 }
@@ -103,4 +104,12 @@ class ApiSniffer:
 
     def startSniffer(self):
         for endpoint in self.endpointInformation:
-            print(Utils.compose_request(endpoint['endpoint'], 'get', {'Content-Type': 'application/json;'}, {}))
+            print(str(endpoint['customHeaders']).replace("'", '"'))
+            headers = json.loads(str(endpoint['customHeaders']).replace("'", '"'))
+
+            request = Utils.compose_request(endpoint['endpoint'], 'get', headers, {})
+
+            if request.status_code >= 400:
+                continue
+
+            print(pd.DataFrame(request.json()['data']))

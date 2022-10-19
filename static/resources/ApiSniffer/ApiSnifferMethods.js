@@ -335,7 +335,7 @@ const formatEndpointCustomHeaders = (customHeaders) => {
 
     if (!customHeaders.includes(',') && customHeaders.includes(':')) {
         const splitHeader = customHeaders.split(':');
-        return `{${splitHeader[0]}:${splitHeader[1]}}`
+        return `{'${splitHeader[0]}':'${splitHeader[1]}'}`
     }
 
     if (customHeaders.includes('{') && customHeaders.includes('}')) {
@@ -345,7 +345,7 @@ const formatEndpointCustomHeaders = (customHeaders) => {
     return '{' + customHeaders.split(',').map((header) => {
         const splitHeader = header.trim().split(':');
 
-        return `${splitHeader[0].trim()}:${splitHeader[1].trim()}`
+        return `'${splitHeader[0].trim()}':'${splitHeader[1].trim()}'`
     }).join(',') + '}';
 
 
@@ -355,16 +355,15 @@ const formatEndpointCustomHeaders = (customHeaders) => {
  * @param {{}} endpointInfo
  */
 const addNewEndpoint = (endpointInfo = {}) => {
-    numberOfEndpoints += 1;
-
     const endpointUrl = endpointInfo.url ?? document.getElementById('endpointUrl').value
     const authorization = endpointInfo.auth ?? document.getElementById('endpointAuthSelector').value
-    let customHeaders = endpointInfo.customHeaders ?? document.getElementById('additionalEndpointHeaders').value
-    customHeaders = formatEndpointCustomHeaders(customHeaders)
+    let customHeaders = endpointInfo.customHeaders ?? formatEndpointCustomHeaders(document.getElementById('additionalEndpointHeaders').value)
 
     if (!customHeaders) {
         return;
     }
+
+    numberOfEndpoints += 1;
 
     const endpointInformation = [{
         index: numberOfEndpoints,
@@ -376,7 +375,7 @@ const addNewEndpoint = (endpointInfo = {}) => {
                    <button class="btn btn-success fa-solid fa-trash-can" id="removeSavedEndpoint${numberOfEndpoints}"></button>
                 `
     }]
-    
+
     addRowToDatatable(endpointsDatatable, endpointInformation)
     setSavedEndpointsEvents(numberOfEndpoints)
     setVisibilityToEndpointsTable();
@@ -403,7 +402,7 @@ const editEndpoint = (endpointNumber) => {
     const endpointInformation = {
         index: endpointData[0],
         endpoint: endpointData[1],
-        customHeaders: endpointData[2].replace('{', '').replace('}', ''),
+        customHeaders: endpointData[2].replace('{', '').replace('}', '').replace(/'/g,""),
         authentication: endpointData[3],
         action: endpointData[4]
     }
@@ -453,8 +452,6 @@ const updateEndpoint = () => {
         authSelector.value,
         endpointData[ACTION_ENDPOINT]
     ]
-
-    console.log(endpointInformation)
 
     updateRowDatatable(endpointsDatatable, actualEditEndpointNumber - 1, endpointInformation)
     setSavedEndpointsEvents(endpointData[INDEX_ENDPOINT])
