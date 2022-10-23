@@ -367,3 +367,7 @@ th, td {
 .font-awesome-size{
     font-size: 25px;
 }
+
+.height-50{
+    height: 50em;
+}

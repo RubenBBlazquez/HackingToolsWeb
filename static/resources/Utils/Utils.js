@@ -125,7 +125,7 @@ const compoundTrStructure = (tdElements) => {
 }
 
 /**
- *
+ * Method to add a row from a specific dataTable
  * @param {{data, type}} datatable
  * @param {[]} rowInformation
  */
@@ -148,6 +148,7 @@ const addRowToDatatable = (datatable, rowInformation) => {
 }
 
 /**
+ * Method to delete a row from a specific dataTable
  *
  * @param {{data, type}} datatable
  * @param {int} rowNumber
@@ -157,6 +158,7 @@ const deleteRowFromDatatable = (datatable, rowNumber) => {
 }
 
 /**
+ * Method to update a row from a specific dataTable
  *
  * @param {{data, type}} datatable
  * @param {int} rowNumber
@@ -166,6 +168,13 @@ const updateRowDatatable = (datatable, rowNumber, newRowInformation) => {
     datatable.row(rowNumber).data(newRowInformation).draw();
 }
 
+/**
+ * Method to get rows information from a specific dataTable
+ *
+ * @param datatable
+ * @param rowNumber
+ * @returns {*}
+ */
 const getInformationFromDatatable = (datatable, rowNumber) => {
     return datatable.row(rowNumber).data();
 }

@@ -15,6 +15,7 @@ urlpatterns = [
     # Api Sniffer Page
     url(r'^apiSniffer/$', APISnifferRedirectMethods.go_to_api_sniffer_page, name="apiSniffer"),
     url(r'^getDefaultApiSnifferFile/$', DefaultFileAPI.as_view(), name="getDefaultFileAPI"),
-    url(r'^generateEndpointsFromFile/$', GenerateEndpointsFromFile.as_view(), name="getDefaultFileAPI"),
-    url(r'^startSniffingEndpoints/$', APISnifferAPI.as_view(), name="getDefaultFileAPI"),
+    url(r'^generateEndpointsFromFile/$', GenerateEndpointsFromFile.as_view(), name="generateEndpointsFromFile"),
+    url(r'^getEndpointsAlreadySniffed/$', APISnifferAPI.as_view(), name="getEndpointsAlreadySniffed"),
+    url(r'^startSniffingEndpoints/$', APISnifferAPI.as_view(), name="startSniffingEndpoints"),
 ]

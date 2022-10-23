@@ -1,10 +1,12 @@
 let authorizationsDatatable = undefined;
 let endpointsDatatable = undefined;
+let endpointsAlreadySniffedDatatable = undefined;
 let isEditingSavedAuthentication = false;
 let isEditingSavedEndpoint = false;
 let actualEditAuthenticationNumber = 0;
 let actualEditEndpointNumber = 0;
 let numberOfAuthorizations = 0
+let numberOfEndpointsAlreadySniffed = 0
 let numberOfEndpoints = 0
 const NOT_VALID_AUTH = 'not_valid';
 /**
@@ -310,6 +312,8 @@ const setVisibilityToEndpointsTable = () => {
 }
 
 const formatEndpointCustomHeaders = (customHeaders) => {
+    customHeaders = customHeaders.replace(/'/g, '');
+
     if (customHeaders.includes(',')) {
         const headers = customHeaders.split(',');
 
@@ -402,7 +406,7 @@ const editEndpoint = (endpointNumber) => {
     const endpointInformation = {
         index: endpointData[0],
         endpoint: endpointData[1],
-        customHeaders: endpointData[2].replace('{', '').replace('}', '').replace(/'/g,""),
+        customHeaders: endpointData[2].replace('{', '').replace('}', '').replace(/'/g, ""),
         authentication: endpointData[3],
         action: endpointData[4]
     }
@@ -474,38 +478,32 @@ const savedEndpointAction = () => {
  *
  */
 const setVisibilityToSavedAuthorizationTabs = () => {
-    const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
-    const $savedInformationTabs = document.getElementById('savedInformationTabs')
+    const $labelNoSavedInformation = document.getElementById('noContentSavedAuthentications')
     const $savedAuthenticationsTabButton = document.getElementById('savedAuthentications-tab')
 
     if (numberOfAuthorizations > 0) {
         $labelNoSavedInformation.classList.add('d-sm-none');
-        $savedInformationTabs.classList.remove('d-sm-none');
         $savedAuthenticationsTabButton.click();
         return;
     }
 
     $labelNoSavedInformation.classList.remove('d-sm-none')
-    $savedInformationTabs.classList.add('d-sm-none')
 }
 
 /**
  *
  */
 const setVisibilityToSavedEndpointsTabs = () => {
-    const $labelNoSavedInformation = document.getElementById('noSavedInformationHint')
-    const $savedInformationTabs = document.getElementById('savedInformationTabs')
+    const $labelNoSavedInformation = document.getElementById('noContentSavedEndpoints')
     const $savedEndpointsTabButton = document.getElementById('savedEndpoints-tab')
 
     if (numberOfEndpoints > 0) {
         $labelNoSavedInformation.classList.add('d-sm-none');
-        $savedInformationTabs.classList.remove('d-sm-none');
         $savedEndpointsTabButton.click();
         return;
     }
 
     $labelNoSavedInformation.classList.remove('d-sm-none')
-    $savedInformationTabs.classList.add('d-sm-none')
 }
 
 /**
@@ -566,4 +564,144 @@ const composeAuthenticationAndEndpointsInformationFrom = (endpointInformation) =
 
         addNewEndpoint(endpointData);
     })
+}
+
+const setJsonInformationObtained = (jsonObject) => {
+
+    const mappedEndpointsInformation = Object.keys(jsonObject)
+        .map((endpoint) => {
+            return {endpoint, information: {[endpoint]: jsonObject[endpoint]}}
+        })
+
+    mappedEndpointsInformation.forEach((newEndpoint) => {
+        let oldEndpointAlreadySniffed = getAllRowsInformationFromEndpointsAlreadySniffed(numberOfEndpointsAlreadySniffed)
+            .filter((endpointInfo) => {
+                return endpointInfo.endpoint === newEndpoint.endpoint
+            })
+
+        const isEndpointSniffedAlreadySaved = oldEndpointAlreadySniffed.length !== 0;
+
+        if (!isEndpointSniffedAlreadySaved) {
+            addEndpointsAlreadySniffedToDatatable([newEndpoint])
+            return;
+        }
+
+        oldEndpointAlreadySniffed = oldEndpointAlreadySniffed[0]
+
+        const newResultCount = newEndpoint.information[newEndpoint.endpoint].length
+        const newJson = newEndpoint.information[newEndpoint.endpoint]
+
+        const endpointToUpdate = [
+            oldEndpointAlreadySniffed.index,
+            oldEndpointAlreadySniffed.endpoint,
+            newResultCount,
+            newJson,
+            oldEndpointAlreadySniffed.action
+        ]
+
+        updateRowDatatable(endpointsAlreadySniffedDatatable, oldEndpointAlreadySniffed.index, endpointToUpdate)
+    })
+
+    document.getElementById('lastInformation-tab').click();
+
+    /*const $container = document.getElementById('lastInformationContainer')
+    console.log(jsonObject)
+    const tree = jsonTree.create(jsonObject, $container);
+
+    // Expand all (or selected) child nodes of root (optional)
+    tree.expand();*/
+}
+
+const getAllRowsInformationFromSavedAuthorizations = (numberOfAuthorizations) => {
+    const savedAuths = [];
+
+    for (let row = 0; row < numberOfAuthorizations; row++) {
+        const authData = getInformationFromDatatable(authorizationsDatatable, row);
+        const authInformation = {index: authData[0], type: authData[1], value: authData[2], action: authData[3]}
+
+        savedAuths.push(authInformation)
+    }
+
+    return savedAuths;
+}
+
+const getAllRowsInformationFromSavedEndpoints = (numberOfEndpoints) => {
+    const savedEndpoints = [];
+
+    for (let row = 0; row < numberOfEndpoints; row++) {
+        const endpointRowData = getInformationFromDatatable(endpointsDatatable, row);
+        const endpointInformation = {
+            index: endpointRowData[0],
+            endpoint: endpointRowData[1],
+            customHeaders: endpointRowData[2],
+            auth: endpointRowData[3],
+            action: endpointRowData[4]
+        }
+
+        savedEndpoints.push(endpointInformation)
+    }
+
+    return savedEndpoints;
+}
+
+const getAllRowsInformationFromEndpointsAlreadySniffed = (numberOfEndpoints) => {
+    const endpointsAlreadySniffed = [];
+
+    for (let row = 0; row < numberOfEndpoints; row++) {
+        const endpointRowData = getInformationFromDatatable(endpointsAlreadySniffedDatatable, row);
+
+        const endpointInformation = {
+            index: endpointRowData[0],
+            endpoint: endpointRowData[1],
+            resultCount: endpointRowData[2],
+            json: endpointRowData[3],
+            action: endpointRowData[4]
+        }
+
+        endpointsAlreadySniffed.push(endpointInformation)
+    }
+
+    return endpointsAlreadySniffed;
+}
+
+const setVisibilityToEndpointsAlreadySniffedContainer = () => {
+    const $container = document.getElementById('endpointsAlreadySniffedContainer')
+    const $noContentPhrase = document.getElementById('noContentEndpointAlreadySniffed')
+
+    if (numberOfEndpointsAlreadySniffed === 0) {
+        $container.classList.add('d-sm-none');
+        $noContentPhrase.classList.remove('d-sm-none');
+    }
+
+    $container.classList.remove('d-sm-none')
+    $noContentPhrase.classList.add('d-sm-none')
+}
+
+const addEndpointsAlreadySniffedToDatatable = (endpoints) => {
+    const newRowsInformation = [];
+
+    if (endpoints.length > 0) {
+        document.getElementById('lastInformation-tab').click();
+    }
+
+    for (const endpoint of endpoints) {
+        numberOfEndpointsAlreadySniffed += 1
+
+        const action = ` <div class="d-flex justify-content-center">
+                            <button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="btn btn-success col-12 fa-solid fa-comment-dots" id="seeJsonInformation${numberOfEndpointsAlreadySniffed}"></button>
+                        </div> `;
+        const endpointUrl = endpoint['endpoint'];
+        const informationCount = endpoint['information'][endpointUrl].length
+
+        newRowsInformation.push({
+            index: numberOfEndpointsAlreadySniffed,
+            endpoint: endpointUrl,
+            count: informationCount,
+            json: JSON.stringify(endpoint['information']),
+            action
+        })
+    }
+
+    addRowToDatatable(endpointsAlreadySniffedDatatable, newRowsInformation);
+    setVisibilityToEndpointsAlreadySniffedContainer();
 }

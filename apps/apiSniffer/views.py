@@ -85,13 +85,17 @@ class GenerateEndpointsFromFile(APIView):
 
 class APISnifferAPI(APIView):
     @staticmethod
-    def post(request):
+    def get(request):
+        endpoint_information = ApiSniffer.get_endpoints_already_sniffed()
 
+        return JsonResponse(status=200, data=endpoint_information, safe=False)
+
+    @staticmethod
+    def post(request):
         endpoints = []
         if request.data and 'endpointsInformation' in request.data:
             endpoints = request.data['endpointsInformation']
 
-        api_sniffer = ApiSniffer(endpoints)
-        api_sniffer.startSniffer()
+        result_information = ApiSniffer.start_sniffing(endpoints)
 
-        return JsonResponse(status=200, data={}, safe=False)
+        return JsonResponse(status=200, data=result_information, safe=False)

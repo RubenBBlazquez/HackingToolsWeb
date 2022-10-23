@@ -48,8 +48,8 @@ class WebScraping:
 
         Database.insert(
             WebScrapped()
-                .setBaseUrl(self.base_url)
-                .setEndpoint(self.endpoints))
+            .setBaseUrl(self.base_url)
+            .setEndpoint(self.endpoints))
 
     def scrap_web(self):
         self.get_web_data_router()
@@ -271,9 +271,9 @@ class WebScraping:
 
         Database.insert(
             LogsWebScraping()
-                .setLogError(message)
-                .setBaseUrl(self.base_url)
-                .setEndpoint(self.endpoints))
+            .setLogError(message)
+            .setBaseUrl(self.base_url)
+            .setEndpoint(self.endpoints))
 
     @staticmethod
     def get_tags_information_from_web_scrapped(
@@ -297,9 +297,9 @@ class WebScraping:
 
         select_values = {'TAG-str', 'TAG_INFO-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str'}
 
-        query_values = {'WEB_SCRAPPED-str-and'         : base_url.strip(),
+        query_values = {'WEB_SCRAPPED-str-and': base_url.strip(),
                         'ENDPOINT_WEB_SCRAPPED-str-and': endpoint.strip(),
-                        'TAG-str-and'                  : tag.strip()}
+                        'TAG-str-and': tag.strip()}
 
         tags = Database.select_many(select_values, query_values, TagScrapped(), limit, offset)
 
@@ -322,11 +322,13 @@ class WebScraping:
 
         select_values = {'TAG-str', 'WEB_SCRAPPED', 'ENDPOINT_WEB_SCRAPPED-str', 'COUNT(*) as COUNT-grp'}
 
-        query_values = {'WEB_SCRAPPED-str-and'         : base_url,
-                        'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
-                        'WEB_SCRAPPED-str-or'          : search_value,
-                        'ENDPOINT_WEB_SCRAPPED-str-or' : search_value,
-                        'TAG-str-or'                   : search_value}
+        query_values = {
+            'WEB_SCRAPPED-str-and': base_url,
+            'ENDPOINT_WEB_SCRAPPED-str-and': endpoint,
+            'WEB_SCRAPPED-str-or': search_value,
+            'ENDPOINT_WEB_SCRAPPED-str-or': search_value,
+            'TAG-str-or': search_value
+        }
 
         tags = Database.grouped_select(select_values, query_values, GroupedTagsScrapped(), limit, offset)
 
@@ -335,7 +337,7 @@ class WebScraping:
     @staticmethod
     def get_information_from_web_scrapped() -> list:
         """
-            method to get all webs scrapped already
+            method to get all webs already scrapped
 
             return list:
         """

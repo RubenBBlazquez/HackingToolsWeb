@@ -4,6 +4,8 @@ import os.path
 import pandas as pd
 import numpy as np
 from HackingToolsWebCore.Utils.Utils import Utils
+from HackingToolsWebCore.settings import Database
+from HackingToolsWebCore.DB.Entities.EndpointsAlreadySniffed.EndpointAlreadySniffedMysql import EndpointAlreadySniffed
 
 
 class FileCreator:
@@ -16,7 +18,7 @@ class FileCreator:
 
     def get_xls_file(self, main_dict_key='Endpoints') -> str:
         """
-            Method to transform a default dict into a excel
+            Method to transform a default dict into an Excel
 
             :param main_dict_key: param to know for what key we have to normalize
 
@@ -98,18 +100,42 @@ class FileCreator:
 
 
 class ApiSniffer:
-    def __init__(self, endpoint_information: list):
-        self.endpointInformation = endpoint_information
-        self.sniffedInformation = list()
+    @staticmethod
+    def get_endpoints_already_sniffed() -> list:
+        """
+            Endpoint to get information about Endpoints Already Sniffed
 
-    def startSniffer(self):
-        for endpoint in self.endpointInformation:
-            print(str(endpoint['customHeaders']).replace("'", '"'))
+            @return list<EndpointAlreadySniffed>
+        """
+        return Database.select_many({}, {}, EndpointAlreadySniffed(), '', '')
+
+    @staticmethod
+    def start_sniffing(endpoint_information: list):
+        """
+            Method to start with the process to get information about endpoints passed from frontend
+        """
+
+        endpoints_results = {}
+
+        for endpoint in endpoint_information:
+            endpoint_url = endpoint['endpoint']
             headers = json.loads(str(endpoint['customHeaders']).replace("'", '"'))
-
             request = Utils.compose_request(endpoint['endpoint'], 'get', headers, {})
 
             if request.status_code >= 400:
                 continue
 
-            print(pd.DataFrame(request.json()['data']))
+            dataframe = pd.DataFrame(request.json()['data'])
+            dataframe = dataframe.fillna(0)
+
+            endpoint_dict_to_insert = {endpoint_url: dataframe.to_dict(orient='records')}
+
+            entity = EndpointAlreadySniffed() \
+                .set_endpoint(endpoint['endpoint']) \
+                .set_information(endpoint_dict_to_insert)
+
+            Database.insert(entity)
+
+            endpoints_results[endpoint_url] = endpoint_dict_to_insert[endpoint_url]
+
+        return endpoints_results

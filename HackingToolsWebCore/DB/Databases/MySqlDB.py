@@ -118,6 +118,7 @@ class MySqlDB(IDBActions):
 
         columns = [column[0] for column in cursor.description]
         entity_list = []
+
         for entity_information in cursor.fetchall():
             entity_object = entity.create_object(dict(zip(columns, entity_information))).to_dict().copy()
             entity_list.append(entity_object)

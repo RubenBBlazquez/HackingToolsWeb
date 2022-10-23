@@ -95,7 +95,7 @@ const websAlreadyScrappedSelectorEvent = async () => {
         return {value: web['BASE_URL'] + '-' + web['ENDPOINT'], name: web['ENDPOINT'], text: web['ENDPOINT']}
     })
 
-    endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
+    endpoint_web_scrapped_selector.setAttribute('class', 'form-select bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
     setOptionsIntoSelector(endpoint_web_scrapped_selector, mapped_endpoints_from_web)
     endpoint_web_scrapped_selector.addEventListener(
         'change',

@@ -21,7 +21,7 @@ function getArrayFromStringSeparatedByComas(data = "") {
 }
 
 /**
- * Method to add Tags to tags to find input
+ * Method to add Tags to find input
  *
  * @param {string} value
  */

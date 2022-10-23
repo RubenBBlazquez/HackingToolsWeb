@@ -2,11 +2,11 @@
 {% load static %}
 {% block content %}
     <link type="text/css" href="{% static 'resources/ApiSniffer/apiSniffer.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'vendor/jsonTree/jsonTree.css' %}" rel="stylesheet">
 
     <header class="container-fluid">
         <h1 class=" black_ops_font text-success
         mb-3 text-center ">
-
             Api Sniffer
         </h1>
         <div class=" d-flex justify-content-center pt-3">
@@ -113,9 +113,7 @@
                             Saved Information</i>
                         </label>
                         <section class="col-11">
-                        <span id="noSavedInformationHint"
-                              class="harmattan-bold-font font-italic text-light ml-md-4 font-size-1-2">There's no information yet</span>
-                            <ul class="nav nav-tabs ml-2 d-sm-none" id="savedInformationTabs" role="tablist">
+                            <ul class="nav nav-tabs ml-2" id="savedInformationTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active text-light harmattan-bold-font font-weight-bold font-size-1-3 rounded-left"
                                             id="savedAuthentications-tab" data-bs-toggle="tab"
@@ -136,12 +134,12 @@
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link text-light harmattan-bold-font font-size-1-3"
-                                            id="savedEndpoints-tab"
+                                            id="lastInformation-tab"
                                             data-bs-toggle="tab"
-                                            data-bs-target="#savedEndpointsTab"
-                                            type="button" role="tab" aria-controls="savedEndpointsTab"
+                                            data-bs-target="#lastInformationTab"
+                                            type="button" role="tab" aria-controls="lastInformationTab"
                                             aria-selected="false">
-                                        Last Information Sniffed
+                                        Last Information Obtained
                                     </button>
                                 </li>
                             </ul>
@@ -150,6 +148,9 @@
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="savedAuthenticationsTab" role="tabpanel"
                              aria-labelledby="savedAuthentications-tab">
+                            <p id="noContentSavedAuthentications"
+                               class=" pl-5 harmattan-bold-font font-italic text-light ml-md-4 font-size-1-2">No Content
+                                Available</p>
                             <section id="savedAuthorizationTable"
                                      class="container-fluid d-flex justify-content-center mt-4 row col-12 d-sm-none">
                                 <table id="dataTable-authorizations"
@@ -170,6 +171,9 @@
                         </div>
                         <div class="tab-pane fade" id="savedEndpointsTab" role="tabpanel"
                              aria-labelledby="savedEndpoints-tab">
+                            <p id="noContentSavedEndpoints"
+                               class="pl-5 harmattan-bold-font font-italic text-light ml-md-4 font-size-1-2">No Content
+                                Available</p>
                             <section id="savedEndpoints"
                                      class="container-fluid d-flex justify-content-center mt-4 row col-12 d-sm-none">
                                 <table id="dataTable-endpoints"
@@ -188,6 +192,69 @@
                                     </tbody>
                                 </table>
                             </section>
+                        </div>
+                        <div class="tab-pane fade" id="lastInformationTab" role="tabpanel"
+                             aria-labelledby="lastInformation-tab">
+                            <p class="pl-5  harmattan-bold-font font-italic text-light ml-md-4 font-size-1-2 "
+                               id="noContentEndpointAlreadySniffed">No Content Available</p>
+                            <section id="endpointsAlreadySniffedContainer"
+                                     class="container-fluid d-flex flex-column align-content-center mt-4 row col-12 d-sm-none">
+                                <table id="dataTable-endpoints-already-sniffed"
+                                       class="col-12 table border p-0-5 border-dark rounded table-hover nowrap w-100">
+                                    <thead class="bg-black-dark text-success font-size-1-3 harmattan-regular-font">
+                                    <tr id="tableIndexEndpointsAlreadySniffed" class="ha">
+                                        <th scope="col" class="text-left col-1">X</th>
+                                        <th scope="col" class="text-left col-4">Endpoint</th>
+                                        <th scope="col" class="text-left col-3">ResultCount</th>
+                                        <th scope="col" class="text-left col-2">json</th>
+                                        <th scope="col" class="text-left">Endpoint Information</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbodyEndpointsAlreadySniffed" class="">
+
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+                         tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">Endpoint Information Viewer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body rounded d-flex flex-column align-content-center">
+                                    <div class="d-flex mb-2 mt-2">
+                                        <select class="form-select harmattan-bold-font font-size-1-2 font-weight-light">
+                                            <option value="Select One Endpoint">Select One Endpoint</option>
+                                        </select>
+                                        <select class="form-select harmattan-bold-font font-size-1-2 font-weight-light ml-1">
+                                            <option value="Select One Endpoint">Select One Endpoint</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex justify-content-end p-2 bg-light">
+                                        <button class="btn btn-dark fa-solid fa-copy " title="copy json"></button>
+                                        <button class="btn btn-dark fa-solid fa-file-export ml-1 "
+                                                title="export to.."></button>
+                                        <button class="btn btn-dark fa-solid fa-arrow-down ml-1"
+                                                title="expand json"></button>
+                                        <button class="btn btn-dark fa-solid fa-arrow-up ml-1"
+                                                title="collapse json"></button>
+                                    </div>
+                                    <div id="lastInformationContainer" class="overflow-auto height-50 d-none p-4">
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
+                                    <button type="button" class="btn btn-primary">Understood</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -208,6 +275,7 @@
 
     </section>
 
+    <script src="{% static 'vendor/jsonTree/jsonTree.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferRequests.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferMethods.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferDatatables.js' %}"></script>
