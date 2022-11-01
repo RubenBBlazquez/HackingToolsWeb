@@ -100,25 +100,28 @@ const getNewSelector = (selectorInformation) => {
 
 /**
  * Method to compound the structure of a tr from an array
- * @param {[]} tdElements
+ *
+ * @param {string} elementToCreate
+ * @param {[]} information
  *
  * @returns {HTMLTableRowElement}
  */
-const compoundTrStructure = (tdElements) => {
+const getTrStructure = (elementToCreate = 'td', information) => {
 
     const tr = document.createElement('tr')
-    tr.setAttribute('class', 'p-2');
+    tr.setAttribute('class', '');
 
-    for (const td of tdElements) {
-        const td = document.createElement('td');
-        td.setAttribute('class', td.classAttr);
+    for (const element of information) {
+        const td = document.createElement(elementToCreate);
+        td.setAttribute('class', element.classAttr);
 
         if (td.html) {
-            td.innerHTML = td.html;
+            td.innerHTML = element.html;
             continue;
         }
 
-        td.textContent = td.text;
+        td.textContent = element.text;
+        tr.appendChild(td)
     }
 
     return tr;

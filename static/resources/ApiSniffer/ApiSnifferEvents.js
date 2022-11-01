@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setSelectorAuthorizationTypesEvent();
     setVisibilityToSavedAuthorizationTabs()
     await getEndpointsAlreadySniffed()
+    setEndpointsSniffedViewerEvents()
 })
 
 document.getElementById('getExampleFileButton').addEventListener('click', () => {
@@ -34,6 +35,8 @@ document.getElementById('endpointsCollapseButton').addEventListener('click', () 
 document.getElementById('saveEndpoint').addEventListener('click', () => savedEndpointAction())
 
 document.getElementById('sendData').addEventListener('click', startApiSniffer)
+
+document.getElementById('addFilter').addEventListener('click', compoundAddCustomFiltersStructure);
 
 const setSavedAuthenticationEvents = (numberOfAuthorizations) => {
     const handler = () => {

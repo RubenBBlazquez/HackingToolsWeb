@@ -213,6 +213,9 @@
                                     <tbody id="tbodyEndpointsAlreadySniffed" class="">
 
                                     </tbody>
+                                    <tfoot>
+
+                                    </tfoot>
                                 </table>
                             </section>
                         </div>
@@ -228,33 +231,73 @@
                                             aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body rounded d-flex flex-column align-content-center">
-                                    <div class="d-flex mb-2 mt-2">
-                                        <select class="form-select harmattan-bold-font font-size-1-2 font-weight-light">
-                                            <option value="Select One Endpoint">Select One Endpoint</option>
-                                        </select>
-                                        <select class="form-select harmattan-bold-font font-size-1-2 font-weight-light ml-1">
-                                            <option value="Select One Endpoint">Select One Endpoint</option>
-                                        </select>
-                                    </div>
-                                    <div class="d-flex justify-content-end p-2 bg-light">
-                                        <button class="btn btn-dark fa-solid fa-copy " title="copy json"></button>
-                                        <button class="btn btn-dark fa-solid fa-file-export ml-1 "
-                                                title="export to.."></button>
-                                        <button class="btn btn-dark fa-solid fa-arrow-down ml-1"
-                                                title="expand json"></button>
-                                        <button class="btn btn-dark fa-solid fa-arrow-up ml-1"
-                                                title="collapse json"></button>
-                                    </div>
-                                    <div id="lastInformationContainer" class="overflow-auto height-50 d-none p-4">
+                                    <div class="bg-light rounded">
+                                        <div class="mb-3 row col-12">
+                                            <div class="col-3">
+                                                <button data-bs-toggle="modal" data-bs-target="#addCustomFilters"
+                                                        class="btn btn-dark harmattan-regular-font" id="addFilter">Add
+                                                    Custom Filter
+                                                </button>
+                                            </div>
+                                            <div class="col-7 d-flex justify-content-end">
+                                                <button class="btn btn-dark fa-solid fa-copy "
+                                                        id="copyJson"
+                                                        title="copy json"></button>
+                                                <button class="btn btn-dark fa-solid fa-file-export ml-1 "
+                                                        title="export to.." id="exportJson"></button>
+                                                <button class="btn btn-dark fa-solid fa-arrow-down ml-1"
+                                                        title="expand json" id="expandJson"></button>
+                                                <button class="btn btn-dark fa-solid fa-arrow-up ml-1"
+                                                        title="collapse json" id="collapseJson"></button>
+                                            </div>
+                                            <div class="col-2 d-flex justify-content-end">
+                                                <button id="endpointSniffedJsonView"
+                                                        class="btn btn-dark fa-solid fa-code"
+                                                        title="JSON Viewer"></button>
+                                                <button id="endpointSniffedTableView"
+                                                        class="btn btn-dark fa-solid fa-table ml-1"
+                                                        title="Table Viewer"></button>
+                                            </div>
+                                        </div>
+
+                                        <div id="jsonInformationContainer"
+                                             class="bg-light d-block overflow-auto height-30 p-3 ">
+
+                                        </div>
 
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-                                    </button>
-                                    <button type="button" class="btn btn-primary">Understood</button>
+                                    <div class="d-flex justify-content-end mt-2">
+                                        <button type="button"
+                                                class="btn btn-secondary harmattan-regular-font font-size-1-2"
+                                                data-bs-dismiss="modal">Close
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="addCustomFilters" data-bs-backdrop="static" data-bs-keyboard="false"
+                         tabindex="-1" aria-labelledby="addCustomFilters" aria-hidden="true">
+                        <div class="modal-dialog modal-lg mt-5">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">Custom Filter Builder</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body rounded d-flex flex-column align-content-center"
+                                     id="customFiltersContainer">
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button"
+                                            class="btn btn-secondary harmattan-regular-font font-size-1-2"
+                                            data-bs-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </section>

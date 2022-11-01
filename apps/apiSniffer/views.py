@@ -3,7 +3,7 @@ import binascii
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
-from apps.apiSniffer.models import FileCreator, ApiSniffer
+from apps.apiSniffer.models import FileCreator, ApiSniffer, SniffedEndpointInformationManager
 import pandas as pd
 from .Enums import AuthTypesEnum
 import base64
@@ -99,3 +99,15 @@ class APISnifferAPI(APIView):
         result_information = ApiSniffer.start_sniffing(endpoints)
 
         return JsonResponse(status=200, data=result_information, safe=False)
+
+
+class ManageEndpointInformationAPI(APIView):
+
+    @staticmethod
+    def post(request):
+        data = request.data
+
+        print(data)
+
+        if 'json' in data.keys():
+            SniffedEndpointInformationManager(data)

@@ -362,12 +362,13 @@
 
 th, td {
     text-align: left;
+                    border-collapse: collapse;
 }
 
 .font-awesome-size{
     font-size: 25px;
 }
 
-.height-50{
-    height: 50em;
+.height-30 {
+    height: 35em;
 }

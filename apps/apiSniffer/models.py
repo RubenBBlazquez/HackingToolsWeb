@@ -1,6 +1,6 @@
 import json
 import os.path
-
+from typing import Any
 import pandas as pd
 import numpy as np
 from HackingToolsWebCore.Utils.Utils import Utils
@@ -139,3 +139,13 @@ class ApiSniffer:
             endpoints_results[endpoint_url] = endpoint_dict_to_insert[endpoint_url]
 
         return endpoints_results
+
+
+class SniffedEndpointInformationManager:
+
+    def __init__(self, information):
+        self.endpointInformation = pd.DataFrame(information)
+
+    def filter_information(self, field: str, filter_value: Any, order: bool):
+        filtered_information = self.endpointInformation[(field == filter_value)]
+        filtered_information.sort_values(ascending=order)

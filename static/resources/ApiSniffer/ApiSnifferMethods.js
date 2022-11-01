@@ -678,8 +678,6 @@ const setVisibilityToEndpointsAlreadySniffedContainer = () => {
 }
 
 const addEndpointsAlreadySniffedToDatatable = (endpoints) => {
-    const newRowsInformation = [];
-
     if (endpoints.length > 0) {
         document.getElementById('lastInformation-tab').click();
     }
@@ -693,15 +691,184 @@ const addEndpointsAlreadySniffedToDatatable = (endpoints) => {
         const endpointUrl = endpoint['endpoint'];
         const informationCount = endpoint['information'][endpointUrl].length
 
-        newRowsInformation.push({
+        const newRowInformation = {
             index: numberOfEndpointsAlreadySniffed,
             endpoint: endpointUrl,
             count: informationCount,
             json: JSON.stringify(endpoint['information']),
             action
+        }
+
+        addRowToDatatable(endpointsAlreadySniffedDatatable, [newRowInformation]);
+
+        const $button = document.getElementById(`seeJsonInformation${numberOfEndpointsAlreadySniffed}`)
+        $button.addEventListener('click', () => {
+            const buttonJsonViewMode = document.getElementById('endpointSniffedJsonView');
+            buttonJsonViewMode.dataset.json = newRowInformation.json;
+            buttonJsonViewMode.dataset.endpointUrl = endpointUrl;
+
+            const buttonTableViewMode = document.getElementById('endpointSniffedTableView');
+            buttonTableViewMode.dataset.json = newRowInformation.json;
+            buttonTableViewMode.dataset.endpointUrl = endpointUrl;
+
+            const addCustomFilter = document.getElementById('addFilter')
+            addCustomFilter.dataset.json = newRowInformation.json;
+            addCustomFilter.dataset.endpointUrl = endpointUrl;
+
+            buttonJsonViewMode.click();
         })
+
     }
 
-    addRowToDatatable(endpointsAlreadySniffedDatatable, newRowsInformation);
     setVisibilityToEndpointsAlreadySniffedContainer();
+}
+
+const setEndpointsSniffedViewerEvents = () => {
+    const copy = document.getElementById('copyJson')
+    const exportJson = document.getElementById('exportJson')
+    const expandJson = document.getElementById('expandJson')
+    const collapseJson = document.getElementById('collapseJson')
+    const jsonViewMode = document.getElementById('endpointSniffedJsonView')
+    const tableViewMode = document.getElementById('endpointSniffedTableView')
+    const $jsonContainer = document.getElementById('jsonInformationContainer')
+
+    jsonViewMode.addEventListener('click', () => {
+        const {endpointUrl, json} = event.target.dataset
+        $jsonContainer.innerHTML = ""
+
+        const tree = jsonTree.create(JSON.parse(json), $jsonContainer);
+
+        tree.expand(function (node) {
+            return node.label === endpointUrl || node.label <= 1
+        });
+    })
+
+    tableViewMode.addEventListener('click', () => {
+        let {endpointUrl, json} = event.target.dataset
+        $jsonContainer.innerHTML = ""
+        json = JSON.parse(json)[endpointUrl];
+
+        const firstRow = json[0];
+
+        if (!firstRow) {
+            getToast(ToastTypes.ERROR, 'error to get information about columns')
+            return
+        }
+
+        const columns = Object.keys(firstRow).map((column) => {
+            return {classAttr: '', text: column}
+        });
+
+        const indexColumns = columns.map((column) => {
+            return {data: column.text, width: (100 / columns.length - 1) + 'px'}
+        })
+
+        console.log(indexColumns)
+
+        const table = document.createElement('table')
+        table.setAttribute('class', 'col-12 table border p-0-5 border-dark rounded table-hover nowrap w-100')
+        table.setAttribute('id', 'datatable-tableViewMode')
+
+        const thead = document.createElement('thead')
+        thead.setAttribute('class', 'bg-black-dark text-success font-size-1-3 harmattan-regular-font')
+        const thElements = getTrStructure('th', columns)
+        thead.appendChild(thElements)
+
+        const tbody = document.createElement('tbody')
+        tbody.setAttribute('class', '')
+
+        json.forEach((row) => {
+            row = Object.keys(row).map((key) => {
+                return {text: JSON.stringify(row[key]), classAttr: ''}
+            })
+
+            const rowInformation = getTrStructure('td', row)
+            tbody.appendChild(rowInformation)
+        })
+
+        table.append(thead)
+        table.append(tbody)
+        $jsonContainer.append(table)
+
+       $(document.getElementById('datatable-tableViewMode')).DataTable({
+            lengthMenu: [10],
+            "dom": '<"top"ilfp><"bottom"><"clear">',
+            language: {
+                "emptyTable": "No data available in table",
+                "infoEmpty": "Showing 0 to 0 of 0 entries",
+                "loadingRecords": "Loading...",
+                "search": "",
+                "searchPlaceholder": "Filter Information",
+                "zeroRecords": "No matching records found",
+                "paginate": {
+                    "first": "First",
+                    "last": "Last",
+                    "next": "Next",
+                    "previous": "Previous"
+                },
+            },
+            fixedHeader: {
+                header: true,
+                footer: true
+            }
+        });
+
+        document.getElementsByClassName('top')[0].setAttribute('class', 'top d-flex justify-content-start align-items-center mb-3')
+        document.getElementById('datatable-tableViewMode_paginate').setAttribute('class', 'dataTables_paginate paging_simple_numbers d-flex justify-content-start align-items-center mb-2 ml-3')
+
+    })
+}
+
+/**
+ * method to set custom filter generator in the modal depending on json we are working with
+ */
+const compoundAddCustomFiltersStructure = (event) => {
+    let {json, endpointUrl} = event.target.dataset
+    json = JSON.parse(json)
+
+    const div = document.createElement('div')
+    div.setAttribute('class', 'col-12 row d-flex justify-content-center')
+
+    const select = document.createElement('select')
+    select.setAttribute('class', 'form-select col-md-5 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
+    select.setAttribute('id', 'customFilterSelect')
+
+    const columns = Object.keys(json[endpointUrl][0])
+
+    for (const column of columns) {
+        const option = document.createElement('option')
+        option.setAttribute('value', column)
+        option.innerText = column
+        select.appendChild(option)
+    }
+
+    const operatorSelect = document.createElement('select')
+    operatorSelect.setAttribute('class', 'form-select col-md-2 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
+    operatorSelect.setAttribute('id', 'customFilterOperatorSelect')
+
+    const OPERATORS = ['=', '!=', '>', '<', '>=', '<=']
+
+    for (const operator of OPERATORS) {
+        const option = document.createElement('option')
+        option.setAttribute('value', operator)
+        option.innerText = operator
+        operatorSelect.appendChild(option)
+    }
+
+    const input = document.createElement('input')
+    input.setAttribute('class', 'form-control col-md-5 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
+    input.setAttribute('id', 'customFilterInput')
+    input.setAttribute('type', 'text')
+
+    div.appendChild(select);
+    div.appendChild(operatorSelect);
+    div.appendChild(input);
+
+    const $customFiltersContainer = document.getElementById('customFiltersContainer')
+    $customFiltersContainer.innerHTML = ""
+    $customFiltersContainer.appendChild(div)
+}
+
+const createInputFilterValueBasedOnElementSelected = (type) => {
+
 }
