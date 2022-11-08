@@ -1,7 +1,7 @@
 Django~=3.2.5
-djangorestframework~=3.12.4
-pandas~=1.2.4
-numpy~=1.20.3
+djangorestframework==3.14.0
+pandas==1.5.1
+numpy==1.23.4
 requests==2.28.1
 beautifulsoup4~=4.9.3
 openpyxl~=3.0.9

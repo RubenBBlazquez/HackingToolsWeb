@@ -9,6 +9,8 @@ let numberOfAuthorizations = 0
 let numberOfEndpointsAlreadySniffed = 0
 let numberOfEndpoints = 0
 const NOT_VALID_AUTH = 'not_valid';
+let numberOfConditions = 0;
+
 /**
  *
  */
@@ -790,7 +792,7 @@ const setEndpointsSniffedViewerEvents = () => {
         table.append(tbody)
         $jsonContainer.append(table)
 
-       $(document.getElementById('datatable-tableViewMode')).DataTable({
+        $(document.getElementById('datatable-tableViewMode')).DataTable({
             lengthMenu: [10],
             "dom": '<"top"ilfp><"bottom"><"clear">',
             language: {
@@ -819,56 +821,102 @@ const setEndpointsSniffedViewerEvents = () => {
     })
 }
 
+const createContainerWithConditionElements = (columnFields) => {
+    numberOfConditions += 1;
+
+    const div = document.createElement('div')
+    div.setAttribute('class', 'col-12 row d-flex justify-content-center')
+    div.id = 'divCondition' + numberOfConditions;
+
+    if (numberOfConditions > 1) {
+        const logicalOperatorSelector = document.createElement('select')
+        logicalOperatorSelector.setAttribute('class', 'text-center rounded-pill col-10 mb-2 mt-2 border border-dark form-select harmattan-bold-font font-weight-light')
+        logicalOperatorSelector.id = `logicalOperatorSelector${numberOfConditions}`
+        const LOGICAL_OPERATORS = ['AND', 'OR']
+        setOptionsIntoSelector(logicalOperatorSelector, LOGICAL_OPERATORS)
+        div.appendChild(logicalOperatorSelector)
+    }
+
+    const columnFieldsSelector = document.createElement('select')
+    columnFieldsSelector.setAttribute('class', 'form-select customFilterHeight col-md-4 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
+    columnFieldsSelector.id = 'columnFieldSelector' + numberOfConditions;
+
+    setOptionsIntoSelector(columnFieldsSelector, columnFields)
+
+    const OPERATORS = ['=', '!=', '>', '<', '>=', '<=']
+    const operatorSelect = document.createElement('select')
+    operatorSelect.setAttribute('class', 'form-select customFilterHeight ml-1 col-md-3 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
+    operatorSelect.id = 'conditionOperatorSelector' + numberOfConditions;
+
+    setOptionsIntoSelector(operatorSelect, OPERATORS)
+
+    const inputClass = 'border ml-1 col-md-4 col-sm-12 rounded harmattan-bold-font font-size-1-2 font-weight-light'
+    const inputInformation = {id: 'valueCondition' + numberOfConditions, classStyle: inputClass, type: 'text'}
+    const input = getNewInput(inputInformation)
+
+    div.appendChild(columnFieldsSelector);
+    div.appendChild(operatorSelect);
+    div.appendChild(input);
+
+    return div;
+}
+
 /**
  * method to set custom filter generator in the modal depending on json we are working with
  */
 const compoundAddCustomFiltersStructure = (event) => {
+    numberOfConditions = 0;
     let {json, endpointUrl} = event.target.dataset
     json = JSON.parse(json)
-
-    const div = document.createElement('div')
-    div.setAttribute('class', 'col-12 row d-flex justify-content-center')
-
-    const select = document.createElement('select')
-    select.setAttribute('class', 'form-select col-md-5 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
-    select.setAttribute('id', 'customFilterSelect')
-
-    const columns = Object.keys(json[endpointUrl][0])
-
-    for (const column of columns) {
-        const option = document.createElement('option')
-        option.setAttribute('value', column)
-        option.innerText = column
-        select.appendChild(option)
-    }
-
-    const operatorSelect = document.createElement('select')
-    operatorSelect.setAttribute('class', 'form-select col-md-2 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
-    operatorSelect.setAttribute('id', 'customFilterOperatorSelect')
-
-    const OPERATORS = ['=', '!=', '>', '<', '>=', '<=']
-
-    for (const operator of OPERATORS) {
-        const option = document.createElement('option')
-        option.setAttribute('value', operator)
-        option.innerText = operator
-        operatorSelect.appendChild(option)
-    }
-
-    const input = document.createElement('input')
-    input.setAttribute('class', 'form-control col-md-5 col-sm-12 harmattan-bold-font font-size-1-2 font-weight-light')
-    input.setAttribute('id', 'customFilterInput')
-    input.setAttribute('type', 'text')
-
-    div.appendChild(select);
-    div.appendChild(operatorSelect);
-    div.appendChild(input);
+    const firstElement = json[endpointUrl][0];
+    const elementFields = Object.keys(firstElement)
 
     const $customFiltersContainer = document.getElementById('customFiltersContainer')
+    const firstCondition = createContainerWithConditionElements(elementFields)
+
+    const addNewConditionButton = document.getElementById('addNewConditionButton')
+    addNewConditionButton.addEventListener('click', () => {
+        $customFiltersContainer.appendChild(createContainerWithConditionElements(elementFields))
+    })
+
     $customFiltersContainer.innerHTML = ""
-    $customFiltersContainer.appendChild(div)
+    $customFiltersContainer.appendChild(firstCondition)
 }
 
-const createInputFilterValueBasedOnElementSelected = (type) => {
+const createConditionGroup = () => {
+    const groupedCondition = {};
 
+    if (numberOfConditions === 1) {
+        const fieldSelector = document.getElementById(`columnFieldSelector1`).value
+        const operator = document.getElementById(`conditionOperatorSelector1`).value
+        const value = document.getElementById(`valueCondition1`).value
+
+        const condition = {field: fieldSelector, operator, value}
+        groupedCondition['AND'] = [condition]
+        console.log(groupedCondition)
+
+        return;
+
+    }
+
+    for (let nCondition = 1; nCondition < numberOfConditions; nCondition++) {
+        console.log(nCondition)
+        const fieldSelector = document.getElementById(`columnFieldSelector${nCondition}`).value
+        const operator = document.getElementById(`conditionOperatorSelector${nCondition}`).value
+        const value = document.getElementById(`valueCondition${nCondition}`).value
+
+        const condition = {field: fieldSelector, operator, value}
+
+        const logicalOperator = document.getElementById(`logicalOperatorSelector${nCondition + 1}`)
+
+        if (logicalOperator && !Object.keys(groupedCondition).includes(logicalOperator.value)) {
+            groupedCondition[logicalOperator.value] = [condition]
+
+            continue
+        }
+
+        groupedCondition[logicalOperator.value].push(condition)
+    }
+
+    console.log(groupedCondition)
 }

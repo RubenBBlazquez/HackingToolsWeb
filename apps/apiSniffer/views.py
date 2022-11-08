@@ -87,7 +87,7 @@ class APISnifferAPI(APIView):
     @staticmethod
     def get(request):
         endpoint_information = ApiSniffer.get_endpoints_already_sniffed()
-
+        print(endpoint_information)
         return JsonResponse(status=200, data=endpoint_information, safe=False)
 
     @staticmethod
@@ -106,8 +106,6 @@ class ManageEndpointInformationAPI(APIView):
     @staticmethod
     def post(request):
         data = request.data
-
-        print(data)
 
         if 'json' in data.keys():
             SniffedEndpointInformationManager(data)

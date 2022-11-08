@@ -25,3 +25,7 @@ td{
     font-family: harmattan-bold, serif;
     font-weight: bold;
 }
+
+.customFilterHeight{
+    height: 2em;
+}

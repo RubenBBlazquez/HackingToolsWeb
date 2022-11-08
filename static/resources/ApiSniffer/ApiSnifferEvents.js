@@ -35,8 +35,8 @@ document.getElementById('endpointsCollapseButton').addEventListener('click', () 
 document.getElementById('saveEndpoint').addEventListener('click', () => savedEndpointAction())
 
 document.getElementById('sendData').addEventListener('click', startApiSniffer)
-
 document.getElementById('addFilter').addEventListener('click', compoundAddCustomFiltersStructure);
+document.getElementById('createCustomFilter').addEventListener('click', createConditionGroup);
 
 const setSavedAuthenticationEvents = (numberOfAuthorizations) => {
     const handler = () => {

@@ -290,9 +290,19 @@
                                      id="customFiltersContainer">
 
                                 </div>
+                                <div class="mb-2 d-flex justify-content-center">
+                                    <button id="addNewConditionButton"
+                                            class="btn btn-outline-success rounded col-5 harmattan-bold-font font-size-1-2">
+                                        Add New Condition
+                                    </button>
+                                </div>
                                 <div class="modal-footer">
+                                    <button type="button" id="createCustomFilter"
+                                            class="btn btn-success harmattan-bold-font font-size-1-2 col-4">
+                                        Create Condition
+                                    </button>
                                     <button type="button"
-                                            class="btn btn-secondary harmattan-regular-font font-size-1-2"
+                                            class="btn btn-dark harmattan-bold-font font-size-1-2 col-2"
                                             data-bs-dismiss="modal">Close
                                     </button>
                                 </div>
@@ -318,7 +328,6 @@
 
     </section>
 
-    <script src="{% static 'vendor/jsonTree/jsonTree.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferRequests.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferMethods.js' %}"></script>
     <script src="{% static 'resources/ApiSniffer/ApiSnifferDatatables.js' %}"></script>

@@ -57,9 +57,9 @@ const setOptionsIntoSelector = (selector, options) => {
 
     for (const option_information of options) {
         const option = document.createElement('option')
-        option.setAttribute('name', option_information['name'])
-        option.setAttribute('value', option_information['value'])
-        option.textContent = option_information['text']
+        option.setAttribute('name', option_information['name'] ?? option_information)
+        option.setAttribute('value',option_information['value'] ?? option_information)
+        option.textContent = option_information['text'] ?? option_information
 
         selector.appendChild(option)
     }

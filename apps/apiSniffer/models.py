@@ -14,7 +14,6 @@ class FileCreator:
 
     def __init__(self, dictionary=None, get_default_file=True):
         self._dictionary = FileCreator.get_default_endpoints_dictionary() if get_default_file else dictionary
-        print(self._dictionary)
 
     def get_xls_file(self, main_dict_key='Endpoints') -> str:
         """
@@ -125,7 +124,9 @@ class ApiSniffer:
             if request.status_code >= 400:
                 continue
 
-            dataframe = pd.DataFrame(request.json()['data'])
+            print(pd.DataFrame(request.json()).head())
+
+            dataframe = pd.DataFrame(request.json())
             dataframe = dataframe.fillna(0)
 
             endpoint_dict_to_insert = {endpoint_url: dataframe.to_dict(orient='records')}
