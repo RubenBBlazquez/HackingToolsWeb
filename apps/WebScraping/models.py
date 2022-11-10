@@ -285,7 +285,7 @@ class WebScraping:
             search_value: str
     ) -> list:
         """
-
+            sql query to get information about tags already scraped
         :param base_url:
         :param endpoint:
         :param tag:

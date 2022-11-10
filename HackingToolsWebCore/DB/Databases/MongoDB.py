@@ -1,12 +1,14 @@
+import os
 from typing import Any
 from HackingToolsWebCore.DB.Databases.interface.IDBMethods import IDBActions
 from HackingToolsWebCore.DB.Entities.interface.BaseMethodsEntities import IEntity
-
+import pymongo
 
 class MongoDB(IDBActions):
 
     def __init__(self):
-        self.mongoDB = None
+        self.mongoDBClient = pymongo.MongoClient(os.getenv("MONGO_CONNECTION_URL"))
+        self.database = self.mongoDBClient.get_database()
 
     # singleton
     _instance = None
@@ -17,7 +19,7 @@ class MongoDB(IDBActions):
         return cls._instance
 
     def get_connection(self) -> Any:
-        pass
+        return self.mongoDBClient
 
     def select_one(self, filter_query: str, entity: IEntity) -> Any:
         pass
