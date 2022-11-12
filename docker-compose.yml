@@ -4,6 +4,9 @@ services:
         container_name: "rabbitmq"
         env_file: config/.env
         image: rabbitmq:3.8-management-alpine
+        environment:
+          - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+          - RABBITMQ_DEFAULT_PASSWORD=${RABBITMQ_DEFAULT_PASSWORD}
         ports:
             # AMQP protocol port
             - '5672:5672'
