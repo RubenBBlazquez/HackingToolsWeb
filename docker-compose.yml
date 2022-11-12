@@ -1,52 +1,22 @@
-version: '3.2'
-
+version: "3.7"
 services:
-  django_server:
-    build: .
-    working_dir: /usr/src/app
-    command: >
-      sh -c "python manage.py wait_for_db &&
-            python manage.py wait_for_rabbit &&
-            python manage.py runserver"
-    ports:
-      - "8000:8000"
-    env_file: /config/.env
-    depends_on:
-      - mongo
-      - mongo-express
-      - rabbitmq
-    container_name: django_server
-
-  mongo:
-    env_file: /config/.env
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-
-  mongo-express:
-    env_file: /config/.env
-    image: mongo-express
-    restart: always
-    ports:
-      - "8001:8001"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
-      ME_CONFIG_MONGODB_URL: ${MONGO_CONNECTION_URL}
-
-  rabbitmq:
-    image:
-      rabbitmq:3-management-alpine #image to be pulled from dockerhub during building
-    container_name: rabbitmq # container name
-    volumes: # assign static storage for rabbitmq to run
-          - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
-          - ./.docker/rabbitmq/data/:/var/lib/rabbitmq/
-    environment: # environment variables from the referenced .env file
-      # auth cretendials
-      RABBITMQ_DEFAULT_USER: 'prueba'
-      RABBITMQ_DEFAULT_PASS: 'prueba'
-    ports: # map external ports to this specific container's internal ports
-      - "5672:5672"
-      - "15672:15672"
+    rabbitmq3:
+        container_name: "rabbitmq"
+        env_file: config/.env
+        image: rabbitmq:3.8-management-alpine
+        ports:
+            # AMQP protocol port
+            - '5672:5672'
+            # HTTP management UI
+            - '15672:15672'
+    mongo:
+      image: mongo
+      env_file: /config/.env
+      command: mongod --auth
+      volumes:
+        - C:\Users\rbblazquez\mongo_docker_volume\data:/data/db
+        - C:\Users\rbblazquez\mongo_docker_volume\mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        - C:\Users\rbblazquez\mongo_docker_volume\configdb:/data/configdb
+      ports:
+        - "27017:27017"
+      restart: unless-stopped

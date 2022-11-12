@@ -7,3 +7,4 @@ HackingToolsWeb.iml
 **/__pycache__/
 .env
 index.pb
+.docker
