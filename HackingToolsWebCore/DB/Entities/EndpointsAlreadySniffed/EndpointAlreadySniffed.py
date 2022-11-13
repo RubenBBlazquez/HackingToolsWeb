@@ -6,7 +6,7 @@ from ..interface.BaseMethodsEntities import IEntity
 class EndpointAlreadySniffed(IEntity):
 
     def __init__(self):
-        self._table = "SNIFFED_ENDPOINTS"
+        self._table = "sniffedEndpoints"
         self._endpoint = ""
         self._information = []
 
@@ -28,10 +28,10 @@ class EndpointAlreadySniffed(IEntity):
 
     def create_object(self, data):
 
-        if data['ENDPOINT']:
-            self.set_endpoint(data['ENDPOINT'])
+        if 'endpoint' in data and data['endpoint']:
+            self.set_endpoint(data['endpoint'])
 
-        if data['INFORMATION']:
-            self.set_information(json.loads(data['INFORMATION']))
+        if 'information' in data and data['information']:
+            self.set_information(json.loads(data['information']))
 
         return self

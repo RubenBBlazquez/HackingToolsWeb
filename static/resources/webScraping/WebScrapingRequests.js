@@ -35,7 +35,7 @@ const createHtmlTagsOptions = (tags) => {
  */
 const getWebsScrappedInformation = () => {
     return new Promise((resolve, reject) => {
-        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal)
+        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal, {})
             .then(response => {
                 response.json()
                     .then((result) => {
@@ -43,6 +43,7 @@ const getWebsScrappedInformation = () => {
                     })
             })
             .catch((err) => {
+                console.log(err)
                 return reject(err)
             });
 

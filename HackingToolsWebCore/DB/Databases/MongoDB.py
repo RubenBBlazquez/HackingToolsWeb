@@ -8,7 +8,7 @@ class MongoDB(IDBActions):
 
     def __init__(self):
         self.mongoDBClient = pymongo.MongoClient(os.getenv("MONGO_CONNECTION_URL"))
-        self.database = self.mongoDBClient.get_database()
+        self.database = self.mongoDBClient.get_database(os.getenv('MONGO_DATABASE'))
 
     # singleton
     _instance = None
@@ -22,9 +22,13 @@ class MongoDB(IDBActions):
         return self.mongoDBClient
 
     def select_one(self, filter_query: str, entity: IEntity) -> Any:
-        pass
+        collection = self.database.get_collection(entity.get_table())
 
-    def select_many(self, prepared_values: tuple, entity: IEntity) -> list:
+        return collection.find_one(filter_query)
+
+    def select_many(self, select_values: list, prepared_information: dict, entity: IEntity, limit: str,
+                    offset: str) -> list:
+
         pass
 
     def delete(self) -> Any:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Any
 
 
 class IEntity(ABC):
@@ -9,20 +11,27 @@ class IEntity(ABC):
 
     @abstractmethod
     def get_table(self) -> str:
+        """
+            Method to know from which table is an entity
+
+            :return: table_name
+        """
         pass
 
     @abstractmethod
     def to_dict(self) -> dict:
         """
-            Method to transform a object into a dict
+            Method to transform an object into a dict
 
-            :return dict
+            :return: dict
         """
         pass
 
     @abstractmethod
     def create_object(self, data) -> IEntity:
         """
-            Method to transform a object into a dict
+            Method to transform an object into a dict
+
+            :return: IEntity
         """
         pass

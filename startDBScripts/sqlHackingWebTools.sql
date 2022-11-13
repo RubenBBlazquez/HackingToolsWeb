@@ -12,43 +12,43 @@ drop table IF EXISTS webs_scrapped CASCADE;
 drop table IF EXISTS LOGS_WEBS_SCRAPPED CASCADE;
 
 
-CREATE TABLE IF NOT EXISTS WEBS_SCRAPPED
+CREATE TABLE IF NOT EXISTS WebsScrapped
 (
-    SCRAP_DATE     datetime     NOT NULL,
-    BASE_URL       VARCHAR(255) NOT NULL,
-    ENDPOINT       VARCHAR(255) NOT NULL,
-    SCRAP_FINISHED BOOLEAN,
-    PRIMARY KEY (BASE_URL, ENDPOINT)
+    scrapDate      datetime     NOT NULL,
+    baseUrl        VARCHAR(255) NOT NULL,
+    endpoint       VARCHAR(255) NOT NULL,
+    isScrapFinished BOOLEAN,
+    PRIMARY KEY (baseUrl, endpoint)
 );
 
-CREATE TABLE IF NOT EXISTS TAGS_FROM_WEB_SCRAPPED
+CREATE TABLE IF NOT EXISTS TagsFromWebsScrapped
 (
-    TAG                   VARCHAR(50)  NOT NULL,
-    TAG_INFO              VARCHAR(255) NOT NULL,
-    WEB_SCRAPPED          VARCHAR(100) NOT NULL,
-    ENDPOINT_WEB_SCRAPPED VARCHAR(255) NOT NULL,
-    PRIMARY KEY (TAG, TAG_INFO, WEB_SCRAPPED, ENDPOINT_WEB_SCRAPPED),
-    foreign key (WEB_SCRAPPED, ENDPOINT_WEB_SCRAPPED) REFERENCES WEBS_SCRAPPED (BASE_URL, ENDPOINT)
+    tag                   VARCHAR(50)  NOT NULL,
+    tagInfo              VARCHAR(255) NOT NULL,
+    webScrapped          VARCHAR(100) NOT NULL,
+    endpointWebScrapped VARCHAR(255) NOT NULL,
+    PRIMARY KEY (tag, tagInfo, webScrapped, endpointWebScrapped),
+    foreign key (webScrapped, endpointWebScrapped) REFERENCES WebsScrapped (baseUrl, endpoint)
 );
 
-CREATE TABLE IF NOT EXISTS LOGS_WEBS_SCRAPPED
+CREATE TABLE IF NOT EXISTS LogWebsScrapped
 (
-    LOG_DATE  datetime     NOT NULL,
-    BASE_URL  VARCHAR(255) NOT NULL,
-    ENDPOINT  VARCHAR(255) NOT NULL,
-    LOG_ERROR VARCHAR(255) NOT NULL,
-    PRIMARY KEY (BASE_URL, ENDPOINT, LOG_ERROR)
+    logDate   datetime     NOT NULL,
+    baseUrl  VARCHAR(255) NOT NULL,
+    endpoint  VARCHAR(255) NOT NULL,
+    logError VARCHAR(255) NOT NULL,
+    PRIMARY KEY (baseUrl, endpoint, logError)
 );
 
-DROP TABLE IF EXISTS SNIFFED_ENDPOINTS;
-CREATE TABLE IF NOT EXISTS SNIFFED_ENDPOINTS
+DROP TABLE IF EXISTS sniffedEndpoints;
+CREATE TABLE IF NOT EXISTS sniffedEndpoints
 (
-    ENDPOINT VARCHAR(255) NOT NULL,
-    INFORMATION longtext NOT NULL,
-    PRIMARY KEY (ENDPOINT)
+    endpoint VARCHAR(255) NOT NULL,
+    information longtext NOT NULL,
+    PRIMARY KEY (endpoint)
 );
 
-INSERT INTO SNIFFED_ENDPOINTS VALUES ('https://free-nba.p.rapidapi.com/players', '{"https://free-nba.p.rapidapi.com/players": [
+INSERT INTO sniffedEndpoints VALUES ('https://free-nba.p.rapidapi.com/players', '{"https://free-nba.p.rapidapi.com/players": [
     {
         "id": 14,
         "first_name": "Ike",
@@ -500,22 +500,5 @@ INSERT INTO SNIFFED_ENDPOINTS VALUES ('https://free-nba.p.rapidapi.com/players',
         "weight_pounds": 0
     }
 ]}');
-
-SELECT *
-FROM WEBS_SCRAPPED;
-
-SELECT *
-FROM TAGS_FROM_WEB_SCRAPPED
-WHERE WEB_SCRAPPED LIKE
-      'http://riberadeltajo.es/nuevaweb/index.php/component/mailto/?tmpl=component&template=pjo_consultingco&link=617ad3b40305e5422d22938efcc053c0b6976ee1';
-
-SELECT DISTINCT COUNT(*)
-FROM TAGS_FROM_WEB_SCRAPPED;
-
-SELECT *
-FROM TAGS_FROM_WEB_SCRAPPED;
-
-SELECT *
-FROM TAGS_FROM_WEB_SCRAPPED where WEB_SCRAPPED like 'https://refactoring.guru';
 
 commit;

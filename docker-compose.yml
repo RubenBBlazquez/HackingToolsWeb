@@ -5,17 +5,21 @@ services:
         env_file: config/.env
         image: rabbitmq:3.8-management-alpine
         environment:
-          - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-          - RABBITMQ_DEFAULT_PASSWORD=${RABBITMQ_DEFAULT_PASSWORD}
+          RABBITMQ_DEFAULT_USER: "ruben"
+          RABBITMQ_DEFAULT_PASSWORD: "103856"
         ports:
             # AMQP protocol port
             - '5672:5672'
             # HTTP management UI
             - '15672:15672'
+        restart: always
     mongo:
       image: mongo
-      env_file: /config/.env
       command: mongod --auth
+      environment:
+        MONGO_INITDB_ROOT_PASSWORD: 'ruben'
+        MONGO_INITDB_ROOT_USERNAME: '103856'
+        MONGO_INITDB_DATABASE: 'hackingToolsWeb'
       volumes:
         - C:\Users\rbblazquez\mongo_docker_volume\data:/data/db
         - C:\Users\rbblazquez\mongo_docker_volume\mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro

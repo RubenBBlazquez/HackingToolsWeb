@@ -5,7 +5,7 @@ from ..interface.BaseMethodsEntities import IEntity
 class LogsWebScraping(IEntity):
 
     def __init__(self):
-        self._table = "LOGS_WEBS_SCRAPPED"
+        self._table = "LogWebsScrapped"
         self._log_date = time.strftime('%Y-%m-%d %H:%M:%S')
         self._base_url = ""
         self._endpoint = ""
@@ -43,22 +43,22 @@ class LogsWebScraping(IEntity):
         return self
 
     def to_dict(self) -> dict:
-        return {'TABLE_NAME': self._table, 'LOG_DATE': self._log_date, 'BASE_URL': self._base_url,
-                'ENDPOINT': self._endpoint,
-                'LOG_ERROR': self._log_error}
+        return {'TABLE_NAME': self._table, 'logDate': self._log_date, 'baseUrl': self._base_url,
+                'endpoint': self._endpoint,
+                'logError': self._log_error}
 
     def create_object(self, data):
 
-        if data['LOG_DATE']:
-            self.setLogDate(data['LOG_DATE'])
+        if 'logDate' in data and data['logDate']:
+            self.setLogDate(data['logDate'])
 
-        if data['BASE_URL']:
-            self.setBaseUrl(data['BASE_URL'])
+        if 'baseUrl' in data and data['baseUrl']:
+            self.setBaseUrl(data['baseUrl'])
 
-        if data['ENDPOINT']:
-            self.setEndpoint(data['ENDPOINT'])
+        if 'endpoint' in data and data['endpoint']:
+            self.setEndpoint(data['endpoint'])
 
-        if data['LOG_ERROR']:
-            self.setLogError(data['LOG_ERROR'])
+        if 'logError' in data and data['logError']:
+            self.setLogError(data['logError'])
 
         return self

@@ -23,6 +23,8 @@ class MySqlDB(IDBActions):
                                   host=os.getenv('MYSQL_HOST'),
                                   database=os.getenv('MYSQL_DATABASE'))
 
+        self.group_functions = ['count', 'sum']
+
         self.lock = Lock()
 
     def get_connection(self) -> MySQLConnection:
@@ -41,7 +43,7 @@ class MySqlDB(IDBActions):
 
         self.lock.acquire()
 
-        sql, prepared_values = MySqlDB.compound_sql_query(select_values, prepared_information, entity, limit, offset)
+        sql, prepared_values = self.compound_sql_query(select_values, prepared_information, entity, limit, offset)
 
         entity_list = self.get_result_entity_list(sql, prepared_values, entity)
 
@@ -53,10 +55,14 @@ class MySqlDB(IDBActions):
 
         self.lock.acquire()
 
-        sql, prepared_values = MySqlDB.compound_sql_query(select_values, prepared_information, entity, limit, offset,
-                                                          True)
+        sql, prepared_values = self.compound_sql_query(select_values, prepared_information, entity, limit, offset,
+                                                       True)
+
+        print(sql, prepared_values)
 
         entity_list = self.get_result_entity_list(sql, prepared_values, entity)
+
+        print(entity_list)
 
         self.lock.release()
 
@@ -125,28 +131,33 @@ class MySqlDB(IDBActions):
 
         return entity_list
 
-    @staticmethod
-    def compound_sql_query(select_values: list, prepared_information: dict, entity: IEntity, limit: str,
+    def compound_sql_query(self, select_values: list, prepared_information: dict, entity: IEntity, limit: str,
                            offset: str, set_group_information=False) -> tuple:
         sql = 'SELECT '
 
         if len(select_values) == 0:
             sql += '*'
         else:
-            sql += ','.join(list(map(lambda x: x.split('-')[0], select_values)))
+            sql += ','.join(list(map(self.prepared_select_values, select_values)))
 
         sql += ' FROM ' + entity.get_table()
 
         prepared_values, sql = MySqlDB.compound_where_query(sql, prepared_information)
 
         if set_group_information:
-            sql = MySqlDB.compound_group_by_query(sql, select_values)
+            sql = self.compound_group_by_query(sql, select_values)
 
         if limit and offset:
             sql += ' LIMIT %s OFFSET %s'
             prepared_values += (int(limit), int(offset),)
 
         return sql, prepared_values
+
+    def prepared_select_values(self, element):
+        if element not in self.group_functions:
+            return element
+
+        return element + '(*) as ' + element
 
     @staticmethod
     def get_prepared_query_information(prepared_values: dict) -> dict:
@@ -174,35 +185,33 @@ class MySqlDB(IDBActions):
         """
         prepared_values = tuple()
 
-        if len(prepared_information.keys()) > 0:
+        if len(prepared_information) > 0:
             sql += ' WHERE '
 
-            for field in prepared_information.keys():
-                field_info = field.split('-')
-                field_type = field_info[1]
-                field_value = prepared_information[field]
-                field = field_info[0]
-                where_operator = str(field_info[2]).upper()
+            for tuple_information in prepared_information:
+                field_name = tuple_information[0]
+                operator = str(tuple_information[1]).upper()
+                field_value = tuple_information[2]
 
-                if field_value != '':
-
+                if field_value:
                     prepared_values += (field_value,)
 
                     can_set_new_where_operator = len(prepared_values) > 1
 
-                    if field_type == 'str':
-                        sql += ' ' + (where_operator if can_set_new_where_operator else '') + ' ' + field + ' LIKE %s'
+                    if type(field_value) == str:
+                        sql += ' ' + (operator if can_set_new_where_operator else '') + ' ' + field_name + ' LIKE %s'
                     else:
-                        sql += ' ' + (where_operator if can_set_new_where_operator else '') + ' ' + field + ' = %s'
+                        sql += ' ' + (operator if can_set_new_where_operator else '') + ' ' + field_name + ' = %s'
 
         if len(prepared_values) == 0:
             sql = sql.replace(' WHERE', '')
 
         return prepared_values, sql
 
-    @staticmethod
-    def compound_group_by_query(sql: str, grouped_values: list):
-        not_group_functions = list(filter(lambda x: 'grp' not in x, grouped_values))
+    def compound_group_by_query(self, sql: str, grouped_values: list):
+        not_group_functions = list(
+            filter(lambda x: 'grp' not in x and x.split('-')[0].lower() not in self.group_functions, grouped_values)
+        )
 
         if len(not_group_functions) > 0:
             sql += ' GROUP BY ' + ','.join(map(lambda x: x.split('-')[0], not_group_functions))

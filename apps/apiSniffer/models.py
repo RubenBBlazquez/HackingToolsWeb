@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from HackingToolsWebCore.Utils.Utils import Utils
 from HackingToolsWebCore.settings import Database
-from HackingToolsWebCore.DB.Entities.EndpointsAlreadySniffed.EndpointAlreadySniffedMysql import EndpointAlreadySniffed
+from HackingToolsWebCore.DB.Entities.EndpointsAlreadySniffed.EndpointAlreadySniffed import EndpointAlreadySniffed
 
 
 class FileCreator:
