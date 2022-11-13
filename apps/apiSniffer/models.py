@@ -2,7 +2,6 @@ import json
 import os.path
 from typing import Any
 import pandas as pd
-import numpy as np
 from HackingToolsWebCore.Utils.Utils import Utils
 from HackingToolsWebCore.settings import Database
 from HackingToolsWebCore.DB.Entities.EndpointsAlreadySniffed.EndpointAlreadySniffed import EndpointAlreadySniffed

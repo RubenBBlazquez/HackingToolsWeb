@@ -16,10 +16,6 @@ class APISnifferRedirectMethods:
         return render(request, 'apiSnifferPage.html')
 
 
-class ManageEndpointsInformation:
-    pass
-
-
 class DefaultFileAPI(APIView):
     _fileCreator = None
 
@@ -32,13 +28,6 @@ class DefaultFileAPI(APIView):
         response = HttpResponse(open(file_dir, 'rb'), content_type='application/octet-stream')
 
         return response
-
-
-class Endpoints:
-
-    @staticmethod
-    def get_endpoints_from_file(request):
-        return render(request, 'apiSnifferPage.html')
 
 
 class GenerateEndpointsFromFile(APIView):
