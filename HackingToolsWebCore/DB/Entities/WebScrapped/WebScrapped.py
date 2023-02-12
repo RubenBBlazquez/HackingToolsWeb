@@ -57,7 +57,7 @@ class WebScrapped(IEntity):
         return self.literals
 
     def to_dict(self) -> dict:
-        return {'TABLE_NAME': self._table, self.literals.SCRAP_DATE.value: self._scrap_date,
+        return {self.literals.SCRAP_DATE.value: self._scrap_date,
                 self.literals.BASE_URL.value: self._base_url,
                 self.literals.ENDPOINT.value: self._endpoint,
                 self.literals.IS_SCRAP_FINISHED.value: self._scrap_finished}

@@ -35,7 +35,7 @@ const createHtmlTagsOptions = (tags) => {
  */
 const getWebsScrappedInformation = () => {
     return new Promise((resolve, reject) => {
-        fetchInformation(backendUrl + '/scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal, {})
+        fetchInformation(backendUrl + 'scrapWebApi/?action=WEBS_SCRAPPED_INFORMATION', "GET", BASIC_HEADERS, abortController.signal, {})
             .then(response => {
                 response.json()
                     .then((result) => {
@@ -88,7 +88,7 @@ const startWebScrap = async () => {
         'stopCrawling': false,
     }
 
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
+    await fetchInformation(backendUrl + 'scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
 
     document.getElementById('stopScraping').setAttribute(
         'class',
@@ -108,7 +108,7 @@ const launchThreadToGetInformationOfTheActualScraping = (baseUrl, endpoint) => {
 
     setTimeout(() => {
 
-        dataTable.ajax.url(backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
+        dataTable.ajax.url(backendUrl + 'scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
 
     }, 1000)
 
@@ -121,7 +121,7 @@ const launchThreadToGetInformationOfTheActualScraping = (baseUrl, endpoint) => {
  * @param endpoint
  */
 const getTagsFromWebAlreadyScrapped = async (baseUrl, endpoint) => {
-    dataTable.ajax.url(backendUrl + '/scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
+    dataTable.ajax.url(backendUrl + 'scrapWebApi/?action=TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED&baseUrl=' + baseUrl + '&endpoint=' + endpoint).load()
 }
 
 /**
@@ -134,7 +134,7 @@ const stopRequests = async () => {
 
     actualScrapData.stopCrawling = true
 
-    await fetchInformation(backendUrl + '/scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
+    await fetchInformation(backendUrl + 'scrapWebApi/', "POST", BASIC_HEADERS, abortController.signal, actualScrapData)
 
     document.getElementById('stopScraping').setAttribute('class', 'btn btn-success col-lg-2 col-sm-4 d-none')
 

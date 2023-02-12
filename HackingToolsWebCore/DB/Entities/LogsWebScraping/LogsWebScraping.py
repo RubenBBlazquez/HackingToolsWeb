@@ -43,7 +43,7 @@ class LogsWebScraping(IEntity):
         return self
 
     def to_dict(self) -> dict:
-        return {'TABLE_NAME': self._table, 'logDate': self._log_date, 'baseUrl': self._base_url,
+        return {'logDate': self._log_date, 'baseUrl': self._base_url,
                 'endpoint': self._endpoint,
                 'logError': self._log_error}
 

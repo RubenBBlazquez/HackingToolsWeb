@@ -123,8 +123,6 @@ class ApiSniffer:
             if request.status_code >= 400:
                 continue
 
-            print(pd.DataFrame(request.json()).head())
-
             dataframe = pd.DataFrame(request.json())
             dataframe = dataframe.fillna(0)
 

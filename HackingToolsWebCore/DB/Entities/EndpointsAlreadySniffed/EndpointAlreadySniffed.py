@@ -24,7 +24,7 @@ class EndpointAlreadySniffed(IEntity):
         return self
 
     def to_dict(self) -> dict:
-        return {'TABLE_NAME': self._table, 'endpoint': self._endpoint, 'information': self._information}
+        return {'endpoint': self._endpoint, 'information': self._information}
 
     def create_object(self, data):
 

@@ -85,8 +85,7 @@ class MySqlDB(IDBActions):
 
             entity_information = entity.to_dict()
 
-            table_name = entity_information['TABLE_NAME']
-            del entity_information['TABLE_NAME']
+            table_name = entity.get_table()
 
             insert_values = entity_information
 

@@ -7,6 +7,7 @@ import requests
 import json
 from HackingToolsWebCore.settings import Database, serverCache, Utils
 from HackingToolsWebCore.DB.Entities.WebScrapped.WebScrapped import WebScrapped
+from .WebScrapingDBQueries import WebScrapingDBQueries
 
 
 class WEB_SCRAPING_CACHE_KEYS(Enum):
@@ -18,39 +19,54 @@ class WebScraping:
 
     module_dir = os.path.dirname(__file__)  # get current directory
 
-    def __init__(self, req_post_body):
-        self.req_post_body = req_post_body
-        self.url = req_post_body['url']
-        self.is_compound_filter = bool(req_post_body['compoundFilter'])
-        self.html = BeautifulSoup(requests.get(req_post_body['url']).text, 'html.parser')
+    def __init__(self, web_information):
+        self.html = None
+        self.base_url = ""
+        self.endpoints = ""
+        self.web_information = web_information
         self.tags_data_file = self.module_dir + '/files/html_wordlists.json'
-        self.html_tag_wordlist = {'tags': self.req_post_body['tags']} if self.req_post_body['tags'] \
+        self.html_tag_wordlist = {'tags': self.web_information['tags']} if 'tags' in self.web_information \
             else json.load(open(self.tags_data_file, "r"))
-        self.executor_crawler = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
-        self.executor_get_web_data = ThreadPoolExecutor(max_workers=self.req_post_body['threads'])
-        self.threads = []
-        self.base_url = self.url[0: self.url.find('/', 9)]
-        self.endpoints = self.url[self.url.find('/', 9):]
 
         serverCache.clear_cache()
+
+    def set_html_request_information(self, web_url: str, must_set_new_soup=True):
+        """
+            Method to set html information from a beautiful soup object or web url
+            :param must_set_new_soup:
+            :param web_url:
+            :return:
+        """
+
+        if must_set_new_soup:
+            request_info = requests.get(web_url)
+
+            if request_info.status_code in ['400', '404', '500']:
+                return False
+
+            self.html = BeautifulSoup(request_info.text, 'html.parser')
+
+        self.base_url = web_url[: web_url.find('/', 9)]
+        self.endpoints = web_url[web_url.find('/', 9):]
 
         Database.insert(
             WebScrapped()
             .setBaseUrl(self.base_url)
             .setEndpoint(self.endpoints))
 
+        return True
+
     def scrap_web(self):
         self.get_web_data_router()
 
     def get_web_data_router(self):
-
         if self.html_tag_wordlist['tags']:
             self.get_web_data()
 
-        if not self.is_compound_filter:
+        if not bool(self.web_information['compoundFilter']):
             self.get_web_data_attrs_from_class_or_id("")
 
-        if self.req_post_body['word']:
+        if self.web_information['word']:
             self.get_words_web_data()
 
     def get_web_data(self):
@@ -66,7 +82,7 @@ class WebScraping:
             element = tag[0].strip()
             tag_type = tag[1].strip()
 
-            if self.is_compound_filter:
+            if bool(self.web_information['compoundFilter']):
                 self.get_web_data_attrs_from_class_or_id(element)
                 continue
 
@@ -89,7 +105,7 @@ class WebScraping:
             we get the tags that contains the specific word
         """
 
-        for word in self.req_post_body['word']:
+        for word in self.web_information['word']:
             self.get_tags_from_web_data(
                 elements_to_find=[word],
                 selectQuery='*:-soup-contains("{item}")',
@@ -105,8 +121,8 @@ class WebScraping:
         """
 
         # {'class':... , 'id':...}
-        for key in self.req_post_body['attributes'].keys():
-            self.get_tags_from_web_data(elements_to_find=self.req_post_body['attributes'][key],
+        for key in self.web_information['attributes'].keys():
+            self.get_tags_from_web_data(elements_to_find=self.web_information['attributes'][key],
                                         selectQuery=element + '[' + key + '*="{item}"]')
 
     def get_tags_from_web_data(self, elements_to_find=None, selectQuery="", large_identifier=True,
@@ -129,7 +145,7 @@ class WebScraping:
 
         """
 
-        if elements_to_find and self.html:
+        if elements_to_find:
 
             for element in elements_to_find:
                 tags_list = []
@@ -147,7 +163,14 @@ class WebScraping:
                     tags_list.append(str(quote))
 
                 tag_identifier = WebScraping.compound_tag_identifier(large_identifier, selectQuery, element)
-                WebScrapingQueries.add_new_data_to_db(tag_identifier, tags_list, self.base_url, self.endpoints)
+                tags_information = WebScraping.get_tags_information(tag_identifier, tags_list)
+                tags_not_repeated = tags_information['tagsNotRepeated']
+                tags_already_scrapped = tags_information['tagsAlreadyScrapped']
+
+                serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
+
+                WebScrapingDBQueries.add_new_data_to_db(tags_not_repeated, tag_identifier, self.base_url,
+                                                        self.endpoints)
 
     @staticmethod
     def compound_tag_identifier(large_identifier: bool, select_query: str, element: str) -> str:
@@ -186,7 +209,7 @@ class WebScraping:
         return tag_father + '[' + type_tag + '=' + value + ']'
 
     @staticmethod
-    def get_tags_information(identifier, tags_list) -> dict:
+    def get_tags_information(identifier: str, tags_list: list) -> dict:
         """
             Method to filter tags already scrapped
 

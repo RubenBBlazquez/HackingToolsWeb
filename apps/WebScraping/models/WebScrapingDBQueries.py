@@ -5,31 +5,24 @@ from HackingToolsWebCore.DB.Entities.TagScrapped.GroupedTagsScrapped import Grou
 from HackingToolsWebCore.DB.Entities.TagScrapped.TagScrapped import TagScrapped
 from HackingToolsWebCore.DB.Entities.WebScrapped.WebScrapped import WebScrapped
 from HackingToolsWebCore.Utils.Utils import Utils
-from HackingToolsWebCore.settings import Database, serverCache
-from apps.WebScraping.models.BaseWebScraping import WebScraping, WEB_SCRAPING_CACHE_KEYS
+from HackingToolsWebCore.settings import Database
 
 
-class WebScrapingQueries:
+class WebScrapingDBQueries:
 
     @staticmethod
-    def add_new_data_to_db(identifier: str, tags_list: list, base_url: str, endpoint: str) -> None:
+    def add_new_data_to_db(tags_to_save_in_db: dict, identifier: str, base_url: str, endpoint: str) -> None:
         """
-            Method to append the new data to tags scrapped
+            Method to append the new data tags scrapped
 
-            :param: endpoint:
-            :param base_url:
+            :param tags_to_save_in_db: tags not repeated
+            :param: endpoint: from scrapped urls
+            :param base_url: from scrapped urls
             :param identifier -> it's a key to set in the tags_scrapped dictionary
-            :param tags_list -> it's the data to set to tags_scrapped with the identifier passed by parameter
 
         """
 
-        tags_information = WebScraping.get_tags_information(identifier, tags_list)
-        tags_not_repeated = tags_information['tagsNotRepeated']
-        tags_already_scrapped = tags_information['tagsAlreadyScrapped']
-
-        serverCache.put(WEB_SCRAPING_CACHE_KEYS.TAGS_SCRAPPED.value, tags_already_scrapped)
-
-        for element in tags_not_repeated:
+        for element in tags_to_save_in_db:
             try:
                 entity = TagScrapped() \
                     .setTag(identifier).setTagInfo(element) \
@@ -39,7 +32,7 @@ class WebScrapingQueries:
                 Database.insert(entity)
 
             except Exception as ex:
-                WebScrapingQueries.insert_log(ex.args, base_url, endpoint)
+                WebScrapingDBQueries.insert_log(ex.args, base_url, endpoint)
 
     @staticmethod
     def insert_log(message, base_url: str, endpoint: str):
@@ -145,7 +138,7 @@ class WebScrapingQueries:
             response_information = json.load(open(tags_data_file, "r"))
 
         if action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION_GROUPED':
-            result = WebScrapingQueries.get_grouped_tag_count_from_web_scrapped(
+            result = WebScrapingDBQueries.get_grouped_tag_count_from_web_scrapped(
                 base_url,
                 endpoint,
                 limit,
@@ -153,7 +146,7 @@ class WebScrapingQueries:
                 search_value
             )
 
-            total_results = WebScrapingQueries.get_grouped_tag_count_from_web_scrapped(
+            total_results = WebScrapingDBQueries.get_grouped_tag_count_from_web_scrapped(
                 base_url,
                 endpoint,
                 '',
@@ -168,7 +161,7 @@ class WebScrapingQueries:
             }
 
         if action == 'TAGS_FROM_WEBS_SCRAPPED_INFORMATION':
-            records = WebScrapingQueries.get_tags_information_from_web_scrapped(
+            records = WebScrapingDBQueries.get_tags_information_from_web_scrapped(
                 base_url,
                 endpoint,
                 tag,
@@ -177,7 +170,7 @@ class WebScrapingQueries:
                 search_value
             )
 
-            total_records = WebScrapingQueries.get_tags_information_from_web_scrapped(
+            total_records = WebScrapingDBQueries.get_tags_information_from_web_scrapped(
                 base_url,
                 endpoint,
                 tag,
@@ -193,7 +186,6 @@ class WebScrapingQueries:
             }
 
         if action == 'WEBS_SCRAPPED_INFORMATION':
-            response_information = {'data': WebScrapingQueries.get_information_from_web_scrapped()}
+            response_information = {'data': WebScrapingDBQueries.get_information_from_web_scrapped()}
 
         return response_information
-
