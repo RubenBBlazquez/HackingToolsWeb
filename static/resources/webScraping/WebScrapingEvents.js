@@ -1,5 +1,6 @@
 let scrapButton = document.getElementById("scrapButton")
 let dropdown = document.getElementById("inputDataList");
+let isAddElementToTagListBlocked = false;
 
 /**
  *  method to load main data-table and get tags available
@@ -36,10 +37,22 @@ dropdown.addEventListener('keyup', async (event) => {
 
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
+            await new Promise((res) => {
+                setTimeout(res, 200)
+            })
+
+            if (isAddElementToTagListBlocked) {
+                break;
+            }
+
             addTagElementToTagsList(datalist[i].dataset.value);
+
             break;
         }
     }
+
+    isAddElementToTagListBlocked = false;
+
 });
 
 /**
@@ -52,12 +65,18 @@ dropdown.addEventListener('change', (event) => {
     for (let i = 0; i < datalist.length; i++) {
         if (target === datalist[i].value) {
             addTagElementToTagsList(datalist[i].dataset.value);
-            break;
+
+            return;
         }
     }
 });
 
+/**
+ *
+ * @returns {Promise<boolean>}
+ */
 const websAlreadyScrappedSelectorEvent = async () => {
+
     const endpoint_web_scrapped_selector = document.getElementById('endpoint_web_scrapped_selector')
     endpoint_web_scrapped_selector.innerHTML = ""
 
@@ -65,17 +84,23 @@ const websAlreadyScrappedSelectorEvent = async () => {
 
     if (!web) {
         endpoint_web_scrapped_selector.setAttribute('class', 'd-none')
+        await getTagsFromWebAlreadyScrapped('', '')
+
         return false
     }
 
     const mapped_endpoints_from_web = webs_scrapped.filter((element) => {
-        return element !== undefined && element['BASE_URL'] === web['BASE_URL']
+        return element !== undefined && element['baseUrl'] === web['baseUrl']
     }).map((web) => {
-        return {value: web['BASE_URL'] + '-' + web['ENDPOINT'], name: web['ENDPOINT'], text: web['ENDPOINT']}
+        return {value: web['baseUrl'] + '-' + web['endpoint'], name: web['endpoint'], text: web['endpoint']}
     })
 
-    endpoint_web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-0 mt-md-0 ')
+    endpoint_web_scrapped_selector.setAttribute('class', 'form-select bg-light text-dark font-weight-bold ml-lg-1 col-lg-12 col-xl-3 mb-sm-1 mt-sm-1 mb-md-2 mt-md-1 ')
     setOptionsIntoSelector(endpoint_web_scrapped_selector, mapped_endpoints_from_web)
+    endpoint_web_scrapped_selector.addEventListener(
+        'change',
+        async () => await getTagsFromWebAlreadyScrapped(web['BASE_URL'], event.target.name)
+    )
 
     await getTagsFromWebAlreadyScrapped(web['BASE_URL'], mapped_endpoints_from_web[0].name)
 
@@ -84,4 +109,4 @@ const websAlreadyScrappedSelectorEvent = async () => {
 /**
  * Method to stop scraping
  */
-document.getElementById('stopScraping').addEventListener('click',()=>stopRequests());
+document.getElementById('stopScraping').addEventListener('click', () => stopRequests());

@@ -1,5 +1,6 @@
 {% load static %}
 {{ WEB_URL|json_script:"WEB_URL" }}
+
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -13,18 +14,20 @@
     <link type="text/css" href="{% static 'vendor/toastr/toastr.css' %}" rel="stylesheet">
     <link type="text/css" href="{% static 'resources/style.css' %}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.0/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="{% static 'resources/Utils/ToastTypes.js' %}"></script>
     <script src="{% static 'resources/Utils/Utils.js' %}"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="{% static 'resources/script.js' %}"></script>
-
+    <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
     <title>Hacking Tools</title>
 
 </head>
+
 <body id="body-pd" class="bg-gray">
 <div class="d-flex bg-gray">
     <nav id="sidebar" class="bg-black-dark wrapper">
@@ -41,12 +44,12 @@
                     <a href="/" class="chelsea_font text-light"><span class="fa fa-home mr-3"></span> Home</a>
                 </li>
                 <li>
-                    <a href="/webScraping/" class="chelsea_font text-light"><span class="far fa-claw-marks mr-3"></span>Web
+                    <a href="/webScraping/" class="chelsea_font text-light"><span class="fa-solid fa-paw mr-3"></span>Web
                         Scraping</a>
                 </li>
                 <li>
                     <a href="/revershellGenerator/" class="chelsea_font text-light"><span
-                            class="fas fa-scroll-old mr-3"></span>ReverShells</a>
+                            class="fa-solid fa-person-through-window mr-3"></span>ReverShells</a>
                 </li>
                 <li>
                     <a href="/apiSniffer/" class="chelsea_font text-light"><span
@@ -63,7 +66,7 @@
 
 
     <!-- Page Content  -->
-    <div id="content" class="p-4 p-md-5 pt-5 d-flex align-items-center justify-content-center flex-column">
+    <div id="content" class="p-4 p-md-5 pt-5 d-flex flex-column container-fluid">
         {% block content %}
 
         {% endblock %}
@@ -71,6 +74,7 @@
 
 </div>
 </div>
+<script src="{% static 'vendor/jsonTree/jsonTree.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/bootstrap.js' %}"></script>
 <script src="{% static 'vendor/bootstrap/js/main.js' %}"></script>
 <script src="{% static 'vendor/toastr/toastr.min.js' %}"></script>

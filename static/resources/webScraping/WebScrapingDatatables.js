@@ -12,14 +12,14 @@ const initWebsAlreadyScrappedDatatables = async () => {
         },
         columns: [
             {data: "index"},
-            {data: "WEB_SCRAPPED"},
-            {data: "ENDPOINT_WEB_SCRAPPED"},
-            {data: "TAG"},
-            {data: "COUNT"},
+            {data: "webScrapped"},
+            {data: "endpointWebScrapped"},
+            {data: "tag"},
+            {data: "count"},
             {
                 data: "index",
                 render: function (data, type, full, meta) {
-                    return `<button data-text="` + data + `" type="button" name="tagInformationModalButton" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#dataTagModal">
+                    return `<button data-text="` + data + `" type="button" name="tagInformationModalButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#dataTagModal">
                               <i data-text="` + data + `" class="fas fa-expand-arrows-alt"></i>
                             </button>`;
                 }
@@ -59,8 +59,8 @@ const initDatatableTagsInformation = () => {
             },
             columns: [
                 {data: "index"},
-                {data: "TAG"},
-                {data: "TAG_INFO"},
+                {data: "tag"},
+                {data: "tagInfo"},
             ]
         });
     } else {
@@ -86,15 +86,15 @@ const setCustomElementsToDatatable = async () => {
     let web_position = 0
 
     for (const web of webs_scrapped) {
-        if (!mapped_webs_scrapped.map((x) => (x['name'])).includes(web['BASE_URL'])) {
-            mapped_webs_scrapped.push({value: web_position, name: web['BASE_URL'], text: web['BASE_URL']})
+        if (!mapped_webs_scrapped.map((x) => (x['name'])).includes(web['baseUrl'])) {
+            mapped_webs_scrapped.push({value: web_position, name: web['baseUrl'], text: web['baseUrl']})
         }
         web_position += 1
     }
 
     const web_scrapped_selector = document.createElement('select')
     web_scrapped_selector.id = 'web_scrapped_selector'
-    web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold mb-sm-1 mt-sm-1 col-sm-12 col-xl-3 mb-md-0 mt-md-0')
+    web_scrapped_selector.setAttribute('class', 'bg-light text-dark font-weight-bold mb-sm-1 mt-sm-1 col-sm-12 col-xl-3 mt-md-0')
     setOptionsIntoSelector(web_scrapped_selector, mapped_webs_scrapped)
 
     const endpoint_web_scrapped_selector = document.createElement('select')

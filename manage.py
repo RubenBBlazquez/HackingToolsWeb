@@ -3,6 +3,8 @@
 import os
 import sys
 
+from HackingToolsWebCore import settings
+
 
 def main():
     """Run administrative tasks."""

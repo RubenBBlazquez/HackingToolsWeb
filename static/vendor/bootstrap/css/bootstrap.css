@@ -1986,7 +1986,7 @@ progress {
 
 .table-hover > tbody > tr:hover {
   --bs-table-accent-bg: var(--bs-table-hover-bg);
-  color: var(--bs-table-hover-color);
+  color: red;
 }
 
 .table-primary {

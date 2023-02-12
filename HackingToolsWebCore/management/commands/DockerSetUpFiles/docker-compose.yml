@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+    rabbitmq3:
+        container_name: "rabbitmq"
+        image: custom-rabbitmq:3.8-management-alpine
+        environment:
+          RABBITMQ_DEFAULT_USER: ruben
+          RABBITMQ_DEFAULT_PASS: 103856
+        ports:
+            # AMQP protocol port
+            - '5672:5672'
+            # HTTP management UI
+            - '15672:15672'
+
+    mongodb:
+      container_name: "mongodb5"
+      image: mongo:5.0
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: ruben
+        MONGO_INITDB_ROOT_PASSWORD: 103856
+      volumes:
+        - C:\Users\rbblazquez\mongo_docker_volume\data:/data/db
+        - C:\Users\rbblazquez\mongo_docker_volume\mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        - C:\Users\rbblazquez\mongo_docker_volume\configdb:/data/configdb
+      ports:
+        - "27017:27017"

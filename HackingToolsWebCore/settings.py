@@ -21,16 +21,14 @@ from HackingToolsWebCore.DB.DatabaseFactory.Enum.DatabaseTypesEnum import DATABA
 from .Cache.ServerCache import ServerCache
 from HackingToolsWebCore.Utils.Utils import Utils
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 operative_system = platform.system()
 
-if operative_system.lower() == 'windows':
-    load_dotenv(str(BASE_DIR) + '\config\.env')
-else:
-    load_dotenv(str(BASE_DIR) + '/config/.env')
+directory_separator = '\\' if operative_system.lower() == 'windows' else '/'
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+load_dotenv(f'{str(BASE_DIR)}{directory_separator}config{directory_separator}.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -48,6 +46,7 @@ BASE_URL = 'http://127.0.0.1:8000'
 # Application definition
 
 INSTALLED_APPS = [
+    'HackingToolsWebCore',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,6 +56,7 @@ INSTALLED_APPS = [
     'apps.HomePage',
     'apps.WebScraping',
     'apps.apiSniffer',
+    'fontawesomefree',
 ]
 
 MIDDLEWARE = [
@@ -143,5 +143,9 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CELERY_BROKER_URL = os.getenv('RABBITMQ_URL')
+CELERY_ALWAYS_EAGER = True
+
 serverCache = ServerCache()
-Database = DatabaseFactory().get_database(DATABASE_TYPES.MYSQL.value)
+Database = DatabaseFactory().get_database(DATABASE_TYPES.MONGO_DB.value)
+
