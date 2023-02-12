@@ -8,3 +8,4 @@ HackingToolsWeb.iml
 .env
 index.pb
 .docker
+apps/WebScraping/models/files/tmp_scrapper.pkl
